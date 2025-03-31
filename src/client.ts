@@ -183,6 +183,138 @@ export function createClient(token: string) {
       }
     },
     
+    // Object Storage methods
+    objectStorage: {
+      // Clusters
+      getClusters: async () => {
+        const response = await axiosInstance.get('/object-storage/clusters');
+        return response.data;
+      },
+      
+      // Buckets
+      getBuckets: async (params?: { page?: number; page_size?: number }) => {
+        const response = await axiosInstance.get('/object-storage/buckets', { params });
+        return response.data;
+      },
+      getBucket: async (clusterId: string, bucketName: string) => {
+        const response = await axiosInstance.get(`/object-storage/buckets/${clusterId}/${bucketName}`);
+        return response.data;
+      },
+      createBucket: async (data: {
+        cluster: string;
+        label: string;
+        acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+        cors_enabled?: boolean;
+        versioning?: boolean;
+      }) => {
+        const response = await axiosInstance.post('/object-storage/buckets', data);
+        return response.data;
+      },
+      deleteBucket: async (clusterId: string, bucketName: string) => {
+        const response = await axiosInstance.delete(`/object-storage/buckets/${clusterId}/${bucketName}`);
+        return response.data;
+      },
+      
+      // Bucket Access
+      getBucketAccess: async (clusterId: string, bucketName: string) => {
+        const response = await axiosInstance.get(`/object-storage/buckets/${clusterId}/${bucketName}/access`);
+        return response.data;
+      },
+      updateBucketAccess: async (
+        clusterId: string,
+        bucketName: string,
+        data: {
+          acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+          cors_enabled?: boolean;
+        }
+      ) => {
+        const response = await axiosInstance.post(
+          `/object-storage/buckets/${clusterId}/${bucketName}/access`,
+          data
+        );
+        return response.data;
+      },
+      
+      // Objects
+      getObjects: async (clusterId: string, bucketName: string, params?: {
+        page?: number;
+        page_size?: number;
+        prefix?: string;
+        delimiter?: string;
+      }) => {
+        const response = await axiosInstance.get(
+          `/object-storage/buckets/${clusterId}/${bucketName}/object-list`,
+          { params }
+        );
+        return response.data;
+      },
+      
+      // SSL/TLS Cert
+      getCert: async (clusterId: string, bucketName: string) => {
+        const response = await axiosInstance.get(`/object-storage/buckets/${clusterId}/${bucketName}/ssl`);
+        return response.data;
+      },
+      uploadCert: async (
+        clusterId: string,
+        bucketName: string,
+        data: {
+          certificate: string;
+          private_key: string;
+        }
+      ) => {
+        const response = await axiosInstance.post(
+          `/object-storage/buckets/${clusterId}/${bucketName}/ssl`,
+          data
+        );
+        return response.data;
+      },
+      deleteCert: async (clusterId: string, bucketName: string) => {
+        const response = await axiosInstance.delete(`/object-storage/buckets/${clusterId}/${bucketName}/ssl`);
+        return response.data;
+      },
+      
+      // Keys
+      getKeys: async (params?: { page?: number; page_size?: number }) => {
+        const response = await axiosInstance.get('/object-storage/keys', { params });
+        return response.data;
+      },
+      getKey: async (keyId: number) => {
+        const response = await axiosInstance.get(`/object-storage/keys/${keyId}`);
+        return response.data;
+      },
+      createKey: async (data: { label: string }) => {
+        const response = await axiosInstance.post('/object-storage/keys', data);
+        return response.data;
+      },
+      updateKey: async (keyId: number, data: { label: string }) => {
+        const response = await axiosInstance.put(`/object-storage/keys/${keyId}`, data);
+        return response.data;
+      },
+      deleteKey: async (keyId: number) => {
+        const response = await axiosInstance.delete(`/object-storage/keys/${keyId}`);
+        return response.data;
+      },
+      
+      // Bucket Default Access
+      getDefaultBucketAccess: async () => {
+        const response = await axiosInstance.get('/object-storage/bucket-default-access');
+        return response.data;
+      },
+      updateDefaultBucketAccess: async (data: {
+        acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+        cors_enabled?: boolean;
+      }) => {
+        const response = await axiosInstance.put('/object-storage/bucket-default-access', data);
+        return response.data;
+      },
+      
+      // Cancel Object Storage
+      cancelObjectStorage: async () => {
+        const response = await axiosInstance.post('/object-storage/cancel');
+        return response.data;
+      }
+    },
+    
     // Region and type methods
     regions: {
       getRegions: async () => {

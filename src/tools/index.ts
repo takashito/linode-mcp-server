@@ -1,4 +1,7 @@
-import { z } from "zod";
+import { z } from 'zod';
+
+// Re-export all schemas from sub-modules
+export * from './objectStorage';
 
 // Common paging parameters
 const pagingParamsSchema = z.object({

@@ -503,6 +503,276 @@ export function startServer(options: ServerOptions) {
     }
   );
 
+  // Register Object Storage tools
+  server.tool(
+    'list_object_storage_clusters',
+    'Get a list of all Object Storage clusters',
+    schemas.listClustersSchema.shape,
+    async (_, extra) => {
+      const result = await operations.objectStorage.listClusters();
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'list_object_storage_buckets',
+    'Get a list of all Object Storage buckets',
+    schemas.listBucketsSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.listBuckets(params);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'get_object_storage_bucket',
+    'Get details for a specific Object Storage bucket',
+    schemas.getBucketSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.getBucket(params.cluster_id, params.bucket_name);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'create_object_storage_bucket',
+    'Create a new Object Storage bucket',
+    schemas.createBucketSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.createBucket(params);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'delete_object_storage_bucket',
+    'Delete an Object Storage bucket',
+    schemas.deleteBucketSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.deleteBucket(params.cluster_id, params.bucket_name);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'get_object_storage_bucket_access',
+    'Get access configuration for an Object Storage bucket',
+    schemas.getBucketAccessSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.getBucketAccess(params.cluster_id, params.bucket_name);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'update_object_storage_bucket_access',
+    'Update access configuration for an Object Storage bucket',
+    schemas.updateBucketAccessSchema.shape,
+    async (params, extra) => {
+      const { cluster_id, bucket_name, ...accessParams } = params;
+      const result = await operations.objectStorage.updateBucketAccess(cluster_id, bucket_name, accessParams);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'list_object_storage_objects',
+    'List objects in an Object Storage bucket',
+    schemas.listObjectsSchema.shape,
+    async (params, extra) => {
+      const { cluster_id, bucket_name, ...listParams } = params;
+      const result = await operations.objectStorage.listObjects(cluster_id, bucket_name, listParams);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'get_object_storage_bucket_certificate',
+    'Get SSL/TLS certificate for an Object Storage bucket',
+    schemas.getBucketCertificateSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.getBucketCertificate(params.cluster_id, params.bucket_name);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'upload_object_storage_bucket_certificate',
+    'Upload SSL/TLS certificate for an Object Storage bucket',
+    schemas.uploadBucketCertificateSchema.shape,
+    async (params, extra) => {
+      const { cluster_id, bucket_name, ...certParams } = params;
+      const result = await operations.objectStorage.uploadBucketCertificate(cluster_id, bucket_name, certParams);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'delete_object_storage_bucket_certificate',
+    'Delete SSL/TLS certificate for an Object Storage bucket',
+    schemas.deleteBucketCertificateSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.deleteBucketCertificate(params.cluster_id, params.bucket_name);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'list_object_storage_keys',
+    'Get a list of all Object Storage keys',
+    schemas.listKeysSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.listKeys(params);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'get_object_storage_key',
+    'Get details for a specific Object Storage key',
+    schemas.getKeySchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.getKey(params.key_id);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'create_object_storage_key',
+    'Create a new Object Storage key',
+    schemas.createKeySchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.createKey(params);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'update_object_storage_key',
+    'Update an Object Storage key',
+    schemas.updateKeySchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.updateKey(params.key_id, { label: params.label });
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'delete_object_storage_key',
+    'Delete an Object Storage key',
+    schemas.deleteKeySchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.deleteKey(params.key_id);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'get_object_storage_default_bucket_access',
+    'Get default bucket access configuration',
+    schemas.getDefaultBucketAccessSchema.shape,
+    async (_, extra) => {
+      const result = await operations.objectStorage.getDefaultBucketAccess();
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'update_object_storage_default_bucket_access',
+    'Update default bucket access configuration',
+    schemas.updateDefaultBucketAccessSchema.shape,
+    async (params, extra) => {
+      const result = await operations.objectStorage.updateDefaultBucketAccess(params);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  server.tool(
+    'cancel_object_storage',
+    'Cancel Object Storage service',
+    schemas.cancelObjectStorageSchema.shape,
+    async (_, extra) => {
+      const result = await operations.objectStorage.cancelObjectStorage();
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
   // Register meta tools
   server.tool(
     'list_regions',

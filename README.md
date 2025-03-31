@@ -21,6 +21,22 @@ You need a Linode API token to use this server. You can create one in the Linode
 linode-mcp-server --token YOUR_LINODE_API_TOKEN
 ```
 
+You can also set the token using an environment variable:
+
+```bash
+# Set the token as an environment variable
+export LINODE_API_TOKEN=your_token_here
+
+# Then run the server
+linode-mcp-server
+```
+
+Or by adding it to a .env file in the project directory:
+
+```
+LINODE_API_TOKEN=your_token_here
+```
+
 ### Using with Claude Desktop
 
 Add this MCP server to Claude Desktop by configuring it in your Claude settings:
@@ -31,6 +47,22 @@ Add this MCP server to Claude Desktop by configuring it in your Claude settings:
     "linode": {
       "command": "npx",
       "args": ["linode-mcp-server", "--token", "YOUR_LINODE_API_TOKEN"]
+    }
+  }
+}
+```
+
+Or using environment variables:
+
+```json
+{
+  "mcpServers": {
+    "linode": {
+      "command": "npx",
+      "args": ["linode-mcp-server"],
+      "env": {
+        "LINODE_API_TOKEN": "YOUR_LINODE_API_TOKEN"
+      }
     }
   }
 }
@@ -80,6 +112,27 @@ This MCP server provides the following tools for interacting with Linode:
 - `list_nodebalancer_nodes` - Get a list of nodes for a NodeBalancer config
 - `create_nodebalancer_node` - Create a new node for a NodeBalancer config
 - `delete_nodebalancer_node` - Delete a node from a NodeBalancer config
+
+### Object Storage
+- `list_object_storage_clusters` - Get a list of all Object Storage clusters
+- `list_object_storage_buckets` - Get a list of all Object Storage buckets
+- `get_object_storage_bucket` - Get details for a specific Object Storage bucket
+- `create_object_storage_bucket` - Create a new Object Storage bucket
+- `delete_object_storage_bucket` - Delete an Object Storage bucket
+- `get_object_storage_bucket_access` - Get access configuration for an Object Storage bucket
+- `update_object_storage_bucket_access` - Update access configuration for an Object Storage bucket
+- `list_object_storage_objects` - List objects in an Object Storage bucket
+- `get_object_storage_bucket_certificate` - Get SSL/TLS certificate for an Object Storage bucket
+- `upload_object_storage_bucket_certificate` - Upload SSL/TLS certificate for an Object Storage bucket
+- `delete_object_storage_bucket_certificate` - Delete SSL/TLS certificate for an Object Storage bucket
+- `list_object_storage_keys` - Get a list of all Object Storage keys
+- `get_object_storage_key` - Get details for a specific Object Storage key
+- `create_object_storage_key` - Create a new Object Storage key
+- `update_object_storage_key` - Update an Object Storage key
+- `delete_object_storage_key` - Delete an Object Storage key
+- `get_object_storage_default_bucket_access` - Get default bucket access configuration
+- `update_object_storage_default_bucket_access` - Update default bucket access configuration
+- `cancel_object_storage` - Cancel Object Storage service
 
 ### Meta
 - `list_regions` - Get a list of all available regions

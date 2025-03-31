@@ -3,6 +3,7 @@ import { DomainOperations } from './domains';
 import { InstanceOperations } from './instances';
 import { MetaOperations } from './meta';
 import { NodeBalancerOperations } from './nodebalancers';
+import { ObjectStorageOperations } from './objectStorage';
 import { VolumeOperations } from './volumes';
 
 /**
@@ -16,6 +17,7 @@ export class OperationsManager {
   domains: DomainOperations;
   nodeBalancers: NodeBalancerOperations;
   meta: MetaOperations;
+  objectStorage: ObjectStorageOperations;
 
   constructor(client: LinodeClient) {
     this.client = client;
@@ -25,6 +27,7 @@ export class OperationsManager {
     this.domains = new DomainOperations(client);
     this.nodeBalancers = new NodeBalancerOperations(client);
     this.meta = new MetaOperations(client);
+    this.objectStorage = new ObjectStorageOperations(client);
   }
 }
 
@@ -32,4 +35,5 @@ export * from './domains';
 export * from './instances';
 export * from './meta';
 export * from './nodebalancers';
+export * from './objectStorage';
 export * from './volumes';
