@@ -6,10 +6,10 @@ An MCP (Model Context Protocol) server that interfaces with the Linode API and w
 
 ```bash
 # Install globally
-npm install -g linode-mcp-server
+npm install -g @takashito/linode-mcp-server
 
 # Or use with npx directly
-npx linode-mcp-server --token YOUR_LINODE_API_TOKEN
+npx @takashito/linode-mcp-server --token YOUR_LINODE_API_TOKEN
 ```
 
 ## Usage
@@ -46,7 +46,7 @@ Add this MCP server to Claude Desktop by configuring it in your Claude settings:
   "mcpServers": {
     "linode": {
       "command": "npx",
-      "args": ["linode-mcp-server", "--token", "YOUR_LINODE_API_TOKEN"]
+      "args": ["@takashito/linode-mcp-server", "--token", "YOUR_LINODE_API_TOKEN"]
     }
   }
 }
@@ -59,7 +59,7 @@ Or using environment variables:
   "mcpServers": {
     "linode": {
       "command": "npx",
-      "args": ["linode-mcp-server"],
+      "args": ["@takashito/linode-mcp-server"],
       "env": {
         "LINODE_API_TOKEN": "YOUR_LINODE_API_TOKEN"
       }
