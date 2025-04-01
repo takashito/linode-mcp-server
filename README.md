@@ -46,7 +46,12 @@ Add this MCP server to Claude Desktop by configuring it in your Claude settings:
   "mcpServers": {
     "linode": {
       "command": "npx",
-      "args": ["@takashito/linode-mcp-server", "--token", "YOUR_LINODE_API_TOKEN"]
+      "args": [
+        "-y",
+        "@takashito/linode-mcp-server",
+        "--token", 
+        "YOUR_LINODE_API_TOKEN"
+      ]
     }
   }
 }
@@ -59,7 +64,10 @@ Or using environment variables:
   "mcpServers": {
     "linode": {
       "command": "npx",
-      "args": ["@takashito/linode-mcp-server"],
+      "args": [
+        "-y",
+        "@takashito/linode-mcp-server"
+      ],
       "env": {
         "LINODE_API_TOKEN": "YOUR_LINODE_API_TOKEN"
       }
