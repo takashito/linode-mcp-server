@@ -1,13 +1,22 @@
 # Linode MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
+
 An MCP (Model Context Protocol) server that interfaces with the Linode API and works with Claude Desktop using stdio. This server acts as a bridge between Claude Desktop and Linode's services.
 
 ## Installation
 
-```bash
-# Install globally
-npm install -g @takashito/linode-mcp-server
+### Installing via Smithery
 
+To install linode-mcp-server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@takashito/linode-mcp-server):
+
+```bash
+npx -y @smithery/cli install @takashito/linode-mcp-server --client claude
+```
+
+### Use with npx
+
+```bash
 # Or use with npx directly
 npx @takashito/linode-mcp-server --token YOUR_LINODE_API_TOKEN
 ```
