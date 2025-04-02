@@ -1,8 +1,8 @@
 # Linode MCP Server
 
-[![main version](https://img.shields.io/github/package-json/v/takashito/linode-mcp-server?color=blue)](https://img.shields.io/github/package-json/v/takashito/linode-mcp-server?color=blue)
-[![npm version](https://img.shields.io/npm/v/%40takashito%2Flinode-mcp-server)](https://img.shields.io/npm/v/%40takashito%2Flinode-mcp-server)
-[![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)
+[![main version](https://img.shields.io/github/package-json/v/takashito/linode-mcp-server?color=blue)](https://github.com/takashito/linode-mcp-server)
+[![npm version](https://img.shields.io/npm/v/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
+[![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
 [![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
 
 An MCP (Model Context Protocol) server that interfaces with the Linode API and works with Claude Desktop using stdio. This server acts as a bridge between Claude Desktop and Linode's services.
