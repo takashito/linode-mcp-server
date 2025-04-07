@@ -88,14 +88,42 @@ This MCP server provides the following tools for interacting with Linode API ser
 ### Instances
 Manage Linode compute instances, including creation, deletion, and power operations.
 
+#### Instance Operations
 - `list_instances` - Get a list of all Linode instances
 - `get_instance` - Get details for a specific Linode instance
 - `create_instance` - Create a new Linode instance
+- `update_instance` - Update a Linode instance
+- `delete_instance` - Delete a Linode instance
 - `reboot_instance` - Reboot a Linode instance
 - `boot_instance` - Power on a Linode instance
 - `shutdown_instance` - Power off a Linode instance
-- `delete_instance` - Delete a Linode instance
 - `resize_instance` - Resize a Linode instance
+- `clone_instance` - Clone a Linode instance to a new Linode
+- `rebuild_instance` - Rebuild a Linode instance with a new image
+- `rescue_instance` - Boot a Linode instance into rescue mode
+
+#### Instance Configuration
+- `list_instance_configs` - Get all configuration profiles for a Linode instance
+- `get_instance_config` - Get a specific configuration profile for a Linode instance
+- `create_instance_config` - Create a new configuration profile for a Linode instance
+- `update_instance_config` - Update a configuration profile for a Linode instance
+- `delete_instance_config` - Delete a configuration profile for a Linode instance
+
+#### Instance Disks
+- `list_instance_disks` - Get all disks for a Linode instance
+- `get_instance_disk` - Get a specific disk for a Linode instance
+- `create_instance_disk` - Create a new disk for a Linode instance
+- `update_instance_disk` - Update a disk for a Linode instance
+- `delete_instance_disk` - Delete a disk for a Linode instance
+- `resize_instance_disk` - Resize a disk for a Linode instance
+
+#### Instance Stats
+- `get_instance_stats` - Get current statistics for a Linode instance
+- `get_instance_stats_by_date` - Get statistics for a Linode instance for a specific month
+
+#### Kernels and Instance Types
+- `list_kernels` - Get a list of all available kernels
+- `get_kernel` - Get details for a specific kernel
 - `list_instance_types` - Get a list of all available Linode types
 - `get_instance_type` - Get details for a specific Linode type
 
@@ -109,6 +137,41 @@ Manage block storage volumes that can be attached to Linode instances.
 - `attach_volume` - Attach a volume to a Linode instance
 - `detach_volume` - Detach a volume from a Linode instance
 - `resize_volume` - Resize a volume
+
+### Networking
+Manage IP addresses, firewalls, and network infrastructure.
+
+#### IP Address Management
+- `get_ip_addresses` - Get all IP addresses
+- `get_ip_address` - Get details for a specific IP address
+- `update_ip_address` - Update reverse DNS for an IP address
+- `allocate_ip` - Allocate a new IP address
+- `share_ips` - Share IP addresses between Linodes
+
+#### IPv6 Management
+- `get_ipv6_ranges` - Get all IPv6 ranges
+- `get_ipv6_range` - Get a specific IPv6 range
+- `get_ipv6_pools` - Get all IPv6 pools
+
+#### Firewall Management
+- `get_firewalls` - Get all firewalls
+- `get_firewall` - Get details for a specific firewall
+- `create_firewall` - Create a new firewall
+- `update_firewall` - Update a firewall
+- `delete_firewall` - Delete a firewall
+
+#### Firewall Rules
+- `get_firewall_rules` - Get all rules for a specific firewall
+- `update_firewall_rules` - Update rules for a specific firewall
+
+#### Firewall Devices
+- `get_firewall_devices` - Get all devices for a specific firewall
+- `create_firewall_device` - Create a new device for a specific firewall
+- `delete_firewall_device` - Delete a device from a specific firewall
+
+#### VLAN Management
+- `get_vlans` - Get all VLANs
+- `get_vlan` - Get a specific VLAN
 
 ### Domains
 Manage DNS domains and records hosted by Linode's DNS services.
