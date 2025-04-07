@@ -781,34 +781,107 @@ async function testDomainsTools() {
 
 async function testDatabasesTools() {
   // Test listing database engines
+  let engines = [];
   await runTest('List Database Engines', async () => {
     const result = await client.databases.getEngines();
+    engines = result.data;
     console.log(`- Found ${result.data.length} database engines`);
+    if (result.data.length > 0) {
+      console.log(`  Engine examples: ${result.data.slice(0, 3).map(e => `${e.engine} v${e.version}`).join(', ')}${result.data.length > 3 ? '...' : ''}`);
+    }
   });
+
+  // Test getting a specific engine if available
+  if (engines.length > 0) {
+    const engineToTest = engines[0];
+    await runTest(`Get Database Engine (${engineToTest.id})`, async () => {
+      const result = await client.databases.getEngine(engineToTest.id);
+      console.log(`- Retrieved engine: ${result.engine} v${result.version} (ID: ${result.id})`);
+    });
+  }
 
   // Test listing database types
+  let types = [];
   await runTest('List Database Types', async () => {
     const result = await client.databases.getTypes();
+    types = result.data;
     console.log(`- Found ${result.data.length} database types`);
+    if (result.data.length > 0) {
+      console.log(`  Type examples: ${result.data.slice(0, 3).map(t => t.label).join(', ')}${result.data.length > 3 ? '...' : ''}`);
+    }
   });
 
+  // Test getting a specific type if available
+  if (types.length > 0) {
+    const typeToTest = types[0];
+    await runTest(`Get Database Type (${typeToTest.id})`, async () => {
+      const result = await client.databases.getType(typeToTest.id);
+      console.log(`- Retrieved type: ${result.label} (${result.memory_mb || 'N/A'}MB RAM, ${result.vcpus} vCPUs)`);
+      if (result.price) {
+        console.log(`  Price: $${result.price.monthly.toFixed(2)}/month, $${result.price.hourly.toFixed(6)}/hour`);
+      } else {
+        console.log(`  Price information not available`);
+      }
+    });
+  }
+
   // Test listing database instances
+  let instances = [];
   await runTest('List Database Instances', async () => {
     const result = await client.databases.getDatabaseInstances();
+    instances = result.data;
     console.log(`- Found ${result.data.length} database instances`);
+    if (result.data.length > 0) {
+      console.log(`  Instance examples: ${result.data.slice(0, 3).map(i => `${i.label} (${i.engine})`).join(', ')}${result.data.length > 3 ? '...' : ''}`);
+    }
   });
 
   // Test listing MySQL instances
   await runTest('List MySQL Instances', async () => {
     const result = await client.databases.getMySQLInstances();
     console.log(`- Found ${result.data.length} MySQL instances`);
+    if (result.data.length > 0) {
+      console.log(`  MySQL instances: ${result.data.slice(0, 3).map(i => `${i.label} (v${i.version})`).join(', ')}${result.data.length > 3 ? '...' : ''}`);
+    }
   });
 
   // Test listing PostgreSQL instances
+  let pgInstances = [];
   await runTest('List PostgreSQL Instances', async () => {
     const result = await client.databases.getPostgreSQLInstances();
+    pgInstances = result.data;
     console.log(`- Found ${result.data.length} PostgreSQL instances`);
+    if (result.data.length > 0) {
+      console.log(`  PostgreSQL instances: ${result.data.slice(0, 3).map(i => `${i.label} (v${i.version})`).join(', ')}${result.data.length > 3 ? '...' : ''}`);
+    }
   });
+
+  // Test getting a specific PostgreSQL instance if available
+  if (pgInstances.length > 0) {
+    const pgInstanceToTest = pgInstances[0];
+    await runTest(`Get PostgreSQL Instance (${pgInstanceToTest.id})`, async () => {
+      const result = await client.databases.getPostgreSQLInstance(pgInstanceToTest.id);
+      console.log(`- Retrieved PostgreSQL instance: ${result.label}`);
+      console.log(`  Engine: ${result.engine} v${result.version}, Status: ${result.status}`);
+      console.log(`  Region: ${result.region}, Type: ${result.type}`);
+      if (result.hosts && result.hosts.primary) {
+        console.log(`  Primary Host: ${result.hosts.primary}`);
+      }
+    });
+
+    // Test getting SSL certificate (without actually displaying the certificate)
+    await runTest(`Get PostgreSQL SSL Certificate (${pgInstanceToTest.id})`, async () => {
+      try {
+        const result = await client.databases.getPostgreSQLSSLCertificate(pgInstanceToTest.id);
+        console.log(`- Retrieved SSL certificate for PostgreSQL instance ${pgInstanceToTest.id}`);
+        console.log(`  Certificate available: ${result.ca_certificate ? 'Yes' : 'No'}`);
+      } catch (error) {
+        // This might fail if SSL is not enabled
+        console.log(`- SSL certificate not available for this instance: ${error.message}`);
+        return; // Skip this test if SSL is not available
+      }
+    });
+  }
 
   // Note: Creating, updating, and deleting database instances are expensive operations
   // and typically require billing setup, so we'll avoid those in basic tests
