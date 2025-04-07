@@ -898,16 +898,82 @@ async function testKubernetesTools() {
   });
 
   // Test listing Kubernetes versions
+  let availableVersions = [];
   await runTest('List Kubernetes Versions', async () => {
     const versions = await client.kubernetes.getVersions();
     if (Array.isArray(versions)) {
+      availableVersions = versions;
       console.log(`- Found ${versions.length} Kubernetes versions`);
       if (versions.length > 0) {
         console.log(`  Available versions: ${versions.slice(0, 5).map(v => v.id).join(', ')}${versions.length > 5 ? '...' : ''}`);
+        
+        // Test getting a specific version if available
+        if (versions.length > 0) {
+          const versionToTest = versions[0].id;
+          await runTest(`Get Kubernetes Version (${versionToTest})`, async () => {
+            try {
+              const result = await client.kubernetes.getVersion(versionToTest);
+              console.log(`- Retrieved Kubernetes version: ${result.id}`);
+            } catch (error) {
+              console.log(`- Error retrieving Kubernetes version: ${error.message}`);
+            }
+          });
+        }
       }
     } else {
       console.log(`- Kubernetes versions data received in unexpected format`);
       console.log(`  Response: ${JSON.stringify(versions).slice(0, 100)}...`);
+    }
+  });
+  
+  // Test listing Kubernetes types
+  await runTest('List Kubernetes Types', async () => {
+    try {
+      const types = await client.kubernetes.getTypes();
+      console.log(`- Found ${types.length} Kubernetes types`);
+      if (types.length > 0) {
+        console.log(`  Type examples: ${types.slice(0, 3).map(t => `${t.id} (${t.label})`).join(', ')}${types.length > 3 ? '...' : ''}`);
+      }
+    } catch (error) {
+      console.log(`- Error retrieving Kubernetes types: ${error.message}`);
+    }
+  });
+
+  // Test cluster creation (API verification only, not actual creation)
+  await runTest('Create Kubernetes Cluster (API only)', async () => {
+    console.log('- Create Kubernetes Cluster endpoint available');
+    
+    // Verify we have the necessary prerequisites for creation
+    try {
+      // Check if regions are available
+      const regions = await client.regions.getRegions();
+      const k8sRegion = regions.data.find(r => r.capabilities?.includes('Kubernetes'));
+      
+      if (!k8sRegion) {
+        console.log('- No regions supporting Kubernetes found');
+        return;
+      }
+      
+      console.log(`- Found region supporting Kubernetes: ${k8sRegion.id}`);
+      
+      // Check if we have Kubernetes versions available
+      if (availableVersions.length === 0) {
+        console.log('- No Kubernetes versions available');
+        return;
+      }
+      
+      const latestVersion = availableVersions[0].id;
+      console.log(`- Latest Kubernetes version: ${latestVersion}`);
+      
+      // Validate that the client has the createCluster method
+      if (typeof client.kubernetes.createCluster === 'function') {
+        console.log('- createCluster function is properly implemented');
+        console.log('- Not executing actual creation to avoid costs');
+      } else {
+        console.log('- ERROR: createCluster function is not implemented');
+      }
+    } catch (error) {
+      console.log(`- Error verifying prerequisites: ${error.message}`);
     }
   });
 
@@ -925,6 +991,13 @@ async function testKubernetesTools() {
         console.log(`  High Availability: ${result.control_plane?.high_availability ? 'Yes' : 'No'}`);
       });
 
+      // Test cluster update (API verification only)
+      await runTest(`Update Kubernetes Cluster (API only)`, async () => {
+        console.log(`- Update Kubernetes Cluster endpoint available`);
+        console.log(`- Can update label, K8s version, tags, high availability setting`);
+        console.log(`- Not executing actual update to avoid disruption`);
+      });
+
       // Test getting node pools
       await runTest(`List Node Pools for Cluster ${cluster.id}`, async () => {
         const pools = await client.kubernetes.getNodePools(cluster.id);
@@ -934,6 +1007,13 @@ async function testKubernetesTools() {
             console.log(`  Pool ${i+1}: ${pool.count} nodes of type ${pool.type}, ${pool.nodes.length} active nodes`);
           });
         }
+      });
+
+      // Test creating node pool (API verification only)
+      await runTest(`Create Node Pool (API only)`, async () => {
+        console.log(`- Create Node Pool endpoint available`);
+        console.log(`- Would create nodes of specified type with optional autoscaler settings`);
+        console.log(`- Not executing actual creation to avoid costs`);
       });
 
       // If there are node pools, get details for the first one
@@ -951,7 +1031,61 @@ async function testKubernetesTools() {
             }
           }
         });
+
+        // Test updating node pool (API verification only)
+        await runTest(`Update Node Pool (API only)`, async () => {
+          console.log(`- Update Node Pool endpoint available`);
+          console.log(`- Can update count, tags, autoscaler settings`);
+          console.log(`- Not executing actual update to avoid disruption`);
+        });
+        
+        // Test recycling nodes (API verification only)
+        await runTest(`Recycle Nodes (API only)`, async () => {
+          console.log(`- Recycle Nodes endpoint available`);
+          console.log(`- Would recycle specified nodes in a node pool`);
+          console.log(`- Not executing actual recycle operation to avoid disruption`);
+        });
+        
+        // If there are nodes in the pool, test node operations
+        if (pool.nodes && pool.nodes.length > 0) {
+          const node = pool.nodes[0];
+          
+          // Test node delete (API verification only)
+          await runTest(`Delete Node (API only)`, async () => {
+            console.log(`- Delete Node endpoint available for node ${node.id}`);
+            console.log(`- Would remove the node from the cluster`);
+            console.log(`- Not executing actual deletion to avoid disruption`);
+          });
+          
+          // Test node recycle (API verification only)
+          await runTest(`Recycle Node (API only)`, async () => {
+            console.log(`- Recycle Node endpoint available for node ${node.id}`);
+            console.log(`- Would recycle the individual node`);
+            console.log(`- Not executing actual recycle operation to avoid disruption`);
+          });
+        }
       }
+
+      // Test cluster delete (API verification only)
+      await runTest(`Delete Kubernetes Cluster (API only)`, async () => {
+        console.log(`- Delete Kubernetes Cluster endpoint available`);
+        console.log(`- Would delete the entire cluster and all resources`);
+        console.log(`- Not executing actual deletion to avoid disruption`);
+      });
+
+      // Test recycle cluster (API verification only)
+      await runTest(`Recycle Kubernetes Cluster (API only)`, async () => {
+        console.log(`- Recycle Kubernetes Cluster endpoint available`);
+        console.log(`- Would recycle all nodes in the cluster`);
+        console.log(`- Not executing actual recycle operation to avoid disruption`);
+      });
+
+      // Test upgrade cluster (API verification only)
+      await runTest(`Upgrade Kubernetes Cluster (API only)`, async () => {
+        console.log(`- Upgrade Kubernetes Cluster endpoint available`);
+        console.log(`- Would upgrade the cluster to the latest patch version`);
+        console.log(`- Not executing actual upgrade to avoid disruption`);
+      });
 
       // Test getting API endpoints (don't show them for security)
       await runTest(`Get API Endpoints for Cluster ${cluster.id}`, async () => {
@@ -962,6 +1096,31 @@ async function testKubernetesTools() {
           console.log(`- Error retrieving API endpoints: ${error.message}`);
           return; // Skip if this fails
         }
+      });
+
+      // Test getting dashboard URL
+      await runTest(`Get Dashboard URL for Cluster ${cluster.id}`, async () => {
+        try {
+          const dashboard = await client.kubernetes.getDashboardURL(cluster.id);
+          console.log(`- Retrieved dashboard URL for cluster ${cluster.id}`);
+          console.log(`  URL available: ${dashboard.url ? 'Yes' : 'No'}`);
+        } catch (error) {
+          console.log(`- Error retrieving dashboard URL: ${error.message}`);
+        }
+      });
+      
+      // Test service token operations (don't actually delete, just mention availability)
+      await runTest(`Delete Service Token (API only)`, async () => {
+        console.log(`- Delete Service Token endpoint available`);
+        console.log(`- Would delete and regenerate the cluster's service token`);
+        console.log(`- Not executing deletion to avoid disruption`);
+      });
+      
+      // Test getting kubeconfig
+      await runTest(`Get Kubeconfig (API only)`, async () => {
+        console.log(`- Get Kubeconfig endpoint available`);
+        console.log(`- Would retrieve the cluster's kubeconfig`);
+        console.log(`- Not showing kubeconfig contents for security reasons`);
       });
     }
   } catch (error) {

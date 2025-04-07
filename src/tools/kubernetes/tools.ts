@@ -1,5 +1,5 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { LinodeClient, KubernetesCluster, KubernetesNodePool, KubernetesNode, KubernetesVersion, KubeConfig, APIEndpoint } from '../../client';
+import { LinodeClient, KubernetesCluster, KubernetesNodePool, KubernetesNode, KubernetesVersion, KubeConfig, APIEndpoint, KubernetesDashboard, KubernetesType } from '../../client';
 import * as schemas from './schemas';
 import { registerToolsWithErrorHandling, ToolRegistration } from '../common/errorHandler';
 
@@ -107,6 +107,39 @@ function formatAPIEndpoints(endpoints: APIEndpoint[]): string {
   }
 
   return endpoints.map((endpoint) => endpoint.endpoint).join('\n');
+}
+
+/**
+ * Formats Kubernetes dashboard URL for display
+ */
+function formatDashboardURL(dashboard: KubernetesDashboard): string {
+  return `Dashboard URL: ${dashboard.url}`;
+}
+
+/**
+ * Formats Kubernetes node for display
+ */
+function formatNode(node: KubernetesNode): string {
+  const details = [
+    `ID: ${node.id}`,
+    `Instance ID: ${node.instance_id}`,
+    `Status: ${node.status}`
+  ];
+  
+  return details.join('\n');
+}
+
+/**
+ * Formats Kubernetes types for display
+ */
+function formatKubernetesTypes(types: KubernetesType[]): string {
+  if (types.length === 0) {
+    return 'No Kubernetes types found.';
+  }
+
+  return types.map((type) => {
+    return `${type.label} (ID: ${type.id}, Monthly: $${type.price.monthly}, Hourly: $${type.price.hourly})`;
+  }).join('\n');
 }
 
 /**
@@ -328,6 +361,90 @@ export function registerKubernetesTools(server: McpServer, client: LinodeClient)
         return {
           content: [
             { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
+          ],
+        };
+      }
+    },
+
+    // Node operations
+    {
+      name: 'delete_kubernetes_node',
+      description: 'Delete a node from a Kubernetes cluster',
+      schema: schemas.deleteNodeSchema.shape,
+      handler: async (params, extra) => {
+        await client.kubernetes.deleteNode(params.clusterId, params.nodeId);
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
+          ],
+        };
+      }
+    },
+    {
+      name: 'recycle_kubernetes_node',
+      description: 'Recycle a node in a Kubernetes cluster',
+      schema: schemas.recycleNodeSchema.shape,
+      handler: async (params, extra) => {
+        await client.kubernetes.recycleNode(params.clusterId, params.nodeId);
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
+          ],
+        };
+      }
+    },
+
+    // Dashboard and service token operations
+    {
+      name: 'get_kubernetes_dashboard_url',
+      description: 'Get the dashboard URL for a Kubernetes cluster',
+      schema: schemas.getDashboardURLSchema.shape,
+      handler: async (params, extra) => {
+        const result = await client.kubernetes.getDashboardURL(params.id);
+        return {
+          content: [
+            { type: 'text', text: formatDashboardURL(result) },
+          ],
+        };
+      }
+    },
+    {
+      name: 'delete_kubernetes_service_token',
+      description: 'Delete the service token for a Kubernetes cluster',
+      schema: schemas.deleteServiceTokenSchema.shape,
+      handler: async (params, extra) => {
+        await client.kubernetes.deleteServiceToken(params.id);
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
+          ],
+        };
+      }
+    },
+
+    // Version and type operations
+    {
+      name: 'get_kubernetes_version',
+      description: 'Get details for a specific Kubernetes version',
+      schema: schemas.getVersionSchema.shape,
+      handler: async (params, extra) => {
+        const result = await client.kubernetes.getVersion(params.version);
+        return {
+          content: [
+            { type: 'text', text: result.id },
+          ],
+        };
+      }
+    },
+    {
+      name: 'list_kubernetes_types',
+      description: 'List all available Kubernetes types',
+      schema: schemas.getTypesSchema.shape,
+      handler: async (params, extra) => {
+        const result = await client.kubernetes.getTypes();
+        return {
+          content: [
+            { type: 'text', text: formatKubernetesTypes(result) },
           ],
         };
       }

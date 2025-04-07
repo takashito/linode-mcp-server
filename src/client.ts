@@ -223,6 +223,8 @@ export type {
   KubernetesVersion,
   KubeConfig,
   APIEndpoint,
+  KubernetesDashboard,
+  KubernetesType,
   CreateKubernetesClusterRequest,
   UpdateKubernetesClusterRequest,
   CreateNodePoolRequest,

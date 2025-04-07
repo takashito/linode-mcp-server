@@ -50,6 +50,23 @@ export interface APIEndpoint {
   endpoint: string;
 }
 
+export interface KubernetesDashboard {
+  url: string;
+}
+
+export interface KubernetesType {
+  id: string;
+  label: string;
+  price: {
+    monthly: number;
+    hourly: number;
+  };
+  region_prices?: Record<string, {
+    monthly: number;
+    hourly: number;
+  }>;
+}
+
 // Request interfaces
 export interface CreateKubernetesClusterRequest {
   label: string;
@@ -107,22 +124,37 @@ export interface RecycleNodePoolRequest {
 
 // Client interface
 export interface KubernetesClient {
+  // Cluster operations
   getClusters: (params?: PaginationParams) => Promise<PaginatedResponse<KubernetesCluster>>;
   getCluster: (id: number) => Promise<KubernetesCluster>;
   createCluster: (data: CreateKubernetesClusterRequest) => Promise<KubernetesCluster>;
   updateCluster: (id: number, data: UpdateKubernetesClusterRequest) => Promise<KubernetesCluster>;
   deleteCluster: (id: number) => Promise<void>;
+  recycleCluster: (id: number) => Promise<void>;
+  upgradeCluster: (id: number) => Promise<void>;
+  
+  // Node pool operations
   getNodePools: (clusterId: number) => Promise<KubernetesNodePool[]>;
   getNodePool: (clusterId: number, poolId: number) => Promise<KubernetesNodePool>;
   createNodePool: (clusterId: number, data: CreateNodePoolRequest) => Promise<KubernetesNodePool>;
   updateNodePool: (clusterId: number, poolId: number, data: UpdateNodePoolRequest) => Promise<KubernetesNodePool>;
   deleteNodePool: (clusterId: number, poolId: number) => Promise<void>;
   recycleNodes: (clusterId: number, poolId: number, data: RecycleNodePoolRequest) => Promise<void>;
-  getVersions: () => Promise<KubernetesVersion[]>;
+  
+  // Node operations
+  deleteNode: (clusterId: number, nodeId: string) => Promise<void>;
+  recycleNode: (clusterId: number, nodeId: string) => Promise<void>;
+  
+  // Cluster access 
   getKubeconfig: (id: number) => Promise<KubeConfig>;
   getAPIEndpoints: (id: number) => Promise<APIEndpoint[]>;
-  recycleCluster: (id: number) => Promise<void>;
-  upgradeCluster: (id: number) => Promise<void>;
+  getDashboardURL: (id: number) => Promise<KubernetesDashboard>;
+  deleteServiceToken: (id: number) => Promise<void>;
+  
+  // Version and type information
+  getVersions: () => Promise<KubernetesVersion[]>;
+  getVersion: (version: string) => Promise<KubernetesVersion>;
+  getTypes: () => Promise<KubernetesType[]>;
 }
 
 /**
@@ -130,6 +162,7 @@ export interface KubernetesClient {
  */
 export function createKubernetesClient(axios: AxiosInstance): KubernetesClient {
   return {
+    // Cluster operations
     getClusters: async (params?: PaginationParams) => {
       const response = await axios.get('/lke/clusters', { params });
       return response.data;
@@ -149,6 +182,14 @@ export function createKubernetesClient(axios: AxiosInstance): KubernetesClient {
     deleteCluster: async (id: number) => {
       await axios.delete(`/lke/clusters/${id}`);
     },
+    recycleCluster: async (id: number) => {
+      await axios.post(`/lke/clusters/${id}/recycle`);
+    },
+    upgradeCluster: async (id: number) => {
+      await axios.post(`/lke/clusters/${id}/upgrade`);
+    },
+    
+    // Node pool operations
     getNodePools: async (clusterId: number) => {
       const response = await axios.get(`/lke/clusters/${clusterId}/pools`);
       // Linode API returns node pools as a paginated response, so extract the data array
@@ -172,11 +213,16 @@ export function createKubernetesClient(axios: AxiosInstance): KubernetesClient {
     recycleNodes: async (clusterId: number, poolId: number, data: RecycleNodePoolRequest) => {
       await axios.post(`/lke/clusters/${clusterId}/pools/${poolId}/recycle`, data);
     },
-    getVersions: async () => {
-      const response = await axios.get('/lke/versions');
-      // Linode API returns versions as a paginated response, so extract the data array
-      return response.data.data;
+    
+    // Node operations
+    deleteNode: async (clusterId: number, nodeId: string) => {
+      await axios.delete(`/lke/clusters/${clusterId}/nodes/${nodeId}`);
     },
+    recycleNode: async (clusterId: number, nodeId: string) => {
+      await axios.post(`/lke/clusters/${clusterId}/nodes/${nodeId}/recycle`);
+    },
+    
+    // Cluster access
     getKubeconfig: async (id: number) => {
       const response = await axios.get(`/lke/clusters/${id}/kubeconfig`);
       return response.data;
@@ -186,11 +232,28 @@ export function createKubernetesClient(axios: AxiosInstance): KubernetesClient {
       // Linode API returns endpoints as a paginated response, so extract the data array
       return response.data.data;
     },
-    recycleCluster: async (id: number) => {
-      await axios.post(`/lke/clusters/${id}/recycle`);
+    getDashboardURL: async (id: number) => {
+      const response = await axios.get(`/lke/clusters/${id}/dashboard`);
+      return response.data;
     },
-    upgradeCluster: async (id: number) => {
-      await axios.post(`/lke/clusters/${id}/upgrade`);
+    deleteServiceToken: async (id: number) => {
+      await axios.delete(`/lke/clusters/${id}/servicetoken`);
+    },
+    
+    // Version and type information
+    getVersions: async () => {
+      const response = await axios.get('/lke/versions');
+      // Linode API returns versions as a paginated response, so extract the data array
+      return response.data.data;
+    },
+    getVersion: async (version: string) => {
+      const response = await axios.get(`/lke/versions/${version}`);
+      return response.data;
+    },
+    getTypes: async () => {
+      const response = await axios.get('/lke/types');
+      // Linode API returns types as a paginated response, so extract the data array
+      return response.data.data;
     }
   };
 }

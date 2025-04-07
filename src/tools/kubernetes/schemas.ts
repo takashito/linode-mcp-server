@@ -89,9 +89,18 @@ export const recycleNodesSchema = z.object({
   nodes: z.array(z.string()).describe('An array of node IDs to recycle')
 });
 
-// Other Kubernetes schemas
-export const getVersionsSchema = z.object({});
+// Node operations
+export const deleteNodeSchema = z.object({
+  clusterId: z.number().describe('The ID of the Kubernetes cluster'),
+  nodeId: z.string().describe('The ID of the node to delete')
+});
 
+export const recycleNodeSchema = z.object({
+  clusterId: z.number().describe('The ID of the Kubernetes cluster'),
+  nodeId: z.string().describe('The ID of the node to recycle')
+});
+
+// Cluster access schemas
 export const getKubeconfigSchema = z.object({
   id: z.number().describe('The ID of the Kubernetes cluster')
 });
@@ -100,6 +109,15 @@ export const getAPIEndpointsSchema = z.object({
   id: z.number().describe('The ID of the Kubernetes cluster')
 });
 
+export const getDashboardURLSchema = z.object({
+  id: z.number().describe('The ID of the Kubernetes cluster')
+});
+
+export const deleteServiceTokenSchema = z.object({
+  id: z.number().describe('The ID of the Kubernetes cluster')
+});
+
+// Cluster management schemas
 export const recycleClusterSchema = z.object({
   id: z.number().describe('The ID of the Kubernetes cluster')
 });
@@ -107,3 +125,12 @@ export const recycleClusterSchema = z.object({
 export const upgradeClusterSchema = z.object({
   id: z.number().describe('The ID of the Kubernetes cluster')
 });
+
+// Version and type schemas
+export const getVersionsSchema = z.object({});
+
+export const getVersionSchema = z.object({
+  version: z.string().describe('The Kubernetes version to get details for')
+});
+
+export const getTypesSchema = z.object({});

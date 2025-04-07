@@ -242,9 +242,13 @@ Manage Linode Kubernetes Engine clusters and node pools.
 - `delete_kubernetes_cluster` - Delete a Kubernetes cluster
 - `get_kubernetes_kubeconfig` - Get the kubeconfig for a Kubernetes cluster
 - `get_kubernetes_api_endpoints` - Get the API endpoints for a Kubernetes cluster
+- `get_kubernetes_dashboard_url` - Get the dashboard URL for a Kubernetes cluster
+- `delete_kubernetes_service_token` - Delete the service token for a Kubernetes cluster
 - `recycle_kubernetes_cluster` - Recycle all nodes in a Kubernetes cluster
 - `upgrade_kubernetes_cluster` - Upgrade a Kubernetes cluster to the latest patch version
 - `list_kubernetes_versions` - List all available Kubernetes versions
+- `get_kubernetes_version` - Get details for a specific Kubernetes version
+- `list_kubernetes_types` - List all available Kubernetes types
 
 #### Node Pool Operations
 - `list_kubernetes_node_pools` - List all node pools in a Kubernetes cluster
@@ -253,6 +257,10 @@ Manage Linode Kubernetes Engine clusters and node pools.
 - `update_kubernetes_node_pool` - Update an existing node pool
 - `delete_kubernetes_node_pool` - Delete a node pool from a Kubernetes cluster
 - `recycle_kubernetes_nodes` - Recycle specific nodes in a Kubernetes node pool
+
+#### Node Operations
+- `delete_kubernetes_node` - Delete a node from a Kubernetes cluster
+- `recycle_kubernetes_node` - Recycle a node in a Kubernetes cluster
 
 ### Images
 Manage disk images that can be used to create Linode instances.
