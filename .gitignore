@@ -26,3 +26,7 @@ yarn-error.log*
 *.swp
 *.swo
 .DS_Store
+
+# Other files
+CLAUDE.md
+linode-openapi.json

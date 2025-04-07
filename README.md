@@ -94,6 +94,8 @@ This MCP server provides the following tools for interacting with Linode:
 - `shutdown_instance` - Power off a Linode instance
 - `delete_instance` - Delete a Linode instance
 - `resize_instance` - Resize a Linode instance
+- `list_instance_types` - Get a list of all available Linode types
+- `get_instance_type` - Get details for a specific Linode type
 
 ### Volumes
 - `list_volumes` - Get a list of all volumes
@@ -147,11 +149,33 @@ This MCP server provides the following tools for interacting with Linode:
 - `update_object_storage_default_bucket_access` - Update default bucket access configuration
 - `cancel_object_storage` - Cancel Object Storage service
 
-### Meta
+### VPCs
+- `list_vpcs` - Get a list of all VPCs
+- `get_vpc` - Get details for a specific VPC
+- `create_vpc` - Create a new VPC
+- `update_vpc` - Update an existing VPC
+- `delete_vpc` - Delete a VPC
+- `list_vpc_subnets` - List all subnets in a VPC
+- `get_vpc_subnet` - Get details for a specific subnet in a VPC
+- `create_vpc_subnet` - Create a new subnet in a VPC
+- `update_vpc_subnet` - Update an existing subnet in a VPC
+- `delete_vpc_subnet` - Delete a subnet in a VPC
+- `list_vpc_ips` - List all IP addresses in a VPC
+
+### Placement Groups
+- `list_placement_groups` - List all placement groups
+- `get_placement_group` - Get details for a specific placement group
+- `create_placement_group` - Create a new placement group
+- `update_placement_group` - Update an existing placement group
+- `delete_placement_group` - Delete a placement group
+- `assign_instances` - Assign Linode instances to a placement group
+- `unassign_instances` - Unassign Linode instances from a placement group
+
+### Regions
 - `list_regions` - Get a list of all available regions
 - `get_region` - Get details for a specific region
-- `list_types` - Get a list of all available Linode types
-- `get_type` - Get details for a specific Linode type
+
+### Images
 - `list_images` - Get a list of all available images
 - `get_image` - Get details for a specific image
 

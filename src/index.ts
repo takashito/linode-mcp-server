@@ -1,14 +1,12 @@
 import { config } from 'dotenv';
 import { startServer, ServerOptions } from './server';
 import { createClient, LinodeClient } from './client';
-import { OperationsManager } from './operations';
 
 // Load environment variables from .env file
 config();
 
 export { startServer, ServerOptions };
 export { createClient, LinodeClient };
-export { OperationsManager };
 
 // Auto-start server when this file is executed directly (not imported)
 if (require.main === module) {
