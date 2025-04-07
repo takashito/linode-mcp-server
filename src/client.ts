@@ -10,7 +10,8 @@ import {
   createVPCsClient,
   createObjectStorageClient,
   createDomainsClient,
-  createDatabasesClient
+  createDatabasesClient,
+  createKubernetesClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -70,6 +71,7 @@ export function createClient(token: string): LinodeClient {
   const objectStorage = createObjectStorageClient(axiosInstance);
   const domains = createDomainsClient(axiosInstance);
   const databases = createDatabasesClient(axiosInstance);
+  const kubernetes = createKubernetesClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -83,6 +85,7 @@ export function createClient(token: string): LinodeClient {
     objectStorage,
     domains,
     databases,
+    kubernetes,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -212,3 +215,17 @@ export type {
   CreatePostgreSQLDatabaseRequest,
   UpdatePostgreSQLDatabaseRequest
 } from './client/databases';
+
+export type {
+  KubernetesCluster,
+  KubernetesNodePool,
+  KubernetesNode,
+  KubernetesVersion,
+  KubeConfig,
+  APIEndpoint,
+  CreateKubernetesClusterRequest,
+  UpdateKubernetesClusterRequest,
+  CreateNodePoolRequest,
+  UpdateNodePoolRequest,
+  RecycleNodePoolRequest
+} from './client/kubernetes';

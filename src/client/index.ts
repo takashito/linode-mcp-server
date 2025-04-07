@@ -8,6 +8,7 @@ import { createVPCsClient, VPCsClient } from './vpcs';
 import { createObjectStorageClient, ObjectStorageClient } from './objectStorage';
 import { createDomainsClient, DomainsClient } from './domains';
 import { createDatabasesClient, DatabasesClient } from './databases';
+import { createKubernetesClient, KubernetesClient } from './kubernetes';
 import { LinodeTypesClient } from '../client';
 
 export * from './instances';
@@ -20,6 +21,7 @@ export * from './vpcs';
 export * from './objectStorage';
 export * from './domains';
 export * from './databases';
+export * from './kubernetes';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -32,5 +34,6 @@ export interface LinodeClient {
   objectStorage: ObjectStorageClient;
   domains: DomainsClient;
   databases: DatabasesClient;
+  kubernetes: KubernetesClient;
   linodeTypes: LinodeTypesClient;
 }

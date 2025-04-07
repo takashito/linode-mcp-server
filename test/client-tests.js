@@ -887,6 +887,91 @@ async function testDatabasesTools() {
   // and typically require billing setup, so we'll avoid those in basic tests
 }
 
+async function testKubernetesTools() {
+  // Test listing Kubernetes clusters
+  await runTest('List Kubernetes Clusters', async () => {
+    const result = await client.kubernetes.getClusters();
+    console.log(`- Found ${result.data.length} Kubernetes clusters`);
+    if (result.data.length > 0) {
+      console.log(`  Cluster examples: ${result.data.slice(0, 3).map(c => `${c.label} (${c.k8s_version})`).join(', ')}${result.data.length > 3 ? '...' : ''}`);
+    }
+  });
+
+  // Test listing Kubernetes versions
+  await runTest('List Kubernetes Versions', async () => {
+    const versions = await client.kubernetes.getVersions();
+    if (Array.isArray(versions)) {
+      console.log(`- Found ${versions.length} Kubernetes versions`);
+      if (versions.length > 0) {
+        console.log(`  Available versions: ${versions.slice(0, 5).map(v => v.id).join(', ')}${versions.length > 5 ? '...' : ''}`);
+      }
+    } else {
+      console.log(`- Kubernetes versions data received in unexpected format`);
+      console.log(`  Response: ${JSON.stringify(versions).slice(0, 100)}...`);
+    }
+  });
+
+  // If clusters exist, run more detailed tests
+  try {
+    const clusters = await client.kubernetes.getClusters();
+    if (clusters.data.length > 0) {
+      const cluster = clusters.data[0];
+      
+      // Test getting cluster details
+      await runTest(`Get Kubernetes Cluster (${cluster.id})`, async () => {
+        const result = await client.kubernetes.getCluster(cluster.id);
+        console.log(`- Retrieved cluster: ${result.label} (ID: ${result.id})`);
+        console.log(`  Region: ${result.region}, Version: ${result.k8s_version}, Status: ${result.status}`);
+        console.log(`  High Availability: ${result.control_plane?.high_availability ? 'Yes' : 'No'}`);
+      });
+
+      // Test getting node pools
+      await runTest(`List Node Pools for Cluster ${cluster.id}`, async () => {
+        const pools = await client.kubernetes.getNodePools(cluster.id);
+        console.log(`- Found ${pools.length} node pools`);
+        if (pools.length > 0) {
+          pools.forEach((pool, i) => {
+            console.log(`  Pool ${i+1}: ${pool.count} nodes of type ${pool.type}, ${pool.nodes.length} active nodes`);
+          });
+        }
+      });
+
+      // If there are node pools, get details for the first one
+      const pools = await client.kubernetes.getNodePools(cluster.id);
+      if (pools.length > 0) {
+        const pool = pools[0];
+        await runTest(`Get Node Pool (${pool.id}) for Cluster ${cluster.id}`, async () => {
+          const result = await client.kubernetes.getNodePool(cluster.id, pool.id);
+          console.log(`- Retrieved node pool: ID ${result.id}, Type: ${result.type}`);
+          console.log(`  Node count: ${result.count}, Active nodes: ${result.nodes.length}`);
+          if (result.autoscaler) {
+            console.log(`  Autoscaler: ${result.autoscaler.enabled ? 'Enabled' : 'Disabled'}`);
+            if (result.autoscaler.enabled && result.autoscaler.min !== undefined && result.autoscaler.max !== undefined) {
+              console.log(`    Min: ${result.autoscaler.min}, Max: ${result.autoscaler.max}`);
+            }
+          }
+        });
+      }
+
+      // Test getting API endpoints (don't show them for security)
+      await runTest(`Get API Endpoints for Cluster ${cluster.id}`, async () => {
+        try {
+          const endpoints = await client.kubernetes.getAPIEndpoints(cluster.id);
+          console.log(`- Retrieved ${endpoints.length} API endpoints for cluster ${cluster.id}`);
+        } catch (error) {
+          console.log(`- Error retrieving API endpoints: ${error.message}`);
+          return; // Skip if this fails
+        }
+      });
+    }
+  } catch (error) {
+    console.log(`- Error testing Kubernetes clusters: ${error.message}`);
+  }
+
+  // Note: Creating, updating, and deleting Kubernetes clusters are expensive operations
+  // and typically require billing setup, so we'll avoid those in basic tests
+}
+
 async function testImagesTools() {
   // Test listing images
   await runTest('List Images', async () => {
@@ -1322,9 +1407,12 @@ async function runTests() {
         case 'databases':
           await testDatabasesTools();
           break;
+        case 'kubernetes':
+          await testKubernetesTools();
+          break;
         default:
           console.error(`Unknown test category: ${testOptions.category}`);
-          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases');
+          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases, kubernetes');
           process.exit(1);
       }
     } else {
@@ -1339,6 +1427,7 @@ async function runTests() {
       await testObjectStorageTools();
       await testDomainsTools();
       await testDatabasesTools();
+      await testKubernetesTools();
       
       console.log('\n[INFO] Skipping tests for images (not implemented yet)');
     }
@@ -1368,7 +1457,7 @@ Usage: node test/client-tests.js [options]
 
 Options:
   --test=CATEGORY  Run tests for a specific category
-                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases
+                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases, kubernetes
   --verbose, -v    Enable verbose output
   --no-cleanup     Skip resource cleanup after tests
   --help, -h       Show this help message
@@ -1381,6 +1470,7 @@ Examples:
   node test/client-tests.js --test=objectstorage    # Test only Object Storage
   node test/client-tests.js --test=domains          # Test only Domains
   node test/client-tests.js --test=databases        # Test only Databases
+  node test/client-tests.js --test=kubernetes       # Test only Kubernetes
   node test/client-tests.js --no-cleanup            # Run all tests without cleanup
   `);
   process.exit(0);

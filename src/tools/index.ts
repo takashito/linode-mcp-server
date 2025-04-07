@@ -9,6 +9,7 @@ import { registerVPCTools } from './vpcs/tools';
 import { registerObjectStorageTools } from './objectStorage/tools';
 import { registerDomainTools } from './domains/tools';
 import { registerDatabaseTools } from './databases/tools';
+import { registerKubernetesTools } from './kubernetes/tools';
 import { LinodeClient } from '../client';
 
 // Common schemas
@@ -54,6 +55,10 @@ export * from './domains/tools';
 export * from './databases/schemas';
 export * from './databases/tools';
 
+// Kubernetes
+export * from './kubernetes/schemas';
+export * from './kubernetes/tools';
+
 // Register all tools with direct client access
 export const registerAllTools = (server: any, client: LinodeClient) => {
   registerInstanceTools(server, client);
@@ -66,4 +71,5 @@ export const registerAllTools = (server: any, client: LinodeClient) => {
   registerObjectStorageTools(server, client);
   registerDomainTools(server, client);
   registerDatabaseTools(server, client);
+  registerKubernetesTools(server, client);
 };
