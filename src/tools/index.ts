@@ -7,6 +7,7 @@ import { registerRegionTools } from './regions/tools';
 import { registerPlacementTools } from './placement/tools';
 import { registerVPCTools } from './vpcs/tools';
 import { registerObjectStorageTools } from './objectStorage/tools';
+import { registerDomainTools } from './domains/tools';
 import { LinodeClient } from '../client';
 
 // Common schemas
@@ -44,6 +45,10 @@ export * from './vpcs/tools';
 export * from './objectStorage/schemas';
 export * from './objectStorage/tools';
 
+// Domains
+export * from './domains/schemas';
+export * from './domains/tools';
+
 // Register all tools with direct client access
 export const registerAllTools = (server: any, client: LinodeClient) => {
   registerInstanceTools(server, client);
@@ -54,4 +59,5 @@ export const registerAllTools = (server: any, client: LinodeClient) => {
   registerPlacementTools(server, client);
   registerVPCTools(server, client);
   registerObjectStorageTools(server, client);
+  registerDomainTools(server, client);
 };

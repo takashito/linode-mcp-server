@@ -8,7 +8,8 @@ import {
   createRegionsClient,
   createPlacementClient,
   createVPCsClient,
-  createObjectStorageClient
+  createObjectStorageClient,
+  createDomainsClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -66,6 +67,7 @@ export function createClient(token: string): LinodeClient {
   const placement = createPlacementClient(axiosInstance);
   const vpcs = createVPCsClient(axiosInstance);
   const objectStorage = createObjectStorageClient(axiosInstance);
+  const domains = createDomainsClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -77,6 +79,7 @@ export function createClient(token: string): LinodeClient {
     placement,
     vpcs,
     objectStorage,
+    domains,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -181,3 +184,14 @@ export type {
   UpdateBucketAccessRequest,
   UploadCertificateRequest
 } from './client/objectStorage';
+
+export type {
+  Domain,
+  DomainRecord,
+  CreateDomainRequest,
+  UpdateDomainRequest,
+  CreateDomainRecordRequest,
+  UpdateDomainRecordRequest,
+  ImportZoneRequest,
+  CloneDomainRequest
+} from './client/domains';

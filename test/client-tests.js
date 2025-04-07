@@ -139,13 +139,19 @@ async function cleanup() {
       }
     }
     
-    // Log resources that would be deleted in future implementations
-    if (TEST_IDS.DOMAIN_ID || TEST_IDS.IMAGE_ID) {
-      console.log('\n[INFO] The following resources would be deleted when their modules are implemented:');
-      
-      if (TEST_IDS.DOMAIN_ID) {
-        console.log(`- Test domain (ID: ${TEST_IDS.DOMAIN_ID})`);
+    // Delete test domain if it exists
+    if (TEST_IDS.DOMAIN_ID) {
+      try {
+        await client.domains.deleteDomain(TEST_IDS.DOMAIN_ID);
+        console.log(`- Deleted test domain (ID: ${TEST_IDS.DOMAIN_ID})`);
+      } catch (error) {
+        console.error(`- Failed to delete test domain (ID: ${TEST_IDS.DOMAIN_ID}): ${error.message}`);
       }
+    }
+    
+    // Log resources that would be deleted in future implementations
+    if (TEST_IDS.IMAGE_ID) {
+      console.log('\n[INFO] The following resources would be deleted when their modules are implemented:');
       
       if (TEST_IDS.IMAGE_ID) {
         console.log(`- Test image (ID: ${TEST_IDS.IMAGE_ID})`);
@@ -1202,9 +1208,12 @@ async function runTests() {
         case 'objectstorage':
           await testObjectStorageTools();
           break;
+        case 'domains':
+          await testDomainsTools();
+          break;
         default:
           console.error(`Unknown test category: ${testOptions.category}`);
-          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage');
+          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains');
           process.exit(1);
       }
     } else {
@@ -1217,8 +1226,9 @@ async function runTests() {
       await testVPCsTools();
       await testPlacementGroupsTools();
       await testObjectStorageTools();
+      await testDomainsTools();
       
-      console.log('\n[INFO] Skipping tests for domains and images (not implemented yet)');
+      console.log('\n[INFO] Skipping tests for images (not implemented yet)');
     }
     
     console.log('\n===== ALL TESTS COMPLETED =====');
@@ -1246,7 +1256,7 @@ Usage: node test/client-tests.js [options]
 
 Options:
   --test=CATEGORY  Run tests for a specific category
-                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage
+                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains
   --verbose, -v    Enable verbose output
   --no-cleanup     Skip resource cleanup after tests
   --help, -h       Show this help message
@@ -1257,6 +1267,7 @@ Examples:
   node test/client-tests.js --test=vpcs             # Test only VPCs
   node test/client-tests.js --test=placement        # Test only placement groups
   node test/client-tests.js --test=objectstorage    # Test only Object Storage
+  node test/client-tests.js --test=domains          # Test only Domains
   node test/client-tests.js --no-cleanup            # Run all tests without cleanup
   `);
   process.exit(0);
