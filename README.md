@@ -110,11 +110,48 @@ This MCP server provides the following tools for interacting with Linode:
 - `list_domains` - Get a list of all domains
 - `get_domain` - Get details for a specific domain
 - `create_domain` - Create a new domain
+- `update_domain` - Update an existing domain
 - `delete_domain` - Delete a domain
 - `list_domain_records` - Get a list of all domain records for a domain
+- `get_domain_record` - Get details for a specific domain record
 - `create_domain_record` - Create a new domain record
 - `update_domain_record` - Update a domain record
 - `delete_domain_record` - Delete a domain record
+- `import_domain_zone` - Import a domain zone from a remote nameserver
+- `clone_domain` - Clone an existing domain to a new domain
+
+### Databases
+- `list_database_engines` - Get a list of all available database engines
+- `get_database_engine` - Get details for a specific database engine
+- `list_database_types` - Get a list of all available database types
+- `get_database_type` - Get details for a specific database type
+- `list_database_instances` - Get a list of all database instances
+
+#### MySQL
+- `list_mysql_instances` - Get a list of all MySQL database instances
+- `get_mysql_instance` - Get details for a specific MySQL database instance
+- `create_mysql_instance` - Create a new MySQL database instance
+- `update_mysql_instance` - Update an existing MySQL database instance
+- `delete_mysql_instance` - Delete a MySQL database instance
+- `get_mysql_credentials` - Get credentials for a MySQL database instance
+- `reset_mysql_credentials` - Reset credentials for a MySQL database instance
+- `get_mysql_ssl_certificate` - Get the SSL certificate for a MySQL database instance
+- `patch_mysql_instance` - Apply the latest updates to a MySQL database instance
+- `suspend_mysql_instance` - Suspend a MySQL database instance
+- `resume_mysql_instance` - Resume a suspended MySQL database instance
+
+#### PostgreSQL
+- `list_postgresql_instances` - Get a list of all PostgreSQL database instances
+- `get_postgresql_instance` - Get details for a specific PostgreSQL database instance
+- `create_postgresql_instance` - Create a new PostgreSQL database instance
+- `update_postgresql_instance` - Update an existing PostgreSQL database instance
+- `delete_postgresql_instance` - Delete a PostgreSQL database instance
+- `get_postgresql_credentials` - Get credentials for a PostgreSQL database instance
+- `reset_postgresql_credentials` - Reset credentials for a PostgreSQL database instance
+- `get_postgresql_ssl_certificate` - Get the SSL certificate for a PostgreSQL database instance
+- `patch_postgresql_instance` - Apply the latest updates to a PostgreSQL database instance
+- `suspend_postgresql_instance` - Suspend a PostgreSQL database instance
+- `resume_postgresql_instance` - Resume a suspended PostgreSQL database instance
 
 ### NodeBalancers
 - `list_nodebalancers` - Get a list of all NodeBalancers

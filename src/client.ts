@@ -9,7 +9,8 @@ import {
   createPlacementClient,
   createVPCsClient,
   createObjectStorageClient,
-  createDomainsClient
+  createDomainsClient,
+  createDatabasesClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -68,6 +69,7 @@ export function createClient(token: string): LinodeClient {
   const vpcs = createVPCsClient(axiosInstance);
   const objectStorage = createObjectStorageClient(axiosInstance);
   const domains = createDomainsClient(axiosInstance);
+  const databases = createDatabasesClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -80,6 +82,7 @@ export function createClient(token: string): LinodeClient {
     vpcs,
     objectStorage,
     domains,
+    databases,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -195,3 +198,17 @@ export type {
   ImportZoneRequest,
   CloneDomainRequest
 } from './client/domains';
+
+export type {
+  DatabaseEngine,
+  DatabaseType,
+  DatabaseInstance,
+  MySQLDatabaseInstance,
+  PostgreSQLDatabaseInstance,
+  DatabaseCredentials,
+  SSLCertificate,
+  CreateMySQLDatabaseRequest,
+  UpdateMySQLDatabaseRequest,
+  CreatePostgreSQLDatabaseRequest,
+  UpdatePostgreSQLDatabaseRequest
+} from './client/databases';

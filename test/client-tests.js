@@ -779,6 +779,41 @@ async function testDomainsTools() {
   }
 }
 
+async function testDatabasesTools() {
+  // Test listing database engines
+  await runTest('List Database Engines', async () => {
+    const result = await client.databases.getEngines();
+    console.log(`- Found ${result.data.length} database engines`);
+  });
+
+  // Test listing database types
+  await runTest('List Database Types', async () => {
+    const result = await client.databases.getTypes();
+    console.log(`- Found ${result.data.length} database types`);
+  });
+
+  // Test listing database instances
+  await runTest('List Database Instances', async () => {
+    const result = await client.databases.getDatabaseInstances();
+    console.log(`- Found ${result.data.length} database instances`);
+  });
+
+  // Test listing MySQL instances
+  await runTest('List MySQL Instances', async () => {
+    const result = await client.databases.getMySQLInstances();
+    console.log(`- Found ${result.data.length} MySQL instances`);
+  });
+
+  // Test listing PostgreSQL instances
+  await runTest('List PostgreSQL Instances', async () => {
+    const result = await client.databases.getPostgreSQLInstances();
+    console.log(`- Found ${result.data.length} PostgreSQL instances`);
+  });
+
+  // Note: Creating, updating, and deleting database instances are expensive operations
+  // and typically require billing setup, so we'll avoid those in basic tests
+}
+
 async function testImagesTools() {
   // Test listing images
   await runTest('List Images', async () => {
@@ -1211,9 +1246,12 @@ async function runTests() {
         case 'domains':
           await testDomainsTools();
           break;
+        case 'databases':
+          await testDatabasesTools();
+          break;
         default:
           console.error(`Unknown test category: ${testOptions.category}`);
-          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains');
+          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases');
           process.exit(1);
       }
     } else {
@@ -1227,6 +1265,7 @@ async function runTests() {
       await testPlacementGroupsTools();
       await testObjectStorageTools();
       await testDomainsTools();
+      await testDatabasesTools();
       
       console.log('\n[INFO] Skipping tests for images (not implemented yet)');
     }
@@ -1256,7 +1295,7 @@ Usage: node test/client-tests.js [options]
 
 Options:
   --test=CATEGORY  Run tests for a specific category
-                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains
+                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases
   --verbose, -v    Enable verbose output
   --no-cleanup     Skip resource cleanup after tests
   --help, -h       Show this help message
@@ -1268,6 +1307,7 @@ Examples:
   node test/client-tests.js --test=placement        # Test only placement groups
   node test/client-tests.js --test=objectstorage    # Test only Object Storage
   node test/client-tests.js --test=domains          # Test only Domains
+  node test/client-tests.js --test=databases        # Test only Databases
   node test/client-tests.js --no-cleanup            # Run all tests without cleanup
   `);
   process.exit(0);

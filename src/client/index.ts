@@ -7,6 +7,7 @@ import { createPlacementClient, PlacementClient } from './placement';
 import { createVPCsClient, VPCsClient } from './vpcs';
 import { createObjectStorageClient, ObjectStorageClient } from './objectStorage';
 import { createDomainsClient, DomainsClient } from './domains';
+import { createDatabasesClient, DatabasesClient } from './databases';
 import { LinodeTypesClient } from '../client';
 
 export * from './instances';
@@ -18,6 +19,7 @@ export * from './placement';
 export * from './vpcs';
 export * from './objectStorage';
 export * from './domains';
+export * from './databases';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -29,5 +31,6 @@ export interface LinodeClient {
   vpcs: VPCsClient;
   objectStorage: ObjectStorageClient;
   domains: DomainsClient;
+  databases: DatabasesClient;
   linodeTypes: LinodeTypesClient;
 }
