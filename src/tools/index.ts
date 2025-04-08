@@ -10,6 +10,7 @@ import { registerObjectStorageTools } from './objectStorage/tools';
 import { registerDomainTools } from './domains/tools';
 import { registerDatabaseTools } from './databases/tools';
 import { registerKubernetesTools } from './kubernetes/tools';
+import { registerImagesTools } from './images/tools';
 import { LinodeClient } from '../client';
 
 // Common schemas
@@ -59,6 +60,10 @@ export * from './databases/tools';
 export * from './kubernetes/schemas';
 export * from './kubernetes/tools';
 
+// Images
+export * from './images/schemas';
+export * from './images/tools';
+
 // Register all tools with direct client access
 export const registerAllTools = (server: any, client: LinodeClient) => {
   registerInstanceTools(server, client);
@@ -72,4 +77,5 @@ export const registerAllTools = (server: any, client: LinodeClient) => {
   registerDomainTools(server, client);
   registerDatabaseTools(server, client);
   registerKubernetesTools(server, client);
+  registerImagesTools(server, client);
 };

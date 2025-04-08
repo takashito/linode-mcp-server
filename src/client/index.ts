@@ -9,6 +9,7 @@ import { createObjectStorageClient, ObjectStorageClient } from './objectStorage'
 import { createDomainsClient, DomainsClient } from './domains';
 import { createDatabasesClient, DatabasesClient } from './databases';
 import { createKubernetesClient, KubernetesClient } from './kubernetes';
+import { createImagesClient, ImagesClient } from './images';
 import { LinodeTypesClient } from '../client';
 
 export * from './instances';
@@ -22,6 +23,7 @@ export * from './objectStorage';
 export * from './domains';
 export * from './databases';
 export * from './kubernetes';
+export * from './images';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -35,5 +37,6 @@ export interface LinodeClient {
   domains: DomainsClient;
   databases: DatabasesClient;
   kubernetes: KubernetesClient;
+  images: ImagesClient;
   linodeTypes: LinodeTypesClient;
 }

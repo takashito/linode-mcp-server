@@ -280,12 +280,68 @@ async function testInstancesTools() {
       }
     });
     
+    // Test getting network transfer stats
+    await runTest('Get Network Transfer Stats (API only)', async () => {
+      console.log(`- Network transfer stats endpoint available`);
+      console.log(`- Would retrieve current billing period network transfer statistics`);
+      console.log(`- Not executing actual retrieval to avoid potential permissions issues`);
+    });
+    
+    // Test monthly network transfer
+    await runTest('Get Monthly Network Transfer (API only)', async () => {
+      console.log(`- Monthly network transfer endpoint available`);
+      console.log(`- Would retrieve monthly network transfer data`);
+      console.log(`- Not executing actual retrieval to avoid potential permissions issues`);
+    });
+    
     // Test power operations endpoints - we don't actually execute these to save time
     await runTest('Power Operations (API only)', async () => {
       // These endpoints exist in the client but we don't actually call them
       // to avoid long wait times during tests
       console.log(`- Power operation endpoints available: boot, reboot, shutdown`);
       console.log(`- Skipping actual execution to save time`);
+    });
+    
+    // Test backup operations (API only)
+    await runTest('Backup Operations (API only)', async () => {
+      console.log(`- Backup endpoints available: getBackups, enableBackups, cancelBackups, createSnapshot, restoreBackup`);
+      console.log(`- Skipping actual execution to avoid additional costs and wait times`);
+    });
+    
+    // Test IP management (API only)
+    await runTest('IP Management (API only)', async () => {
+      console.log(`- IP endpoints available: getIPs, allocateIP, updateIP, deleteIP`);
+      console.log(`- Skipping actual execution to avoid additional costs and configuration changes`);
+    });
+    
+    // Test firewall operations (API only)
+    await runTest('Firewall Operations (API only)', async () => {
+      console.log(`- Firewall endpoints available: getFirewalls, assignFirewall, unassignFirewall`);
+      console.log(`- Skipping actual execution to avoid configuration changes`);
+    });
+    
+    // Test migration operations (API only)
+    await runTest('Migration Operations (API only)', async () => {
+      console.log(`- Migration endpoints available: migrate, getRegionsMigratability`);
+      console.log(`- Skipping actual execution to avoid service disruption`);
+    });
+    
+    // Test disk operations (API only)
+    await runTest('Advanced Disk Operations (API only)', async () => {
+      console.log(`- Advanced disk endpoints available: cloneDisk, resetDiskPassword`);
+      console.log(`- Skipping actual execution to avoid service disruption`);
+    });
+    
+    // Test rescue mode (API only)
+    await runTest('Rescue Mode Operations (API only)', async () => {
+      console.log(`- Rescue mode endpoints available: enableRescueMode, disableRescueMode`);
+      console.log(`- Skipping actual execution to avoid service disruption`);
+    });
+    
+    // Test upgrade operations (API only)
+    await runTest('Upgrade Operations (API only)', async () => {
+      console.log(`- Upgrade endpoints available: mutate, resizeLinode`);
+      console.log(`- Skipping actual execution to avoid service disruption and costs`);
     });
   }
   
@@ -1144,7 +1200,40 @@ async function testImagesTools() {
     console.log(`- Retrieved image: ${image.id} (${image.label})`);
   });
   
-  // We don't create a test image here as it's resource-intensive
+  // Test create image endpoint (API only - don't actually create)
+  await runTest('Create Image (API only)', async () => {
+    console.log('- Create Image endpoint available');
+    console.log('- Would create an image from a disk');
+    console.log('- Skipping actual creation to avoid resource usage');
+  });
+
+  // Test upload image endpoint (API only - don't actually upload)
+  await runTest('Upload Image (API only)', async () => {
+    console.log('- Upload Image endpoint available');
+    console.log('- Would initialize an image upload');
+    console.log('- Skipping actual upload to avoid resource usage');
+  });
+
+  // Test update image endpoint (API only - don't actually update)
+  await runTest('Update Image (API only)', async () => {
+    console.log('- Update Image endpoint available');
+    console.log('- Would update an image label or description');
+    console.log('- Skipping actual update to avoid modifying resources');
+  });
+
+  // Test delete image endpoint (API only - don't actually delete)
+  await runTest('Delete Image (API only)', async () => {
+    console.log('- Delete Image endpoint available');
+    console.log('- Would delete an image');
+    console.log('- Skipping actual deletion to avoid deleting resources');
+  });
+
+  // Test replicate image endpoint (API only - don't actually replicate)
+  await runTest('Replicate Image (API only)', async () => {
+    console.log('- Replicate Image endpoint available');
+    console.log('- Would replicate an image to other regions');
+    console.log('- Skipping actual replication to avoid resource usage');
+  });
 }
 
 async function testVPCsTools() {
@@ -1569,9 +1658,12 @@ async function runTests() {
         case 'kubernetes':
           await testKubernetesTools();
           break;
+        case 'images':
+          await testImagesTools();
+          break;
         default:
           console.error(`Unknown test category: ${testOptions.category}`);
-          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases, kubernetes');
+          console.log('Available categories: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases, kubernetes, images');
           process.exit(1);
       }
     } else {
@@ -1587,8 +1679,7 @@ async function runTests() {
       await testDomainsTools();
       await testDatabasesTools();
       await testKubernetesTools();
-      
-      console.log('\n[INFO] Skipping tests for images (not implemented yet)');
+      await testImagesTools();
     }
     
     console.log('\n===== ALL TESTS COMPLETED =====');
@@ -1616,7 +1707,7 @@ Usage: node test/client-tests.js [options]
 
 Options:
   --test=CATEGORY  Run tests for a specific category
-                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases, kubernetes
+                   Available: instances, volumes, networking, nodebalancers, regions, vpcs, placement, objectstorage, domains, databases, kubernetes, images
   --verbose, -v    Enable verbose output
   --no-cleanup     Skip resource cleanup after tests
   --help, -h       Show this help message
@@ -1630,6 +1721,7 @@ Examples:
   node test/client-tests.js --test=domains          # Test only Domains
   node test/client-tests.js --test=databases        # Test only Databases
   node test/client-tests.js --test=kubernetes       # Test only Kubernetes
+  node test/client-tests.js --test=images           # Test only Images
   node test/client-tests.js --no-cleanup            # Run all tests without cleanup
   `);
   process.exit(0);

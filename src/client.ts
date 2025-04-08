@@ -11,7 +11,8 @@ import {
   createObjectStorageClient,
   createDomainsClient,
   createDatabasesClient,
-  createKubernetesClient
+  createKubernetesClient,
+  createImagesClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -72,6 +73,7 @@ export function createClient(token: string): LinodeClient {
   const domains = createDomainsClient(axiosInstance);
   const databases = createDatabasesClient(axiosInstance);
   const kubernetes = createKubernetesClient(axiosInstance);
+  const images = createImagesClient(token, API_ROOT);
 
   // Return the combined client
   return {
@@ -86,6 +88,7 @@ export function createClient(token: string): LinodeClient {
     domains,
     databases,
     kubernetes,
+    images,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -231,3 +234,11 @@ export type {
   UpdateNodePoolRequest,
   RecycleNodePoolRequest
 } from './client/kubernetes';
+
+export type {
+  Image,
+  CreateImageRequest,
+  UploadImageRequest,
+  UpdateImageRequest,
+  ReplicateImageRequest
+} from './client/images';

@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
 // Placement tools
-export const listPlacementGroupsSchema = z.object({});
+export const listPlacementGroupsSchema = z.object({
+  page: z.number().int().min(1).optional().describe('Page number to fetch'),
+  page_size: z.number().int().min(1).max(500).optional().describe('Number of items per page')
+});
 
 export const getPlacementGroupSchema = z.object({
   id: z.number().describe('The ID of the placement group'),

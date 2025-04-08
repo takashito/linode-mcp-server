@@ -274,6 +274,128 @@ export const getKernelSchema = z.object({
   id: z.string().describe('The ID of the kernel')
 });
 
+// Backup operations
+export const backupSchema = z.object({
+  id: z.number().describe('The ID of the backup'),
+  label: z.string().describe('The label of the backup'),
+  status: z.string().describe('The status of the backup'),
+  type: z.enum(['auto', 'snapshot']).describe('The type of backup'),
+  region: z.string().describe('The region where the backup is stored'),
+  created: z.string().describe('When the backup was created'),
+  updated: z.string().describe('When the backup was last updated'),
+  finished: z.string().describe('When the backup finished'),
+  configs: z.array(z.string()).describe('The configs included in the backup'),
+  disks: z.record(z.any()).describe('The disks included in the backup'),
+  available: z.boolean().describe('Whether the backup is available for restore')
+});
+
+export const getBackupsSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance')
+});
+
+export const getBackupSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  backupId: z.number().describe('The ID of the backup')
+});
+
+export const createSnapshotSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  label: z.string().describe('The label for the snapshot')
+});
+
+export const cancelBackupsSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance')
+});
+
+export const enableBackupsSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance')
+});
+
+export const restoreBackupSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  backupId: z.number().describe('The ID of the backup'),
+  linode_id: z.number().optional().describe('Target Linode ID to restore to (defaults to the source Linode)'),
+  overwrite: z.boolean().optional().describe('Whether to overwrite the target Linode')
+});
+
+// IP operations
+export const getLinodeIPsSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance')
+});
+
+export const linodeAllocateIPSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  type: z.enum(['ipv4', 'ipv6']).describe('The type of IP address to allocate'),
+  public: z.boolean().describe('Whether the IP address should be public')
+});
+
+export const getLinodeIPSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  address: z.string().describe('The IP address')
+});
+
+export const updateLinodeIPSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  address: z.string().describe('The IP address'),
+  rdns: z.string().nullable().describe('The reverse DNS entry')
+});
+
+export const deleteLinodeIPSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  address: z.string().describe('The IP address')
+});
+
+// Firewall operations
+export const getLinodeFirewallsSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  ...pagingParamsSchema.shape
+});
+
+export const applyFirewallsSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance')
+});
+
+// Disk special operations
+export const cloneDiskSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  diskId: z.number().describe('The ID of the disk'),
+  label: z.string().optional().describe('The label for the cloned disk')
+});
+
+export const resetDiskPasswordSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  diskId: z.number().describe('The ID of the disk'),
+  password: z.string().describe('The new root password')
+});
+
+// Migration and upgrades
+export const migrateLinodeSchema = z.object({
+  id: z.number().describe('The ID of the Linode instance'),
+  region: z.string().optional().describe('The target region for the migration')
+});
+
+export const mutateLinodeSchema = z.object({
+  id: z.number().describe('The ID of the Linode instance')
+});
+
+// Reset root password
+export const resetRootPasswordSchema = z.object({
+  id: z.number().describe('The ID of the Linode instance'),
+  password: z.string().describe('The new root password'),
+  root_ssh_key: z.string().optional().describe('The root SSH key to deploy')
+});
+
+// Transfer stats
+export const getNetworkTransferSchema = z.object({
+  id: z.number().describe('The ID of the Linode instance')
+});
+
+export const getMonthlyTransferSchema = z.object({
+  id: z.number().describe('The ID of the Linode instance'),
+  year: z.string().describe('The year (YYYY format)'),
+  month: z.string().describe('The month (MM format)')
+});
+
 // Stats operations
 export const getLinodeStatsSchema = z.object({
   id: z.number().describe('The ID of the Linode instance')
@@ -283,6 +405,74 @@ export const getLinodeStatsByDateSchema = z.object({
   id: z.number().describe('The ID of the Linode instance'),
   year: z.string().describe('The year (YYYY format)'),
   month: z.string().describe('The month (MM format)')
+});
+
+// Config Interface operations
+export const configInterfaceSchema = z.object({
+  id: z.number().describe('The ID of the interface'),
+  label: z.string().describe('The label for the interface'),
+  purpose: z.enum(['public', 'vlan', 'vpc']).describe('The purpose of the interface (public, vlan, vpc)'),
+  ipam_address: z.string().nullable().describe('The IPAM address for the interface'),
+  primary: z.boolean().optional().describe('Whether this is the primary interface'),
+  active: z.boolean().optional().describe('Whether the interface is active'),
+  subnet_id: z.number().optional().describe('The subnet ID for VPC interfaces'),
+  vpc_id: z.number().optional().describe('The VPC ID for VPC interfaces'),
+  ipv4: z.object({
+    vpc: z.string().optional().describe('The IPv4 address for VPC interfaces'),
+    nat_1_1: z.string().optional().describe('The IPv4 1:1 NAT address')
+  }).optional()
+});
+
+export const getConfigInterfacesSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  configId: z.number().describe('The ID of the configuration profile'),
+  ...pagingParamsSchema.shape
+});
+
+export const getConfigInterfaceSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  configId: z.number().describe('The ID of the configuration profile'),
+  interfaceId: z.number().describe('The ID of the interface')
+});
+
+export const createConfigInterfaceSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  configId: z.number().describe('The ID of the configuration profile'),
+  purpose: z.enum(['public', 'vlan', 'vpc']).describe('The purpose of the interface (public, vlan, vpc)'),
+  label: z.string().optional().describe('The label for the interface'),
+  ipam_address: z.string().optional().describe('The IPAM address for the interface'),
+  primary: z.boolean().optional().describe('Whether this is the primary interface'),
+  subnet_id: z.number().optional().describe('The subnet ID for VPC interfaces'),
+  vpc_id: z.number().optional().describe('The VPC ID for VPC interfaces'),
+  ipv4: z.object({
+    vpc: z.string().optional().describe('The IPv4 address for VPC interfaces'),
+    nat_1_1: z.string().optional().describe('The IPv4 1:1 NAT address')
+  }).optional()
+});
+
+export const updateConfigInterfaceSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  configId: z.number().describe('The ID of the configuration profile'),
+  interfaceId: z.number().describe('The ID of the interface'),
+  label: z.string().optional().describe('The label for the interface'),
+  ipam_address: z.string().optional().describe('The IPAM address for the interface'),
+  primary: z.boolean().optional().describe('Whether this is the primary interface'),
+  ipv4: z.object({
+    vpc: z.string().optional().describe('The IPv4 address for VPC interfaces'),
+    nat_1_1: z.string().optional().describe('The IPv4 1:1 NAT address')
+  }).optional()
+});
+
+export const deleteConfigInterfaceSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  configId: z.number().describe('The ID of the configuration profile'),
+  interfaceId: z.number().describe('The ID of the interface')
+});
+
+export const reorderConfigInterfacesSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  configId: z.number().describe('The ID of the configuration profile'),
+  ids: z.array(z.number()).describe('The ordered list of interface IDs')
 });
 
 // Instance Types

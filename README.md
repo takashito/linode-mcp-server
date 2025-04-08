@@ -101,6 +101,9 @@ Manage Linode compute instances, including creation, deletion, and power operati
 - `clone_instance` - Clone a Linode instance to a new Linode
 - `rebuild_instance` - Rebuild a Linode instance with a new image
 - `rescue_instance` - Boot a Linode instance into rescue mode
+- `reset_root_password` - Reset the root password for a Linode instance
+- `initiate_migration` - Initiate a DC migration for a Linode instance
+- `upgrade_linode` - Upgrade a Linode instance
 
 #### Instance Configuration
 - `list_instance_configs` - Get all configuration profiles for a Linode instance
@@ -109,6 +112,14 @@ Manage Linode compute instances, including creation, deletion, and power operati
 - `update_instance_config` - Update a configuration profile for a Linode instance
 - `delete_instance_config` - Delete a configuration profile for a Linode instance
 
+#### Configuration Profile Interfaces
+- `list_config_interfaces` - List all interfaces for a configuration profile
+- `get_config_interface` - Get details for a specific configuration profile interface
+- `create_config_interface` - Create a new interface for a configuration profile
+- `update_config_interface` - Update an interface for a configuration profile
+- `delete_config_interface` - Delete an interface from a configuration profile
+- `reorder_config_interfaces` - Reorder interfaces for a configuration profile
+
 #### Instance Disks
 - `list_instance_disks` - Get all disks for a Linode instance
 - `get_instance_disk` - Get a specific disk for a Linode instance
@@ -116,10 +127,33 @@ Manage Linode compute instances, including creation, deletion, and power operati
 - `update_instance_disk` - Update a disk for a Linode instance
 - `delete_instance_disk` - Delete a disk for a Linode instance
 - `resize_instance_disk` - Resize a disk for a Linode instance
+- `clone_disk` - Clone a disk to a new disk
+- `reset_disk_root_password` - Reset a disk root password
 
-#### Instance Stats
+#### Instance Backups
+- `list_backups` - Get a list of all backups for a Linode instance
+- `get_backup` - Get details for a specific backup
+- `create_snapshot` - Create a snapshot for a Linode instance
+- `cancel_backups` - Cancel backups for a Linode instance
+- `enable_backups` - Enable backups for a Linode instance
+- `restore_backup` - Restore a backup to a Linode instance
+
+#### IP Management
+- `get_networking_information` - Get networking information for a Linode instance
+- `allocate_ipv4_address` - Allocate an IPv4 address for a Linode instance
+- `get_ip_address` - Get details for a specific IP address
+- `update_ip_address_rdns` - Update reverse DNS for an IP address
+- `delete_ipv4_address` - Delete an IPv4 address
+
+#### Firewall Management
+- `list_linode_firewalls` - List firewalls for a Linode instance
+- `apply_linode_firewalls` - Apply firewalls to a Linode instance
+
+#### Instance Stats and Transfer
 - `get_instance_stats` - Get current statistics for a Linode instance
 - `get_instance_stats_by_date` - Get statistics for a Linode instance for a specific month
+- `get_network_transfer` - Get network transfer information for a Linode instance
+- `get_monthly_network_transfer` - Get monthly network transfer stats for a Linode instance
 
 #### Kernels and Instance Types
 - `list_kernels` - Get a list of all available kernels
@@ -330,6 +364,11 @@ Manage disk images that can be used to create Linode instances.
 
 - `list_images` - Get a list of all available images
 - `get_image` - Get details for a specific image
+- `create_image` - Create a new image from an existing disk
+- `upload_image` - Initialize an image upload
+- `update_image` - Update an existing image
+- `delete_image` - Delete an image
+- `replicate_image` - Replicate an image to other regions
 
 ## License
 

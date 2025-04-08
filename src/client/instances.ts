@@ -45,6 +45,32 @@ export interface LinodeInstance {
   watchdog_enabled: boolean;
 }
 
+export interface Backup {
+  id: number;
+  label: string;
+  status: string;
+  type: 'auto' | 'snapshot';
+  region: string;
+  created: string;
+  updated: string;
+  finished: string;
+  configs: string[];
+  disks: Record<string, any>;
+  available: boolean;
+}
+
+export interface NetworkTransfer {
+  used: number;
+  quota: number;
+  billable: number;
+}
+
+export interface MonthlyTransfer {
+  used: number;
+  quota: number;
+  billable: number;
+}
+
 export interface CreateLinodeRequest {
   region: string;
   type: string;
@@ -100,6 +126,48 @@ export interface RebuildLinodeRequest {
   booted?: boolean;
 }
 
+export interface ConfigInterface {
+  id: number;
+  label: string;
+  purpose: 'public' | 'vlan' | 'vpc';
+  ipam_address: string | null;
+  primary?: boolean;
+  active?: boolean;
+  subnet_id?: number;
+  vpc_id?: number;
+  ipv4?: {
+    vpc?: string;
+    nat_1_1?: string;
+  };
+}
+
+export interface CreateConfigInterfaceRequest {
+  purpose: 'public' | 'vlan' | 'vpc';
+  label?: string;
+  ipam_address?: string;
+  primary?: boolean;
+  subnet_id?: number;
+  vpc_id?: number;
+  ipv4?: {
+    vpc?: string;
+    nat_1_1?: string;
+  };
+}
+
+export interface UpdateConfigInterfaceRequest {
+  label?: string;
+  ipam_address?: string;
+  primary?: boolean;
+  ipv4?: {
+    vpc?: string;
+    nat_1_1?: string;
+  };
+}
+
+export interface ConfigInterfaceOrderRequest {
+  ids: number[];
+}
+
 export interface LinodeConfig {
   id: number;
   label: string;
@@ -117,7 +185,7 @@ export interface LinodeConfig {
     network: boolean;
     modules_dep: boolean;
   };
-  interfaces: any[]; // Define interface type if needed
+  interfaces: ConfigInterface[];
 }
 
 export interface CreateLinodeConfigRequest {
@@ -160,6 +228,37 @@ export interface CreateLinodeDiskRequest {
   stackscript_data?: Record<string, any>;
 }
 
+export interface CreateSnapshotRequest {
+  label: string;
+}
+
+export interface RestoreBackupRequest {
+  linode_id?: number;
+  overwrite?: boolean;
+}
+
+export interface LinodeIPAllocationRequest {
+  type: 'ipv4' | 'ipv6';
+  public: boolean;
+}
+
+export interface LinodeIPUpdateRequest {
+  rdns: string | null;
+}
+
+export interface ResetRootPasswordRequest {
+  password: string;
+  root_ssh_key?: string;
+}
+
+export interface MigrateLinodeRequest {
+  region?: string;
+}
+
+export interface CloneDiskRequest {
+  label?: string;
+}
+
 export interface Kernel {
   id: string;
   label: string;
@@ -192,6 +291,9 @@ export interface LinodeInstancesClient {
   cloneLinode: (id: number, data: CloneLinodeRequest) => Promise<LinodeInstance>;
   rebuildLinode: (id: number, data: RebuildLinodeRequest) => Promise<LinodeInstance>;
   rescueLinode: (id: number, devices: Record<string, number>) => Promise<{}>;
+  migrateLinode: (id: number, data?: MigrateLinodeRequest) => Promise<{}>;
+  mutateLinode: (id: number) => Promise<{}>;
+  resetRootPassword: (id: number, data: ResetRootPasswordRequest) => Promise<{}>;
   
   // Config operations
   getLinodeConfigs: (linodeId: number, params?: PaginationParams) => Promise<PaginatedResponse<LinodeConfig>>;
@@ -200,6 +302,14 @@ export interface LinodeInstancesClient {
   updateLinodeConfig: (linodeId: number, configId: number, data: Partial<CreateLinodeConfigRequest>) => Promise<LinodeConfig>;
   deleteLinodeConfig: (linodeId: number, configId: number) => Promise<{}>;
   
+  // Config Interface operations
+  getConfigInterfaces: (linodeId: number, configId: number) => Promise<PaginatedResponse<ConfigInterface>>;
+  getConfigInterface: (linodeId: number, configId: number, interfaceId: number) => Promise<ConfigInterface>;
+  createConfigInterface: (linodeId: number, configId: number, data: CreateConfigInterfaceRequest) => Promise<ConfigInterface>;
+  updateConfigInterface: (linodeId: number, configId: number, interfaceId: number, data: UpdateConfigInterfaceRequest) => Promise<ConfigInterface>;
+  deleteConfigInterface: (linodeId: number, configId: number, interfaceId: number) => Promise<{}>;
+  reorderConfigInterfaces: (linodeId: number, configId: number, data: ConfigInterfaceOrderRequest) => Promise<{}>;
+  
   // Disk operations
   getLinodeDisks: (linodeId: number, params?: PaginationParams) => Promise<PaginatedResponse<LinodeDisk>>;
   getLinodeDisk: (linodeId: number, diskId: number) => Promise<LinodeDisk>;
@@ -207,14 +317,37 @@ export interface LinodeInstancesClient {
   updateLinodeDisk: (linodeId: number, diskId: number, data: Partial<CreateLinodeDiskRequest>) => Promise<LinodeDisk>;
   deleteLinodeDisk: (linodeId: number, diskId: number) => Promise<{}>;
   resizeLinodeDisk: (linodeId: number, diskId: number, size: number) => Promise<{}>;
+  cloneDisk: (linodeId: number, diskId: number, data?: CloneDiskRequest) => Promise<LinodeDisk>;
+  resetDiskPassword: (linodeId: number, diskId: number, password: string) => Promise<{}>;
+  
+  // Backup operations
+  getBackups: (linodeId: number) => Promise<{ automatic: Backup[]; snapshot: { current: Backup | null; in_progress: Backup | null } }>;
+  getBackup: (linodeId: number, backupId: number) => Promise<Backup>;
+  createSnapshot: (linodeId: number, data: CreateSnapshotRequest) => Promise<Backup>;
+  cancelBackups: (linodeId: number) => Promise<{}>;
+  enableBackups: (linodeId: number) => Promise<{}>;
+  restoreBackup: (linodeId: number, backupId: number, data?: RestoreBackupRequest) => Promise<{}>;
+  
+  // IP operations
+  getLinodeIPs: (linodeId: number) => Promise<any>; // Define IP response type if needed
+  allocateIP: (linodeId: number, data: LinodeIPAllocationRequest) => Promise<any>; // Define IP allocation response type if needed
+  getLinodeIP: (linodeId: number, address: string) => Promise<any>; // Define IP response type if needed
+  updateLinodeIP: (linodeId: number, address: string, data: LinodeIPUpdateRequest) => Promise<any>; // Define IP response type if needed
+  deleteLinodeIP: (linodeId: number, address: string) => Promise<{}>;
+  
+  // Firewall operations
+  getLinodeFirewalls: (linodeId: number, params?: PaginationParams) => Promise<PaginatedResponse<any>>; // Define Firewall type if needed
+  applyFirewalls: (linodeId: number) => Promise<{}>;
+  
+  // Transfer and stats operations
+  getLinodeStats: (id: number) => Promise<any>; // Define stats type if needed
+  getLinodeStatsByDate: (id: number, year: string, month: string) => Promise<any>; // Define stats type if needed
+  getNetworkTransfer: (id: number) => Promise<NetworkTransfer>;
+  getMonthlyTransfer: (id: number, year: string, month: string) => Promise<MonthlyTransfer>;
   
   // Kernel operations
   getKernels: (params?: PaginationParams) => Promise<PaginatedResponse<Kernel>>;
   getKernelById: (id: string) => Promise<Kernel>;
-  
-  // Stat operations
-  getLinodeStats: (id: number) => Promise<any>; // Define stats type if needed
-  getLinodeStatsByDate: (id: number, year: string, month: string) => Promise<any>; // Define stats type if needed
 }
 
 export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClient {
@@ -270,6 +403,18 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
       const response = await axios.post(`/linode/instances/${id}/rescue`, { devices });
       return response.data;
     },
+    migrateLinode: async (id: number, data?: MigrateLinodeRequest) => {
+      const response = await axios.post(`/linode/instances/${id}/migrate`, data || {});
+      return response.data;
+    },
+    mutateLinode: async (id: number) => {
+      const response = await axios.post(`/linode/instances/${id}/mutate`);
+      return response.data;
+    },
+    resetRootPassword: async (id: number, data: ResetRootPasswordRequest) => {
+      const response = await axios.post(`/linode/instances/${id}/password`, data);
+      return response.data;
+    },
     
     // Config operations
     getLinodeConfigs: async (linodeId: number, params?: PaginationParams) => {
@@ -318,6 +463,14 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
       const response = await axios.post(`/linode/instances/${linodeId}/disks/${diskId}/resize`, { size });
       return response.data;
     },
+    cloneDisk: async (linodeId: number, diskId: number, data?: CloneDiskRequest) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/disks/${diskId}/clone`, data || {});
+      return response.data;
+    },
+    resetDiskPassword: async (linodeId: number, diskId: number, password: string) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/disks/${diskId}/password`, { password });
+      return response.data;
+    },
     
     // Kernel operations
     getKernels: async (params?: PaginationParams) => {
@@ -329,6 +482,64 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
       return response.data;
     },
     
+    // Backup operations
+    getBackups: async (linodeId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/backups`);
+      return response.data;
+    },
+    getBackup: async (linodeId: number, backupId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/backups/${backupId}`);
+      return response.data;
+    },
+    createSnapshot: async (linodeId: number, data: CreateSnapshotRequest) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/backups`, data);
+      return response.data;
+    },
+    cancelBackups: async (linodeId: number) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/backups/cancel`);
+      return response.data;
+    },
+    enableBackups: async (linodeId: number) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/backups/enable`);
+      return response.data;
+    },
+    restoreBackup: async (linodeId: number, backupId: number, data?: RestoreBackupRequest) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/backups/${backupId}/restore`, data || {});
+      return response.data;
+    },
+    
+    // IP operations
+    getLinodeIPs: async (linodeId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/ips`);
+      return response.data;
+    },
+    allocateIP: async (linodeId: number, data: LinodeIPAllocationRequest) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/ips`, data);
+      return response.data;
+    },
+    getLinodeIP: async (linodeId: number, address: string) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/ips/${address}`);
+      return response.data;
+    },
+    updateLinodeIP: async (linodeId: number, address: string, data: LinodeIPUpdateRequest) => {
+      const response = await axios.put(`/linode/instances/${linodeId}/ips/${address}`, data);
+      return response.data;
+    },
+    deleteLinodeIP: async (linodeId: number, address: string) => {
+      const response = await axios.delete(`/linode/instances/${linodeId}/ips/${address}`);
+      return response.data;
+    },
+    
+    // Firewall operations
+    getLinodeFirewalls: async (linodeId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/firewalls`, { params });
+      return response.data;
+    },
+    applyFirewalls: async (linodeId: number) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/firewalls/apply`);
+      return response.data;
+    },
+    
     // Stat operations
     getLinodeStats: async (id: number) => {
       const response = await axios.get(`/linode/instances/${id}/stats`);
@@ -336,6 +547,40 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
     },
     getLinodeStatsByDate: async (id: number, year: string, month: string) => {
       const response = await axios.get(`/linode/instances/${id}/stats/${year}/${month}`);
+      return response.data;
+    },
+    getNetworkTransfer: async (id: number) => {
+      const response = await axios.get(`/linode/instances/${id}/transfer`);
+      return response.data;
+    },
+    getMonthlyTransfer: async (id: number, year: string, month: string) => {
+      const response = await axios.get(`/linode/instances/${id}/transfer/${year}/${month}`);
+      return response.data;
+    },
+    
+    // Config Interface operations
+    getConfigInterfaces: async (linodeId: number, configId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/configs/${configId}/interfaces`);
+      return response.data;
+    },
+    getConfigInterface: async (linodeId: number, configId: number, interfaceId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/configs/${configId}/interfaces/${interfaceId}`);
+      return response.data;
+    },
+    createConfigInterface: async (linodeId: number, configId: number, data: CreateConfigInterfaceRequest) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/configs/${configId}/interfaces`, data);
+      return response.data;
+    },
+    updateConfigInterface: async (linodeId: number, configId: number, interfaceId: number, data: UpdateConfigInterfaceRequest) => {
+      const response = await axios.put(`/linode/instances/${linodeId}/configs/${configId}/interfaces/${interfaceId}`, data);
+      return response.data;
+    },
+    deleteConfigInterface: async (linodeId: number, configId: number, interfaceId: number) => {
+      const response = await axios.delete(`/linode/instances/${linodeId}/configs/${configId}/interfaces/${interfaceId}`);
+      return response.data;
+    },
+    reorderConfigInterfaces: async (linodeId: number, configId: number, data: ConfigInterfaceOrderRequest) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/configs/${configId}/interfaces/order`, data);
       return response.data;
     }
   };
