@@ -30,3 +30,4 @@ yarn-error.log*
 # Other files
 CLAUDE.md
 linode-openapi.json
+mcp-schema.json
