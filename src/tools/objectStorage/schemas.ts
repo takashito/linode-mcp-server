@@ -1,8 +1,15 @@
 import { z } from 'zod';
-import { paginationSchema, tagsSchema } from '../common/schemas';
+import { paginationSchema, tagsSchema, pagingParamsSchema } from '../common/schemas';
 
 // Clusters
-export const listClustersSchema = z.object({});
+export const listClustersSchema = z.object({
+  ...pagingParamsSchema.shape
+});
+
+// Endpoints
+export const listEndpointsSchema = z.object({
+  ...pagingParamsSchema.shape
+});
 
 // Buckets
 export const listBucketsSchema = z.object({
@@ -10,30 +17,32 @@ export const listBucketsSchema = z.object({
 });
 
 export const getBucketSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
 });
 
 export const createBucketSchema = z.object({
-  label: z.string().describe('The label for the bucket. Must be 3-63 characters, lowercase letters, numbers, and hyphens only. Must be globally unique across all Object Storage providers.'),
-  cluster: z.string().describe('The cluster where the bucket will be created. Use List Clusters to get available clusters.'),
+  label: z.string().describe('The label for the bucket. Must be 3-63 alphanumeric characters, dashes (-), or dots (.). Cannot end in a dash and cannot use two consecutive dashes. Cannot start or end with a dot, and cannot use two consecutive dots. Must be globally unique within the region.'),
+  region: z.string().describe('The region where the bucket will be created (e.g., us-east, us-west). Use List Clusters to get available regions.'),
+  endpoint_type: z.enum(['E0', 'E1', 'E2', 'E3']).optional()
+    .describe('The type of S3 endpoint available to the user in this region. E0 typically provides public access, while E2/E3 may support additional features like HTTPS or custom domains. Check available endpoint types for your region with List Object Storage Endpoints.'),
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write']).optional()
     .describe('The Access Control Level for the bucket. Defaults to private.'),
   cors_enabled: z.boolean().optional().describe('Whether CORS is enabled for the bucket. Defaults to false.'),
 });
 
 export const deleteBucketSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
 });
 
 export const getBucketAccessSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
 });
 
 export const updateBucketAccessSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write']).optional()
     .describe('The Access Control Level for the bucket'),
@@ -42,26 +51,26 @@ export const updateBucketAccessSchema = z.object({
 
 // Objects
 export const listObjectsSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
   ...paginationSchema.shape
 });
 
 // SSL/TLS certificates
 export const getBucketCertificateSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
 });
 
 export const uploadBucketCertificateSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
   certificate: z.string().describe('The SSL/TLS certificate in PEM format. Must be a valid certificate that matches the bucket\'s domain.'),
   private_key: z.string().describe('The private key for the certificate in PEM format. Must be the corresponding private key for the certificate.'),
 });
 
 export const deleteBucketCertificateSchema = z.object({
-  cluster: z.string().describe('The cluster where the bucket is located'),
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
 });
 
@@ -98,7 +107,9 @@ export const deleteKeySchema = z.object({
 });
 
 // Default access
-export const getDefaultBucketAccessSchema = z.object({});
+export const getDefaultBucketAccessSchema = z.object({
+  id: z.number().describe('The ID of the Object Storage service')
+});
 
 export const updateDefaultBucketAccessSchema = z.object({
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write']).optional()
@@ -107,4 +118,6 @@ export const updateDefaultBucketAccessSchema = z.object({
 });
 
 // Service
-export const cancelObjectStorageSchema = z.object({});
+export const cancelObjectStorageSchema = z.object({
+  id: z.number().describe('The ID of the Object Storage service to cancel')
+});

@@ -1,6 +1,22 @@
 import { z } from 'zod';
 import { pagingParamsSchema, tagSchema, tagsSchema, paginationSchema, paginatedResponseSchema } from '../common/schemas';
 
+// Config Interface schema (moved to the top for dependency resolution)
+export const configInterfaceSchema = z.object({
+  id: z.number().describe('The ID of the interface'),
+  label: z.string().describe('The label for the interface'),
+  purpose: z.enum(['public', 'vlan', 'vpc']).describe('The purpose of the interface (public, vlan, vpc)'),
+  ipam_address: z.string().nullable().describe('The IPAM address for the interface'),
+  primary: z.boolean().optional().describe('Whether this is the primary interface'),
+  active: z.boolean().optional().describe('Whether the interface is active'),
+  subnet_id: z.number().optional().describe('The subnet ID for VPC interfaces'),
+  vpc_id: z.number().optional().describe('The VPC ID for VPC interfaces'),
+  ipv4: z.object({
+    vpc: z.string().optional().describe('The IPv4 address for VPC interfaces'),
+    nat_1_1: z.string().optional().describe('The IPv4 1:1 NAT address')
+  }).optional()
+});
+
 // Base types
 const linodeSpecsSchema = z.object({
   disk: z.number().describe('The amount of storage space in MB'),
@@ -55,7 +71,7 @@ export const linodeConfigSchema = z.object({
   kernel: z.string().describe('The kernel used in this configuration'),
   memory_limit: z.number().describe('The memory limit in MB for this configuration'),
   root_device: z.string().describe('The root device for this configuration'),
-  devices: z.record(z.any()).describe('The devices attached to this configuration'),
+  devices: z.record(z.string()).describe('The devices attached to this configuration'),
   initrd: z.string().nullable().describe('The initial ramdisk file used for this configuration'),
   created: z.string().describe('When this configuration was created'),
   updated: z.string().describe('When this configuration was last updated'),
@@ -65,7 +81,7 @@ export const linodeConfigSchema = z.object({
     network: z.boolean().describe('Whether the network helper is enabled'),
     modules_dep: z.boolean().describe('Whether the modules dependency helper is enabled')
   }),
-  interfaces: z.array(z.any()).describe('Network interfaces for this configuration')
+  interfaces: z.array(configInterfaceSchema).describe('Network interfaces for this configuration')
 });
 
 export const linodeDiskSchema = z.object({
@@ -154,7 +170,7 @@ export const deleteInstanceSchema = z.object({
 export const resizeInstanceSchema = z.object({
   id: z.number().describe('The ID of the Linode instance'),
   type: z.string().describe('The new Linode type ID'),
-  allow_auto_disk_resize: z.boolean().optional().default(true).describe('Whether to automatically resize disks')
+  allow_auto_disk_resize: z.boolean().optional().describe('Whether to automatically resize disks (default: true)')
 });
 
 export const cloneInstanceSchema = z.object({
@@ -175,7 +191,7 @@ export const rebuildInstanceSchema = z.object({
   authorized_keys: z.array(z.string()).optional().describe('SSH public keys to deploy to the root user (recommended for better security)'),
   authorized_users: z.array(z.string()).optional().describe('Linode usernames who can deploy their SSH keys to this Linode'),
   stackscript_id: z.number().optional().describe('StackScript ID to use for deployment. Run List StackScripts to get available IDs.'),
-  stackscript_data: z.record(z.any()).optional().describe('StackScript data to use for deployment. Must be valid JSON with less than 65,535 characters.'),
+  stackscript_data: z.record(z.string()).optional().describe('StackScript data to use for deployment. Must be valid JSON with less than 65,535 characters.'),
   booted: z.boolean().optional().describe('Whether the Linode should be booted after rebuild')
 });
 
@@ -202,7 +218,7 @@ export const createLinodeConfigSchema = z.object({
   comments: z.string().optional().describe('User comments for this configuration'),
   memory_limit: z.number().optional().describe('The memory limit in MB'),
   root_device: z.string().optional().describe('The root device'),
-  devices: z.record(z.any()).optional().describe('Devices to map to this configuration'),
+  devices: z.record(z.string()).optional().describe('Devices to map to this configuration'),
   initrd: z.string().nullable().optional().describe('The initial ramdisk file'),
   helpers: z.object({
     updatedb_disabled: z.boolean().optional().describe('Whether updatedb is disabled'),
@@ -210,7 +226,7 @@ export const createLinodeConfigSchema = z.object({
     network: z.boolean().optional().describe('Whether the network helper is enabled'),
     modules_dep: z.boolean().optional().describe('Whether the modules dependency helper is enabled')
   }).optional(),
-  interfaces: z.array(z.any()).optional().describe('Network interfaces for this configuration')
+  interfaces: z.array(configInterfaceSchema).optional().describe('Network interfaces for this configuration')
 });
 
 export const updateLinodeConfigSchema = z.object({
@@ -246,7 +262,7 @@ export const createLinodeDiskSchema = z.object({
   authorized_keys: z.array(z.string()).optional().describe('SSH public keys to deploy to the root user (recommended for better security)'),
   authorized_users: z.array(z.string()).optional().describe('Linode usernames who can deploy their SSH keys to this disk'),
   stackscript_id: z.number().optional().describe('StackScript ID to use for deployment. Run List StackScripts to get available IDs.'),
-  stackscript_data: z.record(z.any()).optional().describe('StackScript data to use for deployment. Must be valid JSON with less than 65,535 characters.')
+  stackscript_data: z.record(z.string()).optional().describe('StackScript data to use for deployment. Must be valid JSON with less than 65,535 characters.')
 });
 
 export const updateLinodeDiskSchema = z.object({
@@ -285,7 +301,7 @@ export const backupSchema = z.object({
   updated: z.string().describe('When the backup was last updated'),
   finished: z.string().describe('When the backup finished'),
   configs: z.array(z.string()).describe('The configs included in the backup'),
-  disks: z.record(z.any()).describe('The disks included in the backup'),
+  disks: z.record(z.string()).describe('The disks included in the backup'),
   available: z.boolean().describe('Whether the backup is available for restore')
 });
 
@@ -408,20 +424,6 @@ export const getLinodeStatsByDateSchema = z.object({
 });
 
 // Config Interface operations
-export const configInterfaceSchema = z.object({
-  id: z.number().describe('The ID of the interface'),
-  label: z.string().describe('The label for the interface'),
-  purpose: z.enum(['public', 'vlan', 'vpc']).describe('The purpose of the interface (public, vlan, vpc)'),
-  ipam_address: z.string().nullable().describe('The IPAM address for the interface'),
-  primary: z.boolean().optional().describe('Whether this is the primary interface'),
-  active: z.boolean().optional().describe('Whether the interface is active'),
-  subnet_id: z.number().optional().describe('The subnet ID for VPC interfaces'),
-  vpc_id: z.number().optional().describe('The VPC ID for VPC interfaces'),
-  ipv4: z.object({
-    vpc: z.string().optional().describe('The IPv4 address for VPC interfaces'),
-    nat_1_1: z.string().optional().describe('The IPv4 1:1 NAT address')
-  }).optional()
-});
 
 export const getConfigInterfacesSchema = z.object({
   linodeId: z.number().describe('The ID of the Linode instance'),

@@ -29,8 +29,19 @@ program
 
     // Start the server
     try {
-      startServer({ token });
-      console.error('Linode MCP server started');
+      console.log('Starting Linode MCP server...');
+      const server = startServer({ token });
+      console.log('Linode MCP server started successfully');
+      
+      // Add event listeners for errors
+      process.on('uncaughtException', (error) => {
+        console.error('Uncaught exception:', error);
+      });
+      
+      process.on('unhandledRejection', (error) => {
+        console.error('Unhandled rejection:', error);
+      });
+      
     } catch (error) {
       console.error('Error starting server:', error);
       process.exit(1);

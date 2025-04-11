@@ -10,6 +10,7 @@ import { createDomainsClient, DomainsClient } from './domains';
 import { createDatabasesClient, DatabasesClient } from './databases';
 import { createKubernetesClient, KubernetesClient } from './kubernetes';
 import { createImagesClient, ImagesClient } from './images';
+import { StackScriptsClient } from './stackScripts';
 import { LinodeTypesClient } from '../client';
 
 export * from './instances';
@@ -24,6 +25,7 @@ export * from './domains';
 export * from './databases';
 export * from './kubernetes';
 export * from './images';
+export * from './stackScripts';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -38,5 +40,6 @@ export interface LinodeClient {
   databases: DatabasesClient;
   kubernetes: KubernetesClient;
   images: ImagesClient;
+  stackScripts: StackScriptsClient;
   linodeTypes: LinodeTypesClient;
 }

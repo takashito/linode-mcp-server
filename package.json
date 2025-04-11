@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "private": false,
-  "files": [ 
-    "dist/" 
+  "files": [
+    "dist/"
   ],
   "bin": {
     "linode-mcp-server": "dist/cli.js"
@@ -16,9 +16,10 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "lint": "eslint .",
-    "test": "jest",
+    "test": "node test/client-tests.js",
     "prepublishOnly": "npm run build",
-    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "validate-tools": "node test/simple-validator.js"
   },
   "keywords": [
     "linode",

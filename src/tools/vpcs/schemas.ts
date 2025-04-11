@@ -1,7 +1,10 @@
 import { z } from 'zod';
+import { pagingParamsSchema } from '../common/schemas';
 
 // VPC tools
-export const listVPCsSchema = z.object({});
+export const listVPCsSchema = z.object({
+  ...pagingParamsSchema.shape
+});
 
 export const getVPCSchema = z.object({
   id: z.number().describe('The ID of the VPC'),

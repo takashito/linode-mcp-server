@@ -4,8 +4,8 @@ import { z } from 'zod';
 
 // Pagination schema for list endpoints
 export const paginationSchema = z.object({
-  page: z.number().int().min(1).optional().describe('Page number to fetch'),
-  page_size: z.number().int().min(1).max(500).optional().describe('Number of items per page')
+  page: z.number().int().optional().describe('Page number to fetch (minimum: 1)'),
+  page_size: z.number().int().optional().describe('Number of items per page (minimum: 1, maximum: 500)')
 });
 
 // For backward compatibility
@@ -20,8 +20,8 @@ export const paginatedResponseSchema = <T extends z.ZodType>(schema: T) => z.obj
 });
 
 // Tags schema used in many resources
-export const tagsSchema = z.array(z.string().max(50)).optional()
-  .describe('Array of user-defined tags for organization');
+export const tagsSchema = z.array(z.string()).optional()
+  .describe('Array of user-defined tags for organization. Each tag can be up to 50 characters');
 
 // For backward compatibility 
 export const tagSchema = tagsSchema;

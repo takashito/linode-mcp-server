@@ -44,11 +44,11 @@ export const createMySQLInstanceSchema = z.object({
   ssl_connection: z.boolean().optional().describe('Whether SSL/TLS connections to the MySQL database are enforced'),
   tags: tagsSchema,
   updates: z.object({
-    day_of_week: z.number().min(0).max(6).describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
+    day_of_week: z.number().describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
     duration: z.number().describe('The maximum maintenance window in hours'),
     frequency: z.enum(['weekly', 'monthly']).describe('How frequently the maintenance is performed'),
-    hour_of_day: z.number().min(0).max(23).describe('The hour of the day when the maintenance window starts (0-23)'),
-    week_of_month: z.number().min(1).max(4).optional().describe('The week of the month when updates should be applied (required for monthly frequency)')
+    hour_of_day: z.number().describe('The hour of the day when the maintenance window starts (0-23)'),
+    week_of_month: z.number().optional().describe('The week of the month when updates should be applied (1-4, required for monthly frequency)')
   }).optional().describe('MySQL database maintenance and update configuration')
 });
 
@@ -58,11 +58,11 @@ export const updateMySQLInstanceSchema = z.object({
   allow_list: z.array(z.string()).optional().describe('A list of IP addresses that can access the database instance (CIDR notation)'),
   tags: tagsSchema,
   updates: z.object({
-    day_of_week: z.number().min(0).max(6).optional().describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
+    day_of_week: z.number().optional().describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
     duration: z.number().optional().describe('The maximum maintenance window in hours'),
     frequency: z.enum(['weekly', 'monthly']).optional().describe('How frequently the maintenance is performed'),
-    hour_of_day: z.number().min(0).max(23).optional().describe('The hour of the day when the maintenance window starts (0-23)'),
-    week_of_month: z.number().min(1).max(4).optional().describe('The week of the month when updates should be applied (required for monthly frequency)')
+    hour_of_day: z.number().optional().describe('The hour of the day when the maintenance window starts (0-23)'),
+    week_of_month: z.number().optional().describe('The week of the month when updates should be applied (1-4, required for monthly frequency)')
   }).optional().describe('MySQL database maintenance and update configuration')
 });
 
@@ -114,11 +114,11 @@ export const createPostgreSQLInstanceSchema = z.object({
   ssl_connection: z.boolean().optional().describe('Whether SSL/TLS connections to the PostgreSQL database are enforced'),
   tags: tagsSchema,
   updates: z.object({
-    day_of_week: z.number().min(0).max(6).describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
+    day_of_week: z.number().describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
     duration: z.number().describe('The maximum maintenance window in hours'),
     frequency: z.enum(['weekly', 'monthly']).describe('How frequently the maintenance is performed'),
-    hour_of_day: z.number().min(0).max(23).describe('The hour of the day when the maintenance window starts (0-23)'),
-    week_of_month: z.number().min(1).max(4).optional().describe('The week of the month when updates should be applied (required for monthly frequency)')
+    hour_of_day: z.number().describe('The hour of the day when the maintenance window starts (0-23)'),
+    week_of_month: z.number().optional().describe('The week of the month when updates should be applied (1-4, required for monthly frequency)')
   }).optional().describe('PostgreSQL database maintenance and update configuration')
 });
 
@@ -128,11 +128,11 @@ export const updatePostgreSQLInstanceSchema = z.object({
   allow_list: z.array(z.string()).optional().describe('A list of IP addresses that can access the database instance (CIDR notation)'),
   tags: tagsSchema,
   updates: z.object({
-    day_of_week: z.number().min(0).max(6).optional().describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
+    day_of_week: z.number().optional().describe('The day of the week when updates should be applied (0-6, where 0 is Sunday)'),
     duration: z.number().optional().describe('The maximum maintenance window in hours'),
     frequency: z.enum(['weekly', 'monthly']).optional().describe('How frequently the maintenance is performed'),
-    hour_of_day: z.number().min(0).max(23).optional().describe('The hour of the day when the maintenance window starts (0-23)'),
-    week_of_month: z.number().min(1).max(4).optional().describe('The week of the month when updates should be applied (required for monthly frequency)')
+    hour_of_day: z.number().optional().describe('The hour of the day when the maintenance window starts (0-23)'),
+    week_of_month: z.number().optional().describe('The week of the month when updates should be applied (1-4, required for monthly frequency)')
   }).optional().describe('PostgreSQL database maintenance and update configuration')
 });
 

@@ -144,19 +144,25 @@ export const vlansResponseSchema = z.object({
 });
 
 // Request schemas
-export const getIPAddressesSchema = z.object({});
+export const getIPAddressesSchema = z.object({
+  ...pagingParamsSchema.shape
+});
 
 export const getIPAddressSchema = z.object({
   address: z.string().describe('The IP address')
 });
 
-export const getIPv6RangesSchema = z.object({});
+export const getIPv6RangesSchema = z.object({
+  ...pagingParamsSchema.shape
+});
 
 export const getIPv6RangeSchema = z.object({
   range: z.string().describe('The IPv6 range')
 });
 
-export const getIPv6PoolsSchema = z.object({});
+export const getIPv6PoolsSchema = z.object({
+  ...pagingParamsSchema.shape
+});
 
 export const getVLANsSchema = z.object({
   ...pagingParamsSchema.shape

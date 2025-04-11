@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 // Placement tools
 export const listPlacementGroupsSchema = z.object({
-  page: z.number().int().min(1).optional().describe('Page number to fetch'),
-  page_size: z.number().int().min(1).max(500).optional().describe('Number of items per page')
+  page: z.number().int().optional().describe('Page number to fetch (minimum: 1)'),
+  page_size: z.number().int().optional().describe('Number of items per page (minimum: 1, maximum: 500)')
 });
 
 export const getPlacementGroupSchema = z.object({

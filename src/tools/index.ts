@@ -11,6 +11,7 @@ import { registerDomainTools } from './domains/tools';
 import { registerDatabaseTools } from './databases/tools';
 import { registerKubernetesTools } from './kubernetes/tools';
 import { registerImagesTools } from './images/tools';
+import { registerStackScriptsTools } from './stackScripts/tools';
 import { LinodeClient } from '../client';
 
 // Common schemas
@@ -64,6 +65,10 @@ export * from './kubernetes/tools';
 export * from './images/schemas';
 export * from './images/tools';
 
+// StackScripts
+export * from './stackScripts/schemas';
+export * from './stackScripts/tools';
+
 // Register all tools with direct client access
 export const registerAllTools = (server: any, client: LinodeClient) => {
   registerInstanceTools(server, client);
@@ -78,4 +83,5 @@ export const registerAllTools = (server: any, client: LinodeClient) => {
   registerDatabaseTools(server, client);
   registerKubernetesTools(server, client);
   registerImagesTools(server, client);
+  registerStackScriptsTools(server, client);
 };

@@ -63,7 +63,8 @@ export interface BucketCertificate {
 // Request interfaces
 export interface CreateBucketRequest {
   label: string;
-  cluster: string;
+  cluster: string; // This is actually the region ID, but API implementation expects 'cluster'
+  endpoint_type?: 'E0' | 'E1' | 'E2' | 'E3';
   acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
   cors_enabled?: boolean;
 }
@@ -91,6 +92,13 @@ export interface UploadCertificateRequest {
 export interface ObjectStorageClient {
   // Clusters
   getClusters: () => Promise<ObjectStorageCluster[]>;
+  
+  // Endpoints
+  getEndpoints: (params?: PaginationParams) => Promise<PaginatedResponse<{
+    region: string;
+    endpoint_type: 'E0' | 'E1' | 'E2' | 'E3';
+    s3_endpoint: string | null;
+  }>>;
   
   // Buckets
   getBuckets: (params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageBucket>>;
@@ -131,6 +139,12 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
       return response.data.data;
     },
     
+    // Endpoints
+    getEndpoints: async (params?: PaginationParams) => {
+      const response = await axios.get('/object-storage/endpoints', { params });
+      return response.data;
+    },
+    
     // Buckets
     getBuckets: async (params?: PaginationParams) => {
       const response = await axios.get('/object-storage/buckets', { params });
@@ -143,8 +157,26 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
     },
     
     createBucket: async (data: CreateBucketRequest) => {
-      const response = await axios.post('/object-storage/buckets', data);
-      return response.data;
+      try {
+        // The Linode API actually wants 'region' but our client interface uses 'cluster'
+        // This inconsistency exists because of legacy Linode API compatibility
+        const requestData = {
+          label: data.label,
+          region: data.cluster, // Map cluster to region for API consistency
+          endpoint_type: data.endpoint_type,
+          acl: data.acl,
+          cors_enabled: data.cors_enabled
+        };
+        
+        const response = await axios.post('/object-storage/buckets', requestData);
+        return response.data;
+      } catch (error: any) {
+        console.error("Error creating bucket:", error?.message || error);
+        if (error?.response?.data) {
+          console.error("API error response:", JSON.stringify(error.response.data));
+        }
+        throw error;
+      }
     },
     
     deleteBucket: async (cluster: string, label: string) => {

@@ -17,6 +17,21 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
       };
     }
   );
+  
+  // Endpoints
+  server.tool(
+    'list_object_storage_endpoints',
+    'Get a list of all Object Storage endpoints with their types',
+    schemas.listEndpointsSchema.shape,
+    async (params, extra) => {
+      const result = await client.objectStorage.getEndpoints(params);
+      return {
+        content: [
+          { type: 'text', text: formatObjectStorageEndpoints(result.data) },
+        ],
+      };
+    }
+  );
 
   // Buckets
   server.tool(
@@ -38,12 +53,28 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'Get details for a specific Object Storage bucket',
     schemas.getBucketSchema.shape,
     async (params, extra) => {
-      const result = await client.objectStorage.getBucket(params.cluster, params.bucket);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageBucket(result) },
-        ],
-      };
+      // Log the parameters to help debug
+      console.log("Get bucket params:", JSON.stringify(params));
+      try {
+        // The client implementation expects region (cluster in client code) and bucket name
+        const result = await client.objectStorage.getBucket(
+          params.region, 
+          params.bucket  // Use bucket parameter from the schema for lookup
+        );
+        console.log("Get bucket result:", JSON.stringify(result));
+        return {
+          content: [
+            { type: 'text', text: formatObjectStorageBucket(result) },
+          ],
+        };
+      } catch (error: any) {
+        console.error("Get bucket error:", error?.message || error);
+        // If the error has a response, log that too
+        if (error?.response && error.response.data) {
+          console.error("Error response data:", JSON.stringify(error.response.data));
+        }
+        throw error; // Rethrow to maintain original behavior
+      }
     }
   );
 
@@ -52,12 +83,35 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'Create a new Object Storage bucket',
     schemas.createBucketSchema.shape,
     async (params, extra) => {
-      const result = await client.objectStorage.createBucket(params);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageBucket(result) },
-        ],
-      };
+      // Log the parameters to help debug
+      console.log("Create bucket params:", JSON.stringify(params));
+      try {
+        // Ensure parameters match the client's expectations
+        // The Linode API expects 'label' for the bucket name and 'region' for the location
+        const createParams = {
+          label: params.label,
+          cluster: params.region, // Use region parameter but map to cluster for client
+          endpoint_type: params.endpoint_type,
+          acl: params.acl,
+          cors_enabled: params.cors_enabled
+        };
+        
+        console.log("Mapped create bucket params:", JSON.stringify(createParams));
+        const result = await client.objectStorage.createBucket(createParams);
+        console.log("Bucket creation result:", JSON.stringify(result));
+        return {
+          content: [
+            { type: 'text', text: formatObjectStorageBucket(result) },
+          ],
+        };
+      } catch (error: any) {
+        console.error("Bucket creation error:", error?.message || error);
+        // If the error has a response, log that too
+        if (error?.response && error.response.data) {
+          console.error("Error response data:", JSON.stringify(error.response.data));
+        }
+        throw error; // Rethrow to maintain original behavior
+      }
     }
   );
 
@@ -66,10 +120,10 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'Delete an Object Storage bucket',
     schemas.deleteBucketSchema.shape,
     async (params, extra) => {
-      await client.objectStorage.deleteBucket(params.cluster, params.bucket);
+      await client.objectStorage.deleteBucket(params.region, params.bucket);
       return {
         content: [
-          { type: 'text', text: `Bucket '${params.bucket}' in cluster '${params.cluster}' has been deleted.` },
+          { type: 'text', text: `Bucket '${params.bucket}' in region '${params.region}' has been deleted.` },
         ],
       };
     }
@@ -80,7 +134,7 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'Get access configuration for an Object Storage bucket',
     schemas.getBucketAccessSchema.shape,
     async (params, extra) => {
-      const result = await client.objectStorage.getBucketAccess(params.cluster, params.bucket);
+      const result = await client.objectStorage.getBucketAccess(params.region, params.bucket);
       return {
         content: [
           { type: 'text', text: `Bucket Access for '${params.bucket}':
@@ -96,8 +150,8 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     'Update access configuration for an Object Storage bucket',
     schemas.updateBucketAccessSchema.shape,
     async (params, extra) => {
-      const { cluster, bucket, ...data } = params;
-      const result = await client.objectStorage.updateBucketAccess(cluster, bucket, data);
+      const { region, bucket, ...data } = params;
+      const result = await client.objectStorage.updateBucketAccess(region, bucket, data);
       return {
         content: [
           { type: 'text', text: `Updated Bucket Access for '${bucket}':
@@ -114,8 +168,8 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     'List objects in an Object Storage bucket',
     schemas.listObjectsSchema.shape,
     async (params, extra) => {
-      const { cluster, bucket, ...paginationParams } = params;
-      const result = await client.objectStorage.getObjects(cluster, bucket, paginationParams);
+      const { region, bucket, ...paginationParams } = params;
+      const result = await client.objectStorage.getObjects(region, bucket, paginationParams);
       return {
         content: [
           { type: 'text', text: formatObjectStorageObjects(result.data) },
@@ -131,7 +185,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     schemas.getBucketCertificateSchema.shape,
     async (params, extra) => {
       try {
-        const result = await client.objectStorage.getBucketCertificate(params.cluster, params.bucket);
+        const result = await client.objectStorage.getBucketCertificate(params.region, params.bucket);
         return {
           content: [
             { type: 'text', text: `Certificate for '${params.bucket}':
@@ -142,7 +196,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         if (error.response && error.response.status === 404) {
           return {
             content: [
-              { type: 'text', text: `No certificate found for bucket '${params.bucket}' in cluster '${params.cluster}'.` },
+              { type: 'text', text: `No certificate found for bucket '${params.bucket}' in region '${params.region}'.` },
             ],
           };
         }
@@ -156,14 +210,14 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     'Upload SSL/TLS certificate for an Object Storage bucket',
     schemas.uploadBucketCertificateSchema.shape,
     async (params, extra) => {
-      const { cluster, bucket, certificate, private_key } = params;
-      const result = await client.objectStorage.uploadBucketCertificate(cluster, bucket, {
+      const { region, bucket, certificate, private_key } = params;
+      const result = await client.objectStorage.uploadBucketCertificate(region, bucket, {
         certificate,
         private_key,
       });
       return {
         content: [
-          { type: 'text', text: `Certificate uploaded for bucket '${bucket}' in cluster '${cluster}'.
+          { type: 'text', text: `Certificate uploaded for bucket '${bucket}' in region '${region}'.
 Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
@@ -175,10 +229,10 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     'Delete SSL/TLS certificate for an Object Storage bucket',
     schemas.deleteBucketCertificateSchema.shape,
     async (params, extra) => {
-      await client.objectStorage.deleteBucketCertificate(params.cluster, params.bucket);
+      await client.objectStorage.deleteBucketCertificate(params.region, params.bucket);
       return {
         content: [
-          { type: 'text', text: `Certificate for bucket '${params.bucket}' in cluster '${params.cluster}' has been deleted.` },
+          { type: 'text', text: `Certificate for bucket '${params.bucket}' in region '${params.region}' has been deleted.` },
         ],
       };
     }
@@ -431,6 +485,25 @@ function formatObjectStorageObjects(objects: ObjectStorageObject[]): string {
   }
 
   return objects.map(formatObjectStorageObject).join('\n');
+}
+
+/**
+ * Formats an endpoint for display
+ */
+function formatEndpoint(endpoint: { region: string; endpoint_type: string; s3_endpoint: string | null }): string {
+  const s3Endpoint = endpoint.s3_endpoint || 'Not available';
+  return `Region: ${endpoint.region}, Type: ${endpoint.endpoint_type}, Endpoint: ${s3Endpoint}`;
+}
+
+/**
+ * Formats a list of Object Storage endpoints for display
+ */
+function formatObjectStorageEndpoints(endpoints: { region: string; endpoint_type: string; s3_endpoint: string | null }[]): string {
+  if (endpoints.length === 0) {
+    return 'No Object Storage endpoints found.';
+  }
+
+  return endpoints.map(formatEndpoint).join('\n');
 }
 
 /**

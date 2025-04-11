@@ -39,4 +39,6 @@ export const resizeVolumeSchema = z.object({
 });
 
 // Volume types
-export const listVolumeTypesSchema = z.object({});
+export const listVolumeTypesSchema = z.object({
+  ...pagingParamsSchema.shape
+});
