@@ -21,7 +21,7 @@ export function startServer(options: ServerOptions) {
   try {
     const server = new McpServer({
       name: 'linode-mcp-server',
-      version: '0.1.4',
+      version: '0.1.5',
       description: 'MCP server for Linode API integration'
     });
 
