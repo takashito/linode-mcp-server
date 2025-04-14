@@ -15,6 +15,26 @@ import { registerStackScriptsTools } from './stackScripts/tools';
 import { registerTagsTools } from './tags/tools';
 import { LinodeClient } from '../client';
 
+// Define all available tool categories
+export const TOOL_CATEGORIES = [
+  'instances',
+  'volumes',
+  'networking',
+  'nodebalancers',
+  'regions',
+  'placement',
+  'vpcs',
+  'objectStorage',
+  'domains',
+  'databases',
+  'kubernetes',
+  'images',
+  'stackScripts',
+  'tags'
+] as const;
+
+export type ToolCategory = typeof TOOL_CATEGORIES[number];
+
 // Common schemas
 export * from './common/schemas';
 
@@ -70,19 +90,39 @@ export * from './images/tools';
 export * from './stackScripts/schemas';
 export * from './stackScripts/tools';
 
-// Register all tools with direct client access
-export const registerAllTools = (server: any, client: LinodeClient) => {
-  registerInstanceTools(server, client);
-  registerVolumeTools(server, client);
-  registerNetworkingTools(server, client);
-  registerNodeBalancerTools(server, client);
-  registerRegionTools(server, client);
-  registerPlacementTools(server, client);
-  registerVPCTools(server, client);
-  registerObjectStorageTools(server, client);
-  registerDomainTools(server, client);
-  registerDatabaseTools(server, client);
-  registerKubernetesTools(server, client);
-  registerImagesTools(server, client);
-  registerStackScriptsTools(server, client);
+// Tags
+export * from './tags/schemas';
+export * from './tags/tools';
+
+// Register tools with direct client access
+export const registerAllTools = (
+  server: any, 
+  client: LinodeClient, 
+  enabledCategories?: ToolCategory[]
+) => {
+  // If no categories specified, enable all
+  const categories = enabledCategories || [...TOOL_CATEGORIES];
+  
+  // Direct function mapping for better traceability
+  const registerFunctions: Record<string, (server: any, client: LinodeClient) => void> = {
+    'instances': registerInstanceTools,
+    'volumes': registerVolumeTools,
+    'networking': registerNetworkingTools,
+    'nodebalancers': registerNodeBalancerTools,
+    'regions': registerRegionTools,
+    'placement': registerPlacementTools,
+    'vpcs': registerVPCTools,
+    'objectStorage': registerObjectStorageTools,
+    'domains': registerDomainTools,
+    'databases': registerDatabaseTools,
+    'kubernetes': registerKubernetesTools,
+    'images': registerImagesTools,
+    'stackScripts': registerStackScriptsTools,
+    'tags': registerTagsTools
+  };
+  
+  // Register only the enabled categories
+  for (const category of categories) {
+    registerFunctions[category](server, client);
+  }
 };

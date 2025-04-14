@@ -7,7 +7,26 @@
 
 An MCP (Model Context Protocol) server that interfaces with the Linode API and works with Claude Desktop using stdio. This server acts as a bridge between Claude Desktop and Linode's cloud infrastructure services, including compute instances, block storage, managed databases, load balancers, and more.
 
-## Installation & Uage with npx
+### Available Tool Categories
+
+This server provides tools for the following Linode service categories:
+
+- 🖥️ **instances** - Linode compute instances (VPS)
+- 💾 **volumes** - Block storage volumes 
+- 🌐 **networking** - IP addresses, firewalls, VLANs
+- ⚖️ **nodebalancers** - Load balancers for distributing traffic
+- 🌎 **regions** - Data center locations
+- 📊 **placement** - Instance placement policies
+- 🔒 **vpcs** - Virtual Private Cloud networks
+- 📦 **objectStorage** - S3-compatible object storage
+- 🔤 **domains** - DNS management
+- 🗄️ **databases** - Managed MySQL/PostgreSQL databases
+- ☸️ **kubernetes** - Kubernetes container orchestration (LKE)
+- 💿 **images** - Custom disk images for instances
+- 📜 **stackScripts** - Deployment automation scripts
+- 🏷️ **tags** - Resource organization labels
+
+## Installation & Usage with npx
 
 You need a Linode API token to use this server. You can create one in the Linode Cloud Manager under your profile settings.
 
@@ -36,7 +55,7 @@ npx @takashito/linode-mcp-server
 
 ### Using with Claude Desktop
 
-Add this MCP server to Claude Desktop by configuring it in your Claude settings:
+Add this MCP server to Claude Desktop by configuring it in your Claude settings (claude_desktop_config.json):
 
 ```json
 {
@@ -72,6 +91,32 @@ Or using environment variables:
   }
 }
 ```
+
+### Using with VSCode Copilot Agent
+
+Add this MCP server to VSCode Copilot Agent by configuring it in your VSCode settings (setting.json)
+
+```json
+{
+  "mcpServers": {
+    "linode": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@takashito/linode-mcp-server",
+        "--token", 
+        "YOUR_LINODE_API_TOKEN",
+        "--categories",
+        "instances,volumes,regions"
+      ]
+    }
+  }
+}
+```
+⚠️ When you use this server with GPT-4o model, use it with --categories parameter to limit the number of Tools.
+otherwise chat message will be responded with 400 error.
+
+![chat error](<./img/vscode-gpt-4o-error.png>)
 
 ## Installing via Smithery
 
@@ -369,6 +414,61 @@ Manage disk images that can be used to create Linode instances.
 - `update_image` - Update an existing image
 - `delete_image` - Delete an image
 - `replicate_image` - Replicate an image to other regions
+
+### StackScripts
+Manage reusable scripts that automate the deployment of custom environments on Linode instances.
+
+- `list_stackscripts` - Get a list of all StackScripts
+- `get_stackscript` - Get details for a specific StackScript
+- `create_stackscript` - Create a new StackScript
+- `update_stackscript` - Update an existing StackScript
+- `delete_stackscript` - Delete a StackScript
+
+### Tags
+Manage labels that help organize and categorize Linode resources.
+
+- `list_tags` - Get a list of all Tags
+- `get_tag` - Get details for a specific Tag
+- `create_tag` - Create a new Tag
+- `delete_tag` - Delete a Tag
+
+## Tools Category Selection
+
+You can limit which tool categories are enabled when starting the server:
+
+```bash
+# Enable only instances and volumes tools
+npx @takashito/linode-mcp-server --token YOUR_TOKEN --categories instances,volumes
+```
+
+Or in Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "linode": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@takashito/linode-mcp-server",
+        "--token", 
+        "YOUR_LINODE_API_TOKEN",
+        "--categories",
+        "instances,volumes,regions"
+      ]
+    }
+  }
+}
+```
+Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags
+
+You can check it from CLI to see all available categories:
+
+```bash
+npx @takashito/linode-mcp-server --list-categories
+```
+
+
 
 ## License
 

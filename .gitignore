@@ -31,3 +31,5 @@ yarn-error.log*
 CLAUDE.md
 linode-openapi.json
 mcp-schema.json
+test/
+.tool-versions

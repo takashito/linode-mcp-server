@@ -9,7 +9,7 @@
     "dist/"
   ],
   "bin": {
-    "linode-mcp-server": "dist/cli.js"
+    "linode-mcp-server": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -17,9 +17,9 @@
     "dev": "ts-node src/index.ts",
     "lint": "eslint .",
     "test": "node test/client-tests.js",
-    "prepublishOnly": "npm run build",
-    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
-    "validate-tools": "node test/simple-validator.js"
+    "inspect": "tsc && npx @modelcontextprotocol/inspector node dist/index.js",
+    "validate-tools": "node test/simple-validator.js",
+    "test:mcp": "bash test/run-mcp-tests.sh"
   },
   "keywords": [
     "linode",

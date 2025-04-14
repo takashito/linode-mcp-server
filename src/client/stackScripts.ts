@@ -1,71 +1,68 @@
-/**
- * Basic HTTP client interface for StackScripts
- */
-export interface ApiClient {
-  get: (path: string, params?: any) => Promise<any>;
-  post: (path: string, data: any) => Promise<any>;
-  put: (path: string, data: any) => Promise<any>;
-  delete: (path: string) => Promise<any>;
-}
+import { AxiosInstance } from 'axios';
+import { PaginationParams, PaginatedResponse } from './instances';
 
 /**
- * Create a new StackScripts client
- * @param client - The API client
- * @returns A new StackScripts client
+ * Interface for StackScript
  */
-export function createStackScriptsClient(client: ApiClient): StackScriptsClient {
-  return new StackScriptsClient(client);
+export interface StackScript {
+  id: number;
+  label: string;
+  script: string;
+  description: string;
+  images: string[];
+  deployments_active: number;
+  deployments_total: number;
+  is_public: boolean;
+  created: string;
+  updated: string;
+  username: string;
+  user_gravatar_id: string;
+  rev_note: string;
+  user_defined_fields: {
+    name: string;
+    label: string;
+    example: string;
+    default?: string;
+    oneOf?: string;
+    manyOf?: string;
+  }[];
+  mine: boolean;
 }
 
 /**
  * Client for Linode StackScripts API
- * This client provides methods for managing StackScripts
  */
-export class StackScriptsClient {
-  private client: ApiClient;
-
-  constructor(client: ApiClient) {
-    this.client = client;
-  }
-
+export interface StackScriptsClient {
   /**
    * Get a list of StackScripts
    * @param params - Pagination and filtering parameters
    * @returns A paginated list of StackScripts
    */
-  async getStackScripts(params?: { 
-    page?: number; 
-    page_size?: number; 
+  getStackScripts(params?: PaginationParams & { 
     is_mine?: boolean; 
     is_public?: boolean;
-  }) {
-    return this.client.get('/linode/stackscripts', params);
-  }
+  }): Promise<PaginatedResponse<StackScript>>;
 
   /**
    * Get a specific StackScript by ID
    * @param id - The ID of the StackScript
    * @returns The StackScript object
    */
-  async getStackScript(id: number) {
-    return this.client.get(`/linode/stackscripts/${id}`);
-  }
+  getStackScript(id: number): Promise<StackScript>;
 
   /**
    * Create a new StackScript
    * @param data - The data for the new StackScript
    * @returns The newly created StackScript
    */
-  async createStackScript(data: {
+  createStackScript(data: {
     script: string;
     label: string;
     images: string[];
     description?: string;
     is_public?: boolean;
     rev_note?: string;
-  }) {
-    return this.client.post('/linode/stackscripts', data);
-  }
+  }): Promise<StackScript>;
 
   /**
    * Update an existing StackScript
@@ -73,23 +70,70 @@ export class StackScriptsClient {
    * @param data - The data to update
    * @returns The updated StackScript object
    */
-  async updateStackScript(id: number, data: {
+  updateStackScript(id: number, data: {
     script?: string;
     label?: string;
     images?: string[];
     description?: string;
     is_public?: boolean;
     rev_note?: string;
-  }) {
-    return this.client.put(`/linode/stackscripts/${id}`, data);
-  }
+  }): Promise<StackScript>;
 
   /**
    * Delete a StackScript
    * @param id - The ID of the StackScript to delete
    * @returns Empty response on success
    */
-  async deleteStackScript(id: number) {
-    return this.client.delete(`/linode/stackscripts/${id}`);
-  }
+  deleteStackScript(id: number): Promise<{}>;
+}
+
+/**
+ * Create a new StackScripts client
+ * @param axios - The Axios instance for API calls
+ * @returns A new StackScripts client
+ */
+export function createStackScriptsClient(axios: AxiosInstance): StackScriptsClient {
+  return {
+    async getStackScripts(params?: PaginationParams & { 
+      is_mine?: boolean; 
+      is_public?: boolean;
+    }): Promise<PaginatedResponse<StackScript>> {
+      const response = await axios.get('/linode/stackscripts', { params });
+      return response.data;
+    },
+
+    async getStackScript(id: number): Promise<StackScript> {
+      const response = await axios.get(`/linode/stackscripts/${id}`);
+      return response.data;
+    },
+
+    async createStackScript(data: {
+      script: string;
+      label: string;
+      images: string[];
+      description?: string;
+      is_public?: boolean;
+      rev_note?: string;
+    }): Promise<StackScript> {
+      const response = await axios.post('/linode/stackscripts', data);
+      return response.data;
+    },
+
+    async updateStackScript(id: number, data: {
+      script?: string;
+      label?: string;
+      images?: string[];
+      description?: string;
+      is_public?: boolean;
+      rev_note?: string;
+    }): Promise<StackScript> {
+      const response = await axios.put(`/linode/stackscripts/${id}`, data);
+      return response.data;
+    },
+
+    async deleteStackScript(id: number): Promise<{}> {
+      const response = await axios.delete(`/linode/stackscripts/${id}`);
+      return response.data;
+    }
+  };
 }
