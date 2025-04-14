@@ -5,13 +5,20 @@
 [![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
 [![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
 
-An MCP (Model Context Protocol) server that interfaces with the Linode API and works with Claude Desktop using stdio. This server acts as a bridge between Claude Desktop and Linode's cloud infrastructure services, including compute instances, block storage, managed databases, load balancers, and more.
+An MCP (Model Context Protocol) server that connect your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation.
 
-### Available Tool Categories
+## What Can You Do With This?
+
+Ask Claude Desktop or VSCode Copilot Agent to help you with tasks like:
+- "Show me all my instances in the Frankfurt region"
+- "Create a new instance in Osaka"
+- "Create a load balancer for my web servers"
+- "Set up a managed MySQL database"
+etc
 
 This server provides tools for the following Linode service categories:
 
-- 🖥️ **instances** - Linode compute instances (VPS)
+- 🖥️ **instances** - Linode compute instances
 - 💾 **volumes** - Block storage volumes 
 - 🌐 **networking** - IP addresses, firewalls, VLANs
 - ⚖️ **nodebalancers** - Load balancers for distributing traffic
@@ -26,36 +33,48 @@ This server provides tools for the following Linode service categories:
 - 📜 **stackScripts** - Deployment automation scripts
 - 🏷️ **tags** - Resource organization labels
 
-## Installation & Usage with npx
+## Getting Started
 
-You need a Linode API token to use this server. You can create one in the Linode Cloud Manager under your profile settings.
+### Quick Start with npx
+
+You'll need a Linode API token to use this server. Create one in your [Linode Cloud Manager profile settings](https://cloud.linode.com/profile/tokens).
 
 ```bash
 # Start the server with your API token
 npx @takashito/linode-mcp-server --token YOUR_LINODE_API_TOKEN
 ```
 
-You can also set the token using an environment variable:
+### Setting Your API Token
 
-```bash
-# Set the token as an environment variable
-export LINODE_API_TOKEN=your_token_here
-```
+You can provide your token in several ways:
 
-Or by adding it to a .env file in the project directory:
+1. **Command line option:**
+   ```bash
+   npx @takashito/linode-mcp-server --token YOUR_LINODE_API_TOKEN
+   ```
 
-```
-LINODE_API_TOKEN=your_token_here
-```
+2. **Environment variable:**
+   ```bash
+   export LINODE_API_TOKEN=your_token_here
+   npx @takashito/linode-mcp-server
+   ```
 
-```
-# Then run the server
-npx @takashito/linode-mcp-server
-```
+3. **Environment file:**
+   Create a `.env` file in your project directory with:
+   ```
+   LINODE_API_TOKEN=your_token_here
+   ```
+   Then run:
+   ```bash
+   npx @takashito/linode-mcp-server
+   ```
 
-### Using with Claude Desktop
+### Connecting to Claude Desktop
 
-Add this MCP server to Claude Desktop by configuring it in your Claude settings (claude_desktop_config.json):
+To add this MCP server to Claude Desktop:
+
+1. Open Claude settings > Developer > Edit Config
+2. Add following lines to configure the MCP server:
 
 ```json
 {
@@ -73,7 +92,7 @@ Add this MCP server to Claude Desktop by configuring it in your Claude settings 
 }
 ```
 
-Or using environment variables:
+Or with environment variables:
 
 ```json
 {
@@ -92,9 +111,9 @@ Or using environment variables:
 }
 ```
 
-### Using with VSCode Copilot Agent
+### Connecting to VSCode Copilot Agent
 
-Add this MCP server to VSCode Copilot Agent by configuring it in your VSCode settings (setting.json)
+Add this MCP server to VSCode Copilot Agent in your VSCode settings (setting.json):
 
 ```json
 {
@@ -113,17 +132,53 @@ Add this MCP server to VSCode Copilot Agent by configuring it in your VSCode set
   }
 }
 ```
-⚠️ When you use this server with GPT-4o model, use it with --categories parameter to limit the number of Tools.
-otherwise chat message will be responded with 400 error.
+
+⚠️ **Important for GPT-4o users**: When using this server with GPT-4o, use the `--categories` parameter to limit the number of tools. Otherwise, you might get a 400 error in your chat responses.
 
 ![chat error](<./img/vscode-gpt-4o-error.png>)
 
-## Installing via Smithery
+### Automatic Installation via Smithery to Claude Desktop
 
-To install linode-mcp-server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@takashito/linode-mcp-server):
+For the easiest setup, use [Smithery](https://smithery.ai/server/@takashito/linode-mcp-server):
 
 ```bash
 npx -y @smithery/cli install @takashito/linode-mcp-server --client claude
+```
+
+## Tools Category Selection
+
+You can selectively enabled tools with --categories parameter:
+
+```bash
+# Enable only instances and volumes tools
+npx @takashito/linode-mcp-server --token YOUR_TOKEN --categories instances,volumes
+```
+
+Or in Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "linode": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@takashito/linode-mcp-server",
+        "--token", 
+        "YOUR_LINODE_API_TOKEN",
+        "--categories",
+        "instances,volumes,regions"
+      ]
+    }
+  }
+}
+```
+Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags
+
+To see all available categories:
+
+```bash
+npx @takashito/linode-mcp-server --list-categories
 ```
 
 ## Available Tools
@@ -432,41 +487,6 @@ Manage labels that help organize and categorize Linode resources.
 - `create_tag` - Create a new Tag
 - `delete_tag` - Delete a Tag
 
-## Tools Category Selection
-
-You can limit which tool categories are enabled when starting the server:
-
-```bash
-# Enable only instances and volumes tools
-npx @takashito/linode-mcp-server --token YOUR_TOKEN --categories instances,volumes
-```
-
-Or in Claude Desktop config:
-
-```json
-{
-  "mcpServers": {
-    "linode": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@takashito/linode-mcp-server",
-        "--token", 
-        "YOUR_LINODE_API_TOKEN",
-        "--categories",
-        "instances,volumes,regions"
-      ]
-    }
-  }
-}
-```
-Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags
-
-You can check it from CLI to see all available categories:
-
-```bash
-npx @takashito/linode-mcp-server --list-categories
-```
 
 
 
