@@ -53,22 +53,18 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'Get details for a specific Object Storage bucket',
     schemas.getBucketSchema.shape,
     async (params, extra) => {
-      // Log the parameters to help debug
-      console.log("Get bucket params:", JSON.stringify(params));
       try {
         // The client implementation expects region (cluster in client code) and bucket name
         const result = await client.objectStorage.getBucket(
           params.region, 
           params.bucket  // Use bucket parameter from the schema for lookup
         );
-        console.log("Get bucket result:", JSON.stringify(result));
         return {
           content: [
             { type: 'text', text: formatObjectStorageBucket(result) },
           ],
         };
       } catch (error: any) {
-        console.error("Get bucket error:", error?.message || error);
         // If the error has a response, log that too
         if (error?.response && error.response.data) {
           console.error("Error response data:", JSON.stringify(error.response.data));
@@ -83,8 +79,6 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'Create a new Object Storage bucket',
     schemas.createBucketSchema.shape,
     async (params, extra) => {
-      // Log the parameters to help debug
-      console.log("Create bucket params:", JSON.stringify(params));
       try {
         // Ensure parameters match the client's expectations
         // The Linode API expects 'label' for the bucket name and 'region' for the location
@@ -95,10 +89,7 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
           acl: params.acl,
           cors_enabled: params.cors_enabled
         };
-        
-        console.log("Mapped create bucket params:", JSON.stringify(createParams));
         const result = await client.objectStorage.createBucket(createParams);
-        console.log("Bucket creation result:", JSON.stringify(result));
         return {
           content: [
             { type: 'text', text: formatObjectStorageBucket(result) },

@@ -12,9 +12,7 @@ export const listEndpointsSchema = z.object({
 });
 
 // Buckets
-export const listBucketsSchema = z.object({
-  ...paginationSchema.shape
-});
+export const listBucketsSchema = z.object({});
 
 export const getBucketSchema = z.object({
   region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
