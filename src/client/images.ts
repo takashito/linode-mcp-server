@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import { AxiosInstance } from 'axios';
 import { PaginationParams, PaginatedResponse } from './index';
 
 /**
@@ -96,70 +96,41 @@ export interface ImagesClient {
 /**
  * Create a client for interacting with the Linode Images API
  */
-export function createImagesClient(token: string, baseURL: string = 'https://api.linode.com/v4'): ImagesClient {
-  const instance: AxiosInstance = axios.create({
-    baseURL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
+export function createImagesClient(axios: AxiosInstance): ImagesClient {
   return {
-    /**
-     * List all images
-     */
     async getImages(params: PaginationParams = {}): Promise<PaginatedResponse<Image>> {
-      const response = await instance.get('/images', { params });
+      const response = await axios.get('/images', { params });
       return response.data;
     },
 
-    /**
-     * Get a specific image by ID
-     */
     async getImage(imageId: string): Promise<Image> {
-      const response = await instance.get(`/images/${imageId}`);
+      const response = await axios.get(`/images/${imageId}`);
       return response.data;
     },
 
-    /**
-     * Create a new image from an existing disk
-     */
     async createImage(data: CreateImageRequest): Promise<Image> {
-      const response = await instance.post('/images', data);
+      const response = await axios.post('/images', data);
       return response.data;
     },
 
-    /**
-     * Upload a new image
-     */
     async uploadImage(data: UploadImageRequest): Promise<{ image: Image; upload_url: string }> {
-      const response = await instance.post('/images/upload', data);
+      const response = await axios.post('/images/upload', data);
       return response.data;
     },
 
-    /**
-     * Update an existing image
-     */
     async updateImage(imageId: string, data: UpdateImageRequest): Promise<Image> {
-      const response = await instance.put(`/images/${imageId}`, data);
+      const response = await axios.put(`/images/${imageId}`, data);
       return response.data;
     },
 
-    /**
-     * Delete an image
-     */
     async deleteImage(imageId: string): Promise<{}> {
-      const response = await instance.delete(`/images/${imageId}`);
+      const response = await axios.delete(`/images/${imageId}`);
       return response.data;
     },
 
-    /**
-     * Replicate an image to other regions
-     */
     async replicateImage(imageId: string, data: ReplicateImageRequest): Promise<{}> {
-      const response = await instance.post(`/images/${imageId}/regions`, data);
+      const response = await axios.post(`/images/${imageId}/regions`, data);
       return response.data;
-    },
+    }
   };
 }
