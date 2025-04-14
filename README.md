@@ -185,7 +185,7 @@ npx @takashito/linode-mcp-server --list-categories
 
 This MCP server provides the following tools for interacting with Linode API services:
 
-### Instances
+### 🖥️ Instances
 Manage Linode compute instances, including creation, deletion, and power operations.
 
 #### Instance Operations
@@ -261,7 +261,7 @@ Manage Linode compute instances, including creation, deletion, and power operati
 - `list_instance_types` - Get a list of all available Linode types
 - `get_instance_type` - Get details for a specific Linode type
 
-### Volumes
+### 💾 Volumes
 Manage block storage volumes that can be attached to Linode instances.
 
 - `list_volumes` - Get a list of all volumes
@@ -272,7 +272,7 @@ Manage block storage volumes that can be attached to Linode instances.
 - `detach_volume` - Detach a volume from a Linode instance
 - `resize_volume` - Resize a volume
 
-### Networking
+### 🌐 Networking
 Manage IP addresses, firewalls, and network infrastructure.
 
 #### IP Address Management
@@ -307,7 +307,7 @@ Manage IP addresses, firewalls, and network infrastructure.
 - `get_vlans` - Get all VLANs
 - `get_vlan` - Get a specific VLAN
 
-### Domains
+### 🔤 Domains
 Manage DNS domains and records hosted by Linode's DNS services.
 
 - `list_domains` - Get a list of all domains
@@ -323,7 +323,7 @@ Manage DNS domains and records hosted by Linode's DNS services.
 - `import_domain_zone` - Import a domain zone from a remote nameserver
 - `clone_domain` - Clone an existing domain to a new domain
 
-### Databases
+### 🗄️ Databases
 Manage Linode Managed Database services for MySQL and PostgreSQL.
 
 #### General Database Operations
@@ -359,7 +359,7 @@ Manage Linode Managed Database services for MySQL and PostgreSQL.
 - `suspend_postgresql_instance` - Suspend a PostgreSQL database instance (billing continues)
 - `resume_postgresql_instance` - Resume a suspended PostgreSQL database instance
 
-### NodeBalancers
+### ⚖️ NodeBalancers
 Manage Linode's load balancing service to distribute traffic across multiple Linode instances.
 
 - `list_nodebalancers` - Get a list of all NodeBalancers
@@ -373,7 +373,7 @@ Manage Linode's load balancing service to distribute traffic across multiple Lin
 - `create_nodebalancer_node` - Create a new node for a NodeBalancer config
 - `delete_nodebalancer_node` - Delete a node from a NodeBalancer config
 
-### Object Storage
+### 📦 Object Storage
 Manage S3-compatible object storage for storing and retrieving files.
 
 - `list_object_storage_clusters` - Get a list of all Object Storage clusters
@@ -396,7 +396,7 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `update_object_storage_default_bucket_access` - Update default bucket access configuration
 - `cancel_object_storage` - Cancel Object Storage service
 
-### VPCs
+### 🔒 VPCs
 Manage Virtual Private Cloud networks to isolate and connect Linode resources.
 
 - `list_vpcs` - Get a list of all VPCs
@@ -411,7 +411,7 @@ Manage Virtual Private Cloud networks to isolate and connect Linode resources.
 - `delete_vpc_subnet` - Delete a subnet in a VPC
 - `list_vpc_ips` - List all IP addresses in a VPC
 
-### Placement Groups
+### 📊 Placement Groups
 Manage instance placement policies to control how instances are distributed across physical hardware.
 
 - `list_placement_groups` - List all placement groups
@@ -422,13 +422,13 @@ Manage instance placement policies to control how instances are distributed acro
 - `assign_instances` - Assign Linode instances to a placement group
 - `unassign_instances` - Unassign Linode instances from a placement group
 
-### Regions
+### 🌎 Regions
 Retrieve information about Linode's global data center locations.
 
 - `list_regions` - Get a list of all available regions
 - `get_region` - Get details for a specific region
 
-### Kubernetes (LKE)
+### ☸️ Kubernetes (LKE)
 Manage Linode Kubernetes Engine clusters and node pools.
 
 #### Cluster Operations
@@ -459,7 +459,7 @@ Manage Linode Kubernetes Engine clusters and node pools.
 - `delete_kubernetes_node` - Delete a node from a Kubernetes cluster
 - `recycle_kubernetes_node` - Recycle a node in a Kubernetes cluster
 
-### Images
+### 💿 Images
 Manage disk images that can be used to create Linode instances.
 
 - `list_images` - Get a list of all available images
@@ -470,7 +470,7 @@ Manage disk images that can be used to create Linode instances.
 - `delete_image` - Delete an image
 - `replicate_image` - Replicate an image to other regions
 
-### StackScripts
+### 📜 StackScripts
 Manage reusable scripts that automate the deployment of custom environments on Linode instances.
 
 - `list_stackscripts` - Get a list of all StackScripts
@@ -479,7 +479,7 @@ Manage reusable scripts that automate the deployment of custom environments on L
 - `update_stackscript` - Update an existing StackScript
 - `delete_stackscript` - Delete a StackScript
 
-### Tags
+### 🏷️ Tags
 Manage labels that help organize and categorize Linode resources.
 
 - `list_tags` - Get a list of all Tags
