@@ -13,7 +13,8 @@ import {
   createDatabasesClient,
   createKubernetesClient,
   createImagesClient,
-  createStackScriptsClient
+  createStackScriptsClient,
+  createTagsClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -74,25 +75,9 @@ export function createClient(token: string): LinodeClient {
   const domains = createDomainsClient(axiosInstance);
   const databases = createDatabasesClient(axiosInstance);
   const kubernetes = createKubernetesClient(axiosInstance);
-  const images = createImagesClient(token, API_ROOT);
-  const stackScripts = createStackScriptsClient({
-    get: async (path: string, params?: any) => {
-      const response = await axiosInstance.get(path, { params });
-      return response.data;
-    },
-    post: async (path: string, data: any) => {
-      const response = await axiosInstance.post(path, data);
-      return response.data;
-    },
-    put: async (path: string, data: any) => {
-      const response = await axiosInstance.put(path, data);
-      return response.data;
-    },
-    delete: async (path: string) => {
-      const response = await axiosInstance.delete(path);
-      return response.data;
-    }
-  });
+  const images = createImagesClient(axiosInstance);
+  const stackScripts = createStackScriptsClient(axiosInstance);
+  const tags = createTagsClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -109,6 +94,7 @@ export function createClient(token: string): LinodeClient {
     kubernetes,
     images,
     stackScripts,
+    tags,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -263,45 +249,12 @@ export type {
   ReplicateImageRequest
 } from './client/images';
 
-export interface StackScript {
-  id: number;
-  label: string;
-  script: string;
-  description: string;
-  images: string[];
-  deployments_active: number;
-  deployments_total: number;
-  is_public: boolean;
-  created: string;
-  updated: string;
-  username: string;
-  user_gravatar_id: string;
-  rev_note: string;
-  user_defined_fields: {
-    name: string;
-    label: string;
-    example: string;
-    default?: string;
-    oneOf?: string;
-    manyOf?: string;
-  }[];
-  mine: boolean;
-}
+export type {
+  StackScript
+} from './client/stackScripts';
 
-export interface CreateStackScriptRequest {
-  script: string;
-  label: string;
-  images: string[];
-  description?: string;
-  is_public?: boolean;
-  rev_note?: string;
-}
+export type {
+  Tag,
+  CreateTagRequest
+} from './client/tags';
 
-export interface UpdateStackScriptRequest {
-  script?: string;
-  label?: string;
-  images?: string[];
-  description?: string;
-  is_public?: boolean;
-  rev_note?: string;
-}

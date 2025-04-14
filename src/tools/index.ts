@@ -12,6 +12,7 @@ import { registerDatabaseTools } from './databases/tools';
 import { registerKubernetesTools } from './kubernetes/tools';
 import { registerImagesTools } from './images/tools';
 import { registerStackScriptsTools } from './stackScripts/tools';
+import { registerTagsTools } from './tags/tools';
 import { LinodeClient } from '../client';
 
 // Common schemas
