@@ -734,7 +734,7 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
   // Instance Type operations
   server.tool(
     'list_instance_types',
-    'Get a list of all available Linode types',
+    'Get a list of all available Linode types, including pricing and specifications',
     schemas.listInstanceTypesSchema.shape,
     async (params: { page?: number; page_size?: number }, extra: any) => {
       const paginationParams = {
@@ -752,7 +752,7 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
 
   server.tool(
     'get_instance_type',
-    'Get details for a specific Linode type',
+    'Get details for a specific Linode type, including pricing and specifications',
     schemas.getInstanceTypeSchema.shape,
     async (params, extra) => {
       const result = await client.linodeTypes.getType(params.id);
