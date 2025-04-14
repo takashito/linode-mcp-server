@@ -29,6 +29,7 @@ export interface CreateVolumeRequest {
   linode_id?: number;
   config_id?: number;
   tags?: string[];
+  encryption?: 'enabled' | 'disabled';
 }
 
 export interface UpdateVolumeRequest {

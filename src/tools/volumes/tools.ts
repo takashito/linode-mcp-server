@@ -43,7 +43,8 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         label: String(params.label),
         linode_id: params.linode_id ? Number(params.linode_id) : undefined,
         tags: params.tags,
-        config_id: params.config_id ? Number(params.config_id) : undefined
+        config_id: params.config_id ? Number(params.config_id) : undefined,
+        encryption: params.encryption
       };
       const result = await client.volumes.createVolume(createData);
       return {
