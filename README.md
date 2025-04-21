@@ -34,6 +34,7 @@ This server provides tools for the following Linode service categories:
 - 🏷️ **tags** - Resource organization labels
 - 🎫 **support** - Support tickets and requests
 - 📊 **longview** - System metrics and monitoring
+- 👤 **profile** - User profile and security settings
 
 ## Getting Started
 
@@ -175,7 +176,7 @@ Or in Claude Desktop config:
   }
 }
 ```
-Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview
+Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview, profile
 
 To see all available categories:
 
@@ -512,8 +513,62 @@ Manage Longview monitoring clients for collecting system metrics.
 - `get_longview_subscription` - Get details for a specific Longview subscription plan
 - `get_longview_data` - Get monitoring data from a Longview client
 
+### 👤 Profile
+Manage user profile information, SSH keys, API tokens, and security settings.
 
+#### Profile Operations
+- `get_profile` - Get your user profile information
+- `update_profile` - Update your user profile information
 
+#### SSH Key Operations
+- `list_ssh_keys` - List SSH keys associated with your profile
+- `get_ssh_key` - Get details for a specific SSH key
+- `create_ssh_key` - Add a new SSH key to your profile
+- `update_ssh_key` - Update an existing SSH key
+- `delete_ssh_key` - Delete an SSH key from your profile
+
+#### API Token Operations
+- `list_api_tokens` - List API tokens associated with your profile
+- `get_api_token` - Get details for a specific API token
+- `create_personal_access_token` - Create a new personal access token
+- `update_api_token` - Update an existing API token
+- `delete_api_token` - Delete an API token
+- `list_api_scopes` - List available API scopes for tokens and OAuth clients
+
+#### Two-Factor Authentication
+- `get_two_factor_secret` - Get a two-factor authentication secret and QR code
+- `enable_two_factor` - Enable two-factor authentication for your account
+- `disable_two_factor` - Disable two-factor authentication for your account
+
+#### Authorized Apps
+- `list_authorized_apps` - List OAuth apps authorized to access your account
+- `get_authorized_app` - Get details about a specific authorized OAuth app
+- `revoke_authorized_app` - Revoke access for an authorized OAuth app
+
+#### Trusted Devices
+- `list_trusted_devices` - List devices trusted for two-factor authentication
+- `get_trusted_device` - Get details about a specific trusted device
+- `revoke_trusted_device` - Revoke trusted status for a device
+
+#### Grants
+- `list_grants` - List grants for a restricted user
+
+#### Login History
+- `list_logins` - List login history for your account
+- `get_login` - Get details about a specific login event
+
+#### Phone Verification
+- `delete_phone_number` - Delete the phone number associated with your account
+- `send_phone_verification` - Send a verification code to a phone number
+- `verify_phone_number` - Verify a phone number with a received code
+
+#### User Preferences
+- `get_user_preferences` - Get user interface preferences
+- `update_user_preferences` - Update user interface preferences
+
+#### Security Questions
+- `get_security_questions` - Get available security questions
+- `answer_security_questions` - Answer security questions for account recovery
 
 ## License
 

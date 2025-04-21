@@ -15,6 +15,7 @@ import { registerStackScriptsTools } from './stackScripts/tools';
 import { registerTagsTools } from './tags/tools';
 import { registerSupportTools } from './support/tools';
 import { registerLongviewTools } from './longview/tools';
+import { registerProfileTools } from './profile/tools';
 import { LinodeClient } from '../client';
 
 // Define all available tool categories
@@ -34,7 +35,8 @@ export const TOOL_CATEGORIES = [
   'stackScripts',
   'tags',
   'support',
-  'longview'
+  'longview',
+  'profile'
 ] as const;
 
 export type ToolCategory = typeof TOOL_CATEGORIES[number];
@@ -106,6 +108,11 @@ export * from './support/tools';
 export * from './longview/schemas';
 export * from './longview/tools';
 
+// Profile
+export * from './profile/schemas';
+export * from './profile/tools';
+export { ScopeDefinition } from './profile/schemas';
+
 // Register tools with direct client access
 export const registerAllTools = (
   server: any, 
@@ -132,7 +139,8 @@ export const registerAllTools = (
     'stackScripts': registerStackScriptsTools,
     'tags': registerTagsTools,
     'support': registerSupportTools,
-    'longview': registerLongviewTools
+    'longview': registerLongviewTools,
+    'profile': registerProfileTools
   };
   
   // Register only the enabled categories

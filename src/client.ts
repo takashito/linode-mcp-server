@@ -16,7 +16,8 @@ import {
   createStackScriptsClient,
   createTagsClient,
   createSupportClient,
-  createLongviewClient
+  createLongviewClient,
+  createProfileClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -82,6 +83,7 @@ export function createClient(token: string): LinodeClient {
   const tags = createTagsClient(axiosInstance);
   const support = createSupportClient(API_ROOT, token);
   const longview = createLongviewClient(axiosInstance);
+  const profile = createProfileClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -101,6 +103,7 @@ export function createClient(token: string): LinodeClient {
     tags,
     support,
     longview,
+    profile,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -276,4 +279,19 @@ export type {
   CreateLongviewClientRequest,
   UpdateLongviewClientRequest
 } from './client/longview';
+
+export type {
+  ProfileClientInterface,
+  UserProfile,
+  SSHKey,
+  APIToken,
+  TwoFactorResponse,
+  UpdateProfileRequest,
+  CreateSSHKeyRequest,
+  UpdateSSHKeyRequest,
+  CreatePersonalAccessTokenRequest,
+  UpdateTokenRequest,
+  TwoFactorConfirmRequest,
+  ScopeListResponse
+} from './client/profile';
 
