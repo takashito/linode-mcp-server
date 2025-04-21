@@ -48,7 +48,7 @@ export const ipv6PoolSchema = z.object({
 export const allocateIPSchema = z.object({
   type: z.literal('ipv4').describe('Type of IP address (currently only ipv4 is supported)'),
   public: z.boolean().describe('Whether the IP should be public'),
-  linode_id: z.number().optional().describe('The ID of the Linode to assign the IP to')
+  linode_id: z.number().describe('The ID of the Linode to assign the IP to')
 });
 
 export const updateIPSchema = z.object({
@@ -182,7 +182,13 @@ export const getFirewallSchema = z.object({
 });
 
 export const createFirewallSchema = z.object({
-  label: z.string().describe('The label for the firewall'),
+  label: z.string().describe(
+    `The label for the firewall. 
+    Must begin and end with an alphanumeric character.
+    May only consist of alphanumeric characters, hyphens (-), underscores (_) or periods (.). 
+    Cannot have two hyphens (--), underscores (__) or periods (..) in a row.
+    Must be between 3 and 32 characters.
+    Must be unique.`),
   rules: firewallRulesSchema,
   devices: z.object({
     linodes: z.array(z.number()).optional().describe('Array of Linode IDs'),
