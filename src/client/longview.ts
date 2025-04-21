@@ -50,7 +50,7 @@ export interface LongviewData {
     swap_free: number;
   };
   network: {
-    [interface: string]: {
+    [networkInterface: string]: {
       rx_bytes: number;
       tx_bytes: number;
       rx_packets: number;
