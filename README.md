@@ -32,6 +32,7 @@ This server provides tools for the following Linode service categories:
 - 💿 **images** - Custom disk images for instances
 - 📜 **stackScripts** - Deployment automation scripts
 - 🏷️ **tags** - Resource organization labels
+- 🎫 **support** - Support tickets and requests
 
 ## Getting Started
 

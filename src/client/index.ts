@@ -12,6 +12,7 @@ import { createKubernetesClient, KubernetesClient } from './kubernetes';
 import { createImagesClient, ImagesClient } from './images';
 import { StackScriptsClient } from './stackScripts';
 import { createTagsClient, TagsClient } from './tags';
+import { createSupportClient, SupportClient } from './support';
 import { LinodeTypesClient } from '../client';
 
 export * from './instances';
@@ -28,6 +29,7 @@ export * from './kubernetes';
 export * from './images';
 export * from './stackScripts';
 export * from './tags';
+export * from './support';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -44,5 +46,6 @@ export interface LinodeClient {
   images: ImagesClient;
   stackScripts: StackScriptsClient;
   tags: TagsClient;
+  support: SupportClient;
   linodeTypes: LinodeTypesClient;
 }

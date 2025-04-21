@@ -13,6 +13,7 @@ import { registerKubernetesTools } from './kubernetes/tools';
 import { registerImagesTools } from './images/tools';
 import { registerStackScriptsTools } from './stackScripts/tools';
 import { registerTagsTools } from './tags/tools';
+import { registerSupportTools } from './support/tools';
 import { LinodeClient } from '../client';
 
 // Define all available tool categories
@@ -30,7 +31,8 @@ export const TOOL_CATEGORIES = [
   'kubernetes',
   'images',
   'stackScripts',
-  'tags'
+  'tags',
+  'support'
 ] as const;
 
 export type ToolCategory = typeof TOOL_CATEGORIES[number];
@@ -94,6 +96,10 @@ export * from './stackScripts/tools';
 export * from './tags/schemas';
 export * from './tags/tools';
 
+// Support
+export * from './support/schemas';
+export * from './support/tools';
+
 // Register tools with direct client access
 export const registerAllTools = (
   server: any, 
@@ -118,7 +124,8 @@ export const registerAllTools = (
     'kubernetes': registerKubernetesTools,
     'images': registerImagesTools,
     'stackScripts': registerStackScriptsTools,
-    'tags': registerTagsTools
+    'tags': registerTagsTools,
+    'support': registerSupportTools
   };
   
   // Register only the enabled categories

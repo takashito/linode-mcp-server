@@ -14,7 +14,8 @@ import {
   createKubernetesClient,
   createImagesClient,
   createStackScriptsClient,
-  createTagsClient
+  createTagsClient,
+  createSupportClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -78,6 +79,7 @@ export function createClient(token: string): LinodeClient {
   const images = createImagesClient(axiosInstance);
   const stackScripts = createStackScriptsClient(axiosInstance);
   const tags = createTagsClient(axiosInstance);
+  const support = createSupportClient(API_ROOT, token);
 
   // Return the combined client
   return {
@@ -95,6 +97,7 @@ export function createClient(token: string): LinodeClient {
     images,
     stackScripts,
     tags,
+    support,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -257,4 +260,8 @@ export type {
   Tag,
   CreateTagRequest
 } from './client/tags';
+
+export type {
+  SupportClient
+} from './client/support';
 
