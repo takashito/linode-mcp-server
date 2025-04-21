@@ -23,9 +23,7 @@ export const getStackScriptSchema = z.object({
 export const createStackScriptSchema = z.object({
   script: z.string().describe('The script to execute when provisioning a new Linode with this StackScript'),
   label: z.string()
-    .min(3)
-    .max(128)
-    .describe('The StackScript\'s label for display purposes only'),
+    .describe('The StackScript\'s label for display purposes only. length between 3 and 128'),
   images: z.array(z.string())
     .describe('An array of Image IDs. These are the Images that can be deployed with this StackScript'),
   description: z.string().optional()
@@ -44,10 +42,8 @@ export const updateStackScriptSchema = z.object({
   script: z.string().optional()
     .describe('The script to execute when provisioning a new Linode with this StackScript'),
   label: z.string()
-    .min(3)
-    .max(128)
     .optional()
-    .describe('The StackScript\'s label for display purposes only'),
+    .describe('The StackScript\'s label for display purposes only. length between 3 and 128'),
   images: z.array(z.string())
     .optional()
     .describe('An array of Image IDs. These are the Images that can be deployed with this StackScript'),
