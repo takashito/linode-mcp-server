@@ -33,6 +33,7 @@ This server provides tools for the following Linode service categories:
 - 📜 **stackScripts** - Deployment automation scripts
 - 🏷️ **tags** - Resource organization labels
 - 🎫 **support** - Support tickets and requests
+- 📊 **longview** - System metrics and monitoring
 
 ## Getting Started
 
@@ -174,7 +175,7 @@ Or in Claude Desktop config:
   }
 }
 ```
-Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags
+Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview
 
 To see all available categories:
 
@@ -487,6 +488,29 @@ Manage labels that help organize and categorize Linode resources.
 - `get_tag` - Get details for a specific Tag
 - `create_tag` - Create a new Tag
 - `delete_tag` - Delete a Tag
+
+### 🎫 Support
+Manage support tickets and requests with Linode's support team.
+
+- `list_tickets` - List support tickets for your account
+- `get_ticket` - Get details of a specific support ticket
+- `create_ticket` - Open a new support ticket
+- `close_ticket` - Close a support ticket
+- `list_replies` - List replies to a support ticket
+- `create_reply` - Reply to a support ticket
+- `upload_attachment` - Upload an attachment to a support ticket
+
+### 📊 Longview
+Manage Longview monitoring clients for collecting system metrics.
+
+- `list_longview_clients` - Get a list of all Longview clients
+- `get_longview_client` - Get details for a specific Longview client
+- `create_longview_client` - Create a new Longview client
+- `update_longview_client` - Update a Longview client
+- `delete_longview_client` - Delete a Longview client
+- `list_longview_subscriptions` - Get a list of all Longview subscription plans
+- `get_longview_subscription` - Get details for a specific Longview subscription plan
+- `get_longview_data` - Get monitoring data from a Longview client
 
 
 

@@ -13,6 +13,7 @@ import { createImagesClient, ImagesClient } from './images';
 import { StackScriptsClient } from './stackScripts';
 import { createTagsClient, TagsClient } from './tags';
 import { createSupportClient, SupportClient } from './support';
+import { createLongviewClient, LongviewClientInterface } from './longview';
 import { LinodeTypesClient } from '../client';
 
 export * from './instances';
@@ -30,6 +31,7 @@ export * from './images';
 export * from './stackScripts';
 export * from './tags';
 export * from './support';
+export * from './longview';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -47,5 +49,6 @@ export interface LinodeClient {
   stackScripts: StackScriptsClient;
   tags: TagsClient;
   support: SupportClient;
+  longview: LongviewClientInterface;
   linodeTypes: LinodeTypesClient;
 }
