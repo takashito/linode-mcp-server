@@ -19,7 +19,7 @@ const program = new Command();
 program
   .name('linode-mcp-server')
   .description('MCP server for Linode API integration with Claude Desktop')
-  .version('1.0.0');
+  .version('0.1.6');
 
 program
   .option('-t, --token <token>', 'Linode API token')
@@ -29,8 +29,6 @@ program
     (val) => val.split(',').map(c => c.trim())
   )
   .option('--list-categories', 'List all available tool categories')
-  .option('-d, --debug', 'Enable debug mode with logging')
-  .option('--log-file <path>', 'Path to log file (implies --debug)')
   .action((options) => {
     // If --list-categories was specified, show available categories and exit
     if (options.listCategories) {
