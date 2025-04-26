@@ -33,3 +33,4 @@ linode-openapi.json
 mcp-schema.json
 test/
 .tool-versions
+coverage.md

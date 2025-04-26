@@ -209,6 +209,19 @@ export function registerDomainTools(server: McpServer, client: LinodeClient) {
         };
       }
     },
+    {
+      name: 'get_zone_file',
+      description: 'Get DNS zone file for a domain',
+      schema: schemas.getZoneFileSchema.shape,
+      handler: async (params, extra) => {
+        const result = await client.domains.getZoneFile(params.id);
+        return {
+          content: [
+            { type: 'text', text: result.zone_file },
+          ],
+        };
+      }
+    },
     // Domain record operations
     {
       name: 'list_domain_records',

@@ -100,6 +100,11 @@ export interface CloneDomainRequest {
   domain: string;
 }
 
+// Zone File response interface
+export interface ZoneFileResponse {
+  zone_file: string;
+}
+
 // Client interface
 export interface DomainsClient {
   getDomains: (params?: PaginationParams) => Promise<PaginatedResponse<Domain>>;
@@ -114,6 +119,7 @@ export interface DomainsClient {
   deleteDomainRecord: (domainId: number, recordId: number) => Promise<void>;
   importZone: (data: ImportZoneRequest) => Promise<Domain>;
   cloneDomain: (id: number, data: CloneDomainRequest) => Promise<Domain>;
+  getZoneFile: (id: number) => Promise<ZoneFileResponse>;
 }
 
 /**
@@ -165,6 +171,10 @@ export function createDomainsClient(axios: AxiosInstance): DomainsClient {
     },
     cloneDomain: async (id: number, data: CloneDomainRequest) => {
       const response = await axios.post(`/domains/${id}/clone`, data);
+      return response.data;
+    },
+    getZoneFile: async (id: number) => {
+      const response = await axios.get(`/domains/${id}/zone-file`);
       return response.data;
     }
   };

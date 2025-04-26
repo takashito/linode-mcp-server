@@ -98,3 +98,8 @@ export const cloneDomainSchema = z.object({
   id: z.number().describe('The ID of the source domain to clone'),
   domain: z.string().describe('The new domain name (e.g., clone-example.com)')
 });
+
+// Zone file access schema
+export const getZoneFileSchema = z.object({
+  id: z.number().describe('The ID of the domain')
+});

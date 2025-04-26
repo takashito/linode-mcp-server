@@ -326,6 +326,7 @@ Manage DNS domains and records hosted by Linode's DNS services.
 - `delete_domain_record` - Delete a domain record
 - `import_domain_zone` - Import a domain zone from a remote nameserver
 - `clone_domain` - Clone an existing domain to a new domain
+- `get_zone_file` - Get DNS zone file for a domain
 
 ### 🗄️ Databases
 Manage Linode Managed Database services for MySQL and PostgreSQL.
