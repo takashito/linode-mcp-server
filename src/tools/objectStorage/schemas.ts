@@ -115,6 +115,36 @@ export const updateDefaultBucketAccessSchema = z.object({
   cors_enabled: z.boolean().optional().describe('Whether CORS is enabled for the bucket'),
 });
 
+// Object ACL Management
+export const updateObjectACLSchema = z.object({
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  name: z.string().describe('The name of the object to update ACL for'),
+  acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write', 'custom'])
+    .describe('The Access Control Level for the object')
+});
+
+// Object URL Generation
+export const getObjectURLSchema = z.object({
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  name: z.string().describe('The name of the object to generate a URL for'),
+  method: z.enum(['GET', 'PUT', 'POST', 'DELETE']).optional()
+    .describe('The HTTP method for the URL. Defaults to GET.'),
+  expires_in: z.number().optional()
+    .describe('The number of seconds the URL will be valid. Defaults to 3600 (1 hour).'),
+  content_type: z.string().optional()
+    .describe('The Content-Type header for the object when using PUT. Only applies to PUT requests.'),
+  content_disposition: z.string().optional()
+    .describe('The Content-Disposition header for the object. Only applies to GET and PUT requests.')
+});
+
+// Transfer Statistics
+export const getTransferStatsSchema = z.object({});
+
+// Object Storage Types
+export const listObjectStorageTypesSchema = z.object({});
+
 // Service
 export const cancelObjectStorageSchema = z.object({
   id: z.number().describe('The ID of the Object Storage service to cancel')

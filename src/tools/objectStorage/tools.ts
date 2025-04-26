@@ -351,6 +351,79 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     }
   );
 
+  // Object ACL Management
+  server.tool(
+    'update_object_acl',
+    'Update access control level (ACL) for an object in a bucket',
+    schemas.updateObjectACLSchema.shape,
+    async (params, extra) => {
+      const { region, bucket, name, acl } = params;
+      await client.objectStorage.updateObjectACL(region, bucket, name, { acl });
+      return {
+        content: [
+          { type: 'text', text: `ACL for object '${name}' in bucket '${bucket}' has been updated to '${acl}'.` },
+        ],
+      };
+    }
+  );
+
+  // Object URL Generation
+  server.tool(
+    'generate_object_url',
+    'Generate a pre-signed URL for an object in a bucket',
+    schemas.getObjectURLSchema.shape,
+    async (params, extra) => {
+      const { region, bucket, name, ...urlParams } = params;
+      
+      // Ensure we're using the right parameter names for the API
+      const apiParams = {
+        name,
+        ...urlParams
+      };
+      
+      const result = await client.objectStorage.getObjectURL(region, bucket, apiParams);
+      return {
+        content: [
+          { type: 'text', text: `Pre-signed URL for object '${name}' in bucket '${bucket}':
+
+${result.url}
+
+Note: This URL is temporary and will expire after ${params.expires_in || 3600} seconds.` },
+        ],
+      };
+    }
+  );
+
+  // Transfer Statistics
+  server.tool(
+    'get_object_storage_transfer',
+    'Get Object Storage transfer statistics',
+    schemas.getTransferStatsSchema.shape,
+    async (_, extra) => {
+      const result = await client.objectStorage.getTransferStats();
+      return {
+        content: [
+          { type: 'text', text: formatTransferStats(result) },
+        ],
+      };
+    }
+  );
+
+  // Object Storage Types
+  server.tool(
+    'list_object_storage_types',
+    'Get a list of all available Object Storage types and prices, including any region-specific rates.',
+    schemas.listObjectStorageTypesSchema.shape,
+    async (_, extra) => {
+      const result = await client.objectStorage.getTypes();
+      return {
+        content: [
+          { type: 'text', text: formatObjectStorageTypes(result) },
+        ],
+      };
+    }
+  );
+  
   // Service
   server.tool(
     'cancel_object_storage',
@@ -365,6 +438,70 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
       };
     }
   );
+}
+
+/**
+ * Formats transfer statistics for display
+ */
+function formatTransferStats(stats: {
+  used: number;
+  billable: number;
+  quota: number;
+  regions: {
+    region: string;
+    used: number;
+    billable: number;
+    quota: number;
+  }[];
+}): string {
+  const overall = [
+    'Overall Transfer Statistics:',
+    `Used: ${formatBytes(stats.used)}`,
+    `Billable: ${formatBytes(stats.billable)}`,
+    `Quota: ${formatBytes(stats.quota)}`,
+    `Utilization: ${((stats.used / stats.quota) * 100).toFixed(2)}%`,
+    '',
+    'Transfer by Region:'
+  ];
+
+  if (stats.regions && stats.regions.length > 0) {
+    stats.regions.forEach(region => {
+      overall.push(`  Region: ${region.region}`);
+      overall.push(`    Used: ${formatBytes(region.used)}`);
+      overall.push(`    Billable: ${formatBytes(region.billable)}`);
+      overall.push(`    Quota: ${formatBytes(region.quota)}`);
+      overall.push(`    Utilization: ${((region.used / region.quota) * 100).toFixed(2)}%`);
+    });
+  } else {
+    overall.push('  No region-specific data available.');
+  }
+
+  return overall.join('\n');
+}
+
+/**
+ * Formats Object Storage types for display
+ */
+function formatObjectStorageTypes(types: {
+  id: string;
+  label: string;
+  storage_price: number;
+  transfer_price: number;
+}[]): string {
+  if (types.length === 0) {
+    return 'No Object Storage types found.';
+  }
+
+  const headers = [
+    'ID | Label | Storage Price | Transfer Price',
+    '----|-------|--------------|---------------'
+  ];
+
+  const rows = types.map(type => {
+    return `${type.id} | ${type.label} | $${type.storage_price.toFixed(4)}/GB | $${type.transfer_price.toFixed(4)}/GB`;
+  });
+
+  return headers.concat(rows).join('\n');
 }
 
 /**

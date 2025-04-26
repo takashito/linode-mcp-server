@@ -19,7 +19,7 @@ export interface ObjectStorageBucket {
   size: number;
   region: string;
   cors_enabled: boolean;
-  acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+  acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
 }
 
 export interface ObjectStorageKey {
@@ -43,7 +43,7 @@ export interface DefaultBucketAccess {
   bucket_name: string;
   region: string;
   cors_enabled: boolean;
-  acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+  acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
 }
 
 export interface ObjectStorageObject {
@@ -65,7 +65,7 @@ export interface CreateBucketRequest {
   label: string;
   cluster: string; // This is actually the region ID, but API implementation expects 'cluster'
   endpoint_type?: 'E0' | 'E1' | 'E2' | 'E3';
-  acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+  acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
   cors_enabled?: boolean;
 }
 
@@ -80,13 +80,49 @@ export interface UpdateObjectStorageKeyRequest {
 }
 
 export interface UpdateBucketAccessRequest {
-  acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write';
+  acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
   cors_enabled?: boolean;
 }
 
 export interface UploadCertificateRequest {
   certificate: string;
   private_key: string;
+}
+
+// Add new interfaces for the missing APIs
+export interface ObjectACLRequest {
+  acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
+}
+
+export interface ObjectURLRequest {
+  name: string;
+  method?: 'GET' | 'PUT' | 'POST' | 'DELETE';
+  expires_in?: number;
+  content_type?: string;
+  content_disposition?: string;
+}
+
+export interface ObjectURLResponse {
+  url: string;
+}
+
+export interface TransferStats {
+  used: number;
+  billable: number;
+  quota: number;
+  regions: {
+    region: string;
+    used: number;
+    billable: number;
+    quota: number;
+  }[];
+}
+
+export interface ObjectStorageType {
+  id: string;
+  label: string;
+  storage_price: number;
+  transfer_price: number;
 }
 
 export interface ObjectStorageClient {
@@ -110,6 +146,8 @@ export interface ObjectStorageClient {
   
   // Objects
   getObjects: (cluster: string, bucket: string, params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageObject>>;
+  updateObjectACL: (cluster: string, bucket: string, name: string, data: ObjectACLRequest) => Promise<void>;
+  getObjectURL: (cluster: string, bucket: string, data: ObjectURLRequest) => Promise<ObjectURLResponse>;
   
   // SSL/TLS certificates
   getBucketCertificate: (cluster: string, bucket: string) => Promise<BucketCertificate>;
@@ -126,6 +164,12 @@ export interface ObjectStorageClient {
   // Default bucket access
   getDefaultBucketAccess: () => Promise<DefaultBucketAccess>;
   updateDefaultBucketAccess: (data: UpdateBucketAccessRequest) => Promise<DefaultBucketAccess>;
+  
+  // Transfer statistics
+  getTransferStats: () => Promise<TransferStats>;
+  
+  // Object Storage types
+  getTypes: () => Promise<ObjectStorageType[]>;
   
   // Cancellation
   cancelObjectStorage: () => Promise<void>;
@@ -199,6 +243,24 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
       return response.data;
     },
     
+    // New Object ACL method
+    updateObjectACL: async (cluster: string, bucket: string, name: string, data: ObjectACLRequest) => {
+      await axios.put(`/object-storage/buckets/${cluster}/${bucket}/object-acl`, {
+        name,
+        acl: data.acl
+      });
+    },
+    
+    // New Object URL generation method
+    getObjectURL: async (cluster: string, bucket: string, data: ObjectURLRequest) => {
+      // Create a new object with all properties except 'name'
+      const { name, ...requestData } = data;
+      
+      // According to OpenAPI spec, we need to include the object name in the path for some methods
+      const response = await axios.post(`/object-storage/buckets/${cluster}/${bucket}/object-url`, requestData);
+      return response.data;
+    },
+    
     // SSL/TLS certificates
     getBucketCertificate: async (cluster: string, bucket: string) => {
       const response = await axios.get(`/object-storage/buckets/${cluster}/${bucket}/ssl`);
@@ -248,6 +310,18 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
     updateDefaultBucketAccess: async (data: UpdateBucketAccessRequest) => {
       const response = await axios.put('/object-storage/bucket-access', data);
       return response.data;
+    },
+    
+    // New Transfer statistics method
+    getTransferStats: async () => {
+      const response = await axios.get('/object-storage/transfer');
+      return response.data;
+    },
+    
+    // New Object Storage types method
+    getTypes: async () => {
+      const response = await axios.get('/object-storage/types');
+      return response.data.data;
     },
     
     // Cancellation

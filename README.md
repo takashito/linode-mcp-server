@@ -393,6 +393,8 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `get_object_storage_bucket_access` - Get access configuration for an Object Storage bucket
 - `update_object_storage_bucket_access` - Update access configuration for an Object Storage bucket
 - `list_object_storage_objects` - List objects in an Object Storage bucket
+- `update_object_acl` - Update access control level (ACL) for an object in a bucket
+- `generate_object_url` - Generate a pre-signed URL for an object in a bucket
 - `get_object_storage_bucket_certificate` - Get SSL/TLS certificate for an Object Storage bucket
 - `upload_object_storage_bucket_certificate` - Upload SSL/TLS certificate for an Object Storage bucket
 - `delete_object_storage_bucket_certificate` - Delete SSL/TLS certificate for an Object Storage bucket
@@ -403,6 +405,8 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `delete_object_storage_key` - Delete an Object Storage key
 - `get_object_storage_default_bucket_access` - Get default bucket access configuration
 - `update_object_storage_default_bucket_access` - Update default bucket access configuration
+- `get_object_storage_transfer` - Get Object Storage transfer statistics
+- `list_object_storage_types` - Get a list of all available Object Storage types with pricing
 - `cancel_object_storage` - Cancel Object Storage service
 
 ### 🔒 VPCs
@@ -637,6 +641,11 @@ Manage Linode account information, users, billing, and settings.
 
 ## Recent Updates
 
+- Implemented all missing Object Storage API endpoints:
+  - Object ACL management (`update_object_acl`)
+  - Object URL generation (`generate_object_url`)
+  - Transfer statistics (`get_object_storage_transfer`)
+  - Object storage types (`list_object_storage_types`)
 - Implemented NodeBalancer and Volume operations for Linode instances (`list_instance_nodebalancers` and `list_instance_volumes`)
 - Fixed duplicate tool registration issue by renaming account-level network transfer tool to `get_account_network_transfer`
 - Moved Linode instance types API implementation from client.ts to instances.ts for better code organization
