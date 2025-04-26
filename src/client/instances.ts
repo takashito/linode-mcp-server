@@ -45,6 +45,31 @@ export interface LinodeInstance {
   watchdog_enabled: boolean;
 }
 
+export interface LinodeType {
+  id: string;
+  label: string;
+  class: string;
+  disk: number;
+  memory: number;
+  vcpus: number;
+  network_out: number;
+  transfer: number;
+  gpus: number;
+  price: {
+    hourly: number;
+    monthly: number;
+  };
+  addons: {
+    backups: {
+      price: {
+        hourly: number;
+        monthly: number;
+      };
+    };
+  };
+  successor: string | null;
+}
+
 export interface Backup {
   id: number;
   label: string;
@@ -348,6 +373,10 @@ export interface LinodeInstancesClient {
   // Kernel operations
   getKernels: (params?: PaginationParams) => Promise<PaginatedResponse<Kernel>>;
   getKernelById: (id: string) => Promise<Kernel>;
+  
+  // Instance Type operations
+  getTypes: (params?: PaginationParams) => Promise<PaginatedResponse<LinodeType>>;
+  getType: (id: string) => Promise<LinodeType>;
 }
 
 export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClient {
@@ -479,6 +508,16 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
     },
     getKernelById: async (id: string) => {
       const response = await axios.get(`/linode/kernels/${id}`);
+      return response.data;
+    },
+    
+    // Instance Type operations
+    getTypes: async (params?: PaginationParams) => {
+      const response = await axios.get('/linode/types', { params });
+      return response.data;
+    },
+    getType: async (id: string) => {
+      const response = await axios.get(`/linode/types/${id}`);
       return response.data;
     },
     

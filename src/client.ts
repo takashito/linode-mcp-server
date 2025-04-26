@@ -20,39 +20,8 @@ import {
   createProfileClient,
   createAccountClient
 } from './client/index';
-import { PaginatedResponse, PaginationParams } from './client/instances';
 
 const API_ROOT = 'https://api.linode.com/v4';
-
-export interface LinodeType {
-  id: string;
-  label: string;
-  class: string;
-  disk: number;
-  memory: number;
-  vcpus: number;
-  network_out: number;
-  transfer: number;
-  gpus: number;
-  price: {
-    hourly: number;
-    monthly: number;
-  };
-  addons: {
-    backups: {
-      price: {
-        hourly: number;
-        monthly: number;
-      };
-    };
-  };
-  successor: string | null;
-}
-
-export interface LinodeTypesClient {
-  getTypes: (params?: PaginationParams) => Promise<PaginatedResponse<LinodeType>>;
-  getType: (id: string) => Promise<LinodeType>;
-}
 
 /**
  * Creates and configures a Linode API client with the provided token
@@ -106,17 +75,7 @@ export function createClient(token: string): LinodeClient {
     support,
     longview,
     profile,
-    account,
-    linodeTypes: {
-      getTypes: async (params?: PaginationParams) => {
-        const response = await axiosInstance.get('/linode/types', { params });
-        return response.data;
-      },
-      getType: async (id: string) => {
-        const response = await axiosInstance.get(`/linode/types/${id}`);
-        return response.data;
-      }
-    }
+    account
   };
 }
 

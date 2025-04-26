@@ -16,7 +16,6 @@ import { createSupportClient, SupportClient } from './support';
 import { createLongviewClient, LongviewClientInterface } from './longview';
 import { createProfileClient, ProfileClientInterface } from './profile';
 import { createAccountClient, AccountClientInterface } from './account';
-import { LinodeTypesClient } from '../client';
 
 export * from './instances';
 export * from './volumes';
@@ -56,5 +55,4 @@ export interface LinodeClient {
   longview: LongviewClientInterface;
   profile: ProfileClientInterface;
   account: AccountClientInterface;
-  linodeTypes: LinodeTypesClient;
 }
