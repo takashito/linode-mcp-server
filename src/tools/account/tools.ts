@@ -465,8 +465,8 @@ export function registerAccountTools(server: McpServer, client: LinodeClient) {
 
   // Network transfer operations
   server.tool(
-    'get_network_transfer',
-    'Get network transfer information',
+    'get_account_network_transfer',
+    'Get network transfer information for the entire account',
     schemas.getAccountNetworkTransferSchema.shape,
     withErrorHandling(async (params, extra) => {
       const result = await client.account.getNetworkTransfer();
