@@ -35,6 +35,7 @@ This server provides tools for the following Linode service categories:
 - 🎫 **support** - Support tickets and requests
 - 📊 **longview** - System metrics and monitoring
 - 👤 **profile** - User profile and security settings
+- 🏢 **account** - Account management, users, and billing
 
 ## Getting Started
 
@@ -176,7 +177,7 @@ Or in Claude Desktop config:
   }
 }
 ```
-Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview, profile
+Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview, profile, account
 
 To see all available categories:
 
@@ -569,6 +570,65 @@ Manage user profile information, SSH keys, API tokens, and security settings.
 #### Security Questions
 - `get_security_questions` - Get available security questions
 - `answer_security_questions` - Answer security questions for account recovery
+
+### 🏢 Account
+Manage Linode account information, users, billing, and settings.
+
+#### Account Operations
+- `get_account` - Get your account information
+- `update_account` - Update your account information
+
+#### Agreements and Services
+- `list_agreements` - List legal agreements
+- `acknowledge_agreements` - Acknowledge legal agreements
+- `list_available_services` - List available services by region
+- `get_region_service_availability` - Get service availability for a specific region
+
+#### Account Management
+- `cancel_account` - Cancel your account
+- `list_child_accounts` - List child accounts
+- `get_child_account` - Get a child account
+- `create_proxy_token` - Create a proxy user token for a child account
+
+#### Events
+- `list_events` - List account events
+- `get_event` - Get a specific event
+- `mark_event_as_read` - Mark an event as read
+- `mark_event_as_seen` - Mark an event as seen
+
+#### Billing
+- `list_invoices` - List invoices
+- `get_invoice` - Get a specific invoice
+- `list_invoice_items` - List items for a specific invoice
+- `get_network_transfer` - Get network transfer information
+
+#### Login & Maintenance
+- `list_account_logins` - List account logins
+- `get_account_login` - Get a specific account login
+- `list_maintenances` - List maintenance events
+- `list_notifications` - List notifications
+
+#### OAuth Clients
+- `list_oauth_clients` - List OAuth clients
+- `create_oauth_client` - Create an OAuth client
+- `get_oauth_client` - Get an OAuth client
+- `update_oauth_client` - Update an OAuth client
+- `delete_oauth_client` - Delete an OAuth client
+- `reset_oauth_client_secret` - Reset an OAuth client secret
+
+#### Account Settings
+- `get_account_settings` - Get account settings
+- `update_account_settings` - Update account settings
+- `enable_managed_service` - Enable Linode Managed service
+
+#### User Management
+- `list_users` - List users
+- `create_user` - Create a user
+- `get_user` - Get a user
+- `update_user` - Update a user
+- `delete_user` - Delete a user
+- `get_user_grants` - Get a user's grants
+- `update_user_grants` - Update a user's grants
 
 ## License
 

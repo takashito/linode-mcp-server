@@ -17,7 +17,8 @@ import {
   createTagsClient,
   createSupportClient,
   createLongviewClient,
-  createProfileClient
+  createProfileClient,
+  createAccountClient
 } from './client/index';
 import { PaginatedResponse, PaginationParams } from './client/instances';
 
@@ -84,6 +85,7 @@ export function createClient(token: string): LinodeClient {
   const support = createSupportClient(API_ROOT, token);
   const longview = createLongviewClient(axiosInstance);
   const profile = createProfileClient(axiosInstance);
+  const account = createAccountClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -104,6 +106,7 @@ export function createClient(token: string): LinodeClient {
     support,
     longview,
     profile,
+    account,
     linodeTypes: {
       getTypes: async (params?: PaginationParams) => {
         const response = await axiosInstance.get('/linode/types', { params });
@@ -294,4 +297,36 @@ export type {
   TwoFactorConfirmRequest,
   ScopeListResponse
 } from './client/profile';
+
+export type {
+  AccountClientInterface,
+  Account,
+  UpdateAccountRequest,
+  Agreement,
+  AcknowledgeAgreementRequest,
+  ServiceAvailability,
+  RegionServiceAvailability,
+  CancelAccountRequest,
+  ChildAccount,
+  ProxyTokenRequest,
+  ProxyToken,
+  AccountEvent,
+  Invoice,
+  InvoiceItem,
+  AccountLogin,
+  Maintenance,
+  Notification,
+  OAuthClient,
+  CreateOAuthClientRequest,
+  UpdateOAuthClientRequest,
+  OAuthClientSecret,
+  AccountSettings,
+  UpdateAccountSettingsRequest,
+  AccountNetworkTransfer,
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserGrants,
+  UpdateUserGrantsRequest
+} from './client/account';
 
