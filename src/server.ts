@@ -4,6 +4,8 @@ import { createClient } from './client';
 import { registerAllTools, ToolCategory } from './tools';
 import { ListPromptsRequestSchema, ListResourcesRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
+export const VERSION = '0.1.7';
+
 export interface ServerOptions {
   token: string;
   enabledCategories?: ToolCategory[];
@@ -21,7 +23,7 @@ export function startServer(options: ServerOptions) {
   try {
     const server = new McpServer({
       name: 'linode-mcp-server',
-      version: '0.1.6',
+      version: VERSION,
       description: 'MCP server for Linode API integration'
     });
 

@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { config } from 'dotenv';
-import { startServer, ServerOptions } from './server';
+import { VERSION, startServer, ServerOptions } from './server';
 import { createClient, LinodeClient } from './client';
 import { TOOL_CATEGORIES, ToolCategory } from './tools';
 
@@ -12,6 +12,7 @@ config();
 // Export key components for programmatic use
 export { startServer, ServerOptions };
 export { createClient, LinodeClient };
+export { VERSION };
 
 // Define CLI program
 const program = new Command();
@@ -19,7 +20,7 @@ const program = new Command();
 program
   .name('linode-mcp-server')
   .description('MCP server for Linode API integration with Claude Desktop')
-  .version('0.1.6');
+  .version(VERSION);
 
 program
   .option('-t, --token <token>', 'Linode API token')
