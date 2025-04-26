@@ -601,7 +601,7 @@ Manage Linode account information, users, billing, and settings.
 - `list_invoices` - List invoices
 - `get_invoice` - Get a specific invoice
 - `list_invoice_items` - List items for a specific invoice
-- `get_network_transfer` - Get network transfer information
+- `get_account_network_transfer` - Get network transfer information for the entire account
 
 #### Login & Maintenance
 - `list_account_logins` - List account logins
