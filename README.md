@@ -259,6 +259,10 @@ Manage Linode compute instances, including creation, deletion, and power operati
 - `get_network_transfer` - Get network transfer information for a Linode instance
 - `get_monthly_network_transfer` - Get monthly network transfer stats for a Linode instance
 
+#### Related Resources
+- `list_instance_nodebalancers` - List NodeBalancers attached to a Linode instance
+- `list_instance_volumes` - List volumes attached to a Linode instance
+
 #### Kernels and Instance Types
 - `list_kernels` - Get a list of all available kernels
 - `get_kernel` - Get details for a specific kernel
@@ -630,6 +634,13 @@ Manage Linode account information, users, billing, and settings.
 - `delete_user` - Delete a user
 - `get_user_grants` - Get a user's grants
 - `update_user_grants` - Update a user's grants
+
+## Recent Updates
+
+- Implemented NodeBalancer and Volume operations for Linode instances (`list_instance_nodebalancers` and `list_instance_volumes`)
+- Fixed duplicate tool registration issue by renaming account-level network transfer tool to `get_account_network_transfer`
+- Moved Linode instance types API implementation from client.ts to instances.ts for better code organization
+- Implemented all API endpoints for the Linode instances category
 
 ## License
 

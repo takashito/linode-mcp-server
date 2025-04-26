@@ -483,3 +483,15 @@ export const listInstanceTypesSchema = pagingParamsSchema;
 export const getInstanceTypeSchema = z.object({
   id: z.string().describe('The ID of the Linode type')
 });
+
+// NodeBalancer operations for instance
+export const getLinodeNodeBalancersSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  ...pagingParamsSchema.shape
+});
+
+// Volume operations for instance
+export const getLinodeVolumesSchema = z.object({
+  linodeId: z.number().describe('The ID of the Linode instance'),
+  ...pagingParamsSchema.shape
+});

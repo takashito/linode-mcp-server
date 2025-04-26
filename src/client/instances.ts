@@ -302,6 +302,10 @@ export interface PaginatedResponse<T> {
   results: number;
 }
 
+// Import necessary types
+import { Volume } from './volumes';
+import { NodeBalancer } from './nodebalancers';
+
 export interface LinodeInstancesClient {
   // Instance operations
   getLinodes: (params?: PaginationParams) => Promise<PaginatedResponse<LinodeInstance>>;
@@ -377,6 +381,12 @@ export interface LinodeInstancesClient {
   // Instance Type operations
   getTypes: (params?: PaginationParams) => Promise<PaginatedResponse<LinodeType>>;
   getType: (id: string) => Promise<LinodeType>;
+  
+  // NodeBalancer operations
+  getLinodeNodeBalancers: (linodeId: number, params?: PaginationParams) => Promise<PaginatedResponse<NodeBalancer>>;
+  
+  // Volume operations
+  getLinodeVolumes: (linodeId: number, params?: PaginationParams) => Promise<PaginatedResponse<Volume>>;
 }
 
 export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClient {
@@ -620,6 +630,18 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
     },
     reorderConfigInterfaces: async (linodeId: number, configId: number, data: ConfigInterfaceOrderRequest) => {
       const response = await axios.post(`/linode/instances/${linodeId}/configs/${configId}/interfaces/order`, data);
+      return response.data;
+    },
+    
+    // NodeBalancer operations
+    getLinodeNodeBalancers: async (linodeId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/nodebalancers`, { params });
+      return response.data;
+    },
+    
+    // Volume operations
+    getLinodeVolumes: async (linodeId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/volumes`, { params });
       return response.data;
     }
   };

@@ -851,4 +851,44 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
       };
     }
   );
+
+  // NodeBalancer operations for instance
+  server.tool(
+    'list_instance_nodebalancers',
+    'List NodeBalancers attached to a Linode instance',
+    schemas.getLinodeNodeBalancersSchema.shape,
+    async (params, extra) => {
+      const { linodeId, page, page_size } = params;
+      const paginationParams = {
+        page,
+        page_size
+      };
+      const result = await client.instances.getLinodeNodeBalancers(linodeId, paginationParams);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // Volume operations for instance
+  server.tool(
+    'list_instance_volumes',
+    'List volumes attached to a Linode instance',
+    schemas.getLinodeVolumesSchema.shape,
+    async (params, extra) => {
+      const { linodeId, page, page_size } = params;
+      const paginationParams = {
+        page,
+        page_size
+      };
+      const result = await client.instances.getLinodeVolumes(linodeId, paginationParams);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    }
+  );
 }
