@@ -99,7 +99,6 @@ export interface ObjectURLRequest {
   method?: 'GET' | 'PUT' | 'POST' | 'DELETE';
   expires_in?: number;
   content_type?: string;
-  content_disposition?: string;
 }
 
 export interface ObjectURLResponse {
@@ -254,7 +253,7 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
     // New Object URL generation method
     getObjectURL: async (cluster: string, bucket: string, data: ObjectURLRequest) => {
       // Create a new object with all properties except 'name'
-      const { name, ...requestData } = data;
+      const { ...requestData } = data;
       
       // According to OpenAPI spec, we need to include the object name in the path for some methods
       const response = await axios.post(`/object-storage/buckets/${cluster}/${bucket}/object-url`, requestData);
