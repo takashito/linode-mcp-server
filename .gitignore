@@ -36,3 +36,4 @@ test/
 coverage.md
 claude-mcp.js
 test.txt
+credentials.json
