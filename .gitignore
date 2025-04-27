@@ -34,3 +34,5 @@ mcp-schema.json
 test/
 .tool-versions
 coverage.md
+claude-mcp.js
+test.txt
