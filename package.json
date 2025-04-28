@@ -1,6 +1,6 @@
 {
   "name": "@takashito/linode-mcp-server",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "MCP server for Linode API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,10 +16,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "lint": "eslint .",
-    "test": "node test/client-tests.js",
-    "inspect": "tsc && npx @modelcontextprotocol/inspector node dist/index.js",
-    "validate-tools": "node test/simple-validator.js",
-    "test:mcp": "bash test/run-mcp-tests.sh"
+    "inspect": "tsc && npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "keywords": [
     "linode",
@@ -36,9 +33,11 @@
     "axios": "^1.6.7",
     "commander": "^11.1.0",
     "dotenv": "^16.3.1",
+    "mime-types": "^3.0.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/mime-types": "^2.1.4",
     "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",

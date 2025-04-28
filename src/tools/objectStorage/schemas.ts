@@ -139,6 +139,35 @@ export const getObjectURLSchema = z.object({
     .describe('The Content-Disposition header for the object. Only applies to GET and PUT requests.')
 });
 
+// Upload Object
+export const uploadObjectSchema = z.object({
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  object_path: z.string().describe('The path for the object in the bucket (e.g., "folder/file.txt" or just "file.txt")'),
+  source: z.string().describe('The source data: raw string content, local file path, or URL'),
+  content_type: z.string().optional().describe('The content type of the object (e.g., "text/plain", "image/jpeg")'),
+  acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write', 'custom']).optional()
+    .describe('The Access Control Level for the object. If not provided, bucket default is used.'),
+  expires_in: z.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+});
+
+// Download Object
+export const downloadObjectSchema = z.object({
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  object_path: z.string().describe('The path of the object to download (e.g., "folder/file.txt" or just "file.txt")'),
+  destination: z.string().optional().describe('Local file path where the object should be saved. If not provided, saves to current working directory.'),
+  expires_in: z.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+});
+
+// Delete Object
+export const deleteObjectSchema = z.object({
+  region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  object_path: z.string().describe('The path of the object to delete (e.g., "folder/file.txt" or just "file.txt")'),
+  expires_in: z.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+});
+
 // Transfer Statistics
 export const getTransferStatsSchema = z.object({});
 

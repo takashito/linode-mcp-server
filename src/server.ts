@@ -4,7 +4,7 @@ import { createClient } from './client';
 import { registerAllTools, ToolCategory } from './tools';
 import { ListPromptsRequestSchema, ListResourcesRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-export const VERSION = '0.1.9';
+export const VERSION = '0.2.0';
 
 export interface ServerOptions {
   token: string;

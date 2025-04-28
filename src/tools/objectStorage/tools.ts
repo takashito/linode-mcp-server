@@ -1,6 +1,12 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { LinodeClient, ObjectStorageBucket, ObjectStorageCluster, ObjectStorageKey, ObjectStorageObject } from '../../client';
 import * as schemas from './schemas';
+import * as fs from 'fs';
+import axios from 'axios';
+import * as path from 'path';
+import * as os from 'os';
+import { URL } from 'url';
+import * as mime from 'mime-types';
 
 export function registerObjectStorageTools(server: McpServer, client: LinodeClient) {
   // Clusters
@@ -394,6 +400,176 @@ Note: This URL is temporary and will expire after ${params.expires_in || 3600} s
     }
   );
 
+  // Upload Object
+  server.tool(
+    'upload_object',
+    'Upload and create an new object to an Object Storage bucket',
+    schemas.uploadObjectSchema.shape,
+    async (params, extra) => {
+      try {
+        const { region, bucket, object_path, source, content_type, acl, expires_in } = params;
+        
+        // Determine content type from file extension or parameter
+        const determinedContentType = content_type || getContentType(object_path);
+        
+        // Get pre-signed URL for PUT operation
+        const urlResult = await client.objectStorage.getObjectURL(region, bucket, {
+          name: object_path,
+          method: 'PUT',
+          expires_in: expires_in || 3600,
+          content_type: determinedContentType
+        });
+        
+        // Get data from source based on type
+        let data: Buffer;
+        let dataSource: string;
+        
+        if (isURL(source)) {
+          data = await fetchFromURL(source);
+          dataSource = 'URL';
+        } else if (isFilePath(source)) {
+          data = await readFromFile(source);
+          dataSource = 'File';
+        } else {
+          // Treat as raw string content
+          data = Buffer.from(source);
+          dataSource = 'String content';
+        }
+        
+        // Upload to pre-signed URL
+        await axios.put(urlResult.url, data, {
+          headers: {
+            'Content-Type': determinedContentType
+          }
+        });
+        
+        // Set ACL if provided
+        if (acl) {
+          await client.objectStorage.updateObjectACL(region, bucket, object_path, { acl });
+        }
+        
+        return {
+          content: [
+            { type: 'text', text: `Successfully uploaded object '${object_path}' to bucket '${bucket}'.
+Source: ${dataSource}
+Size: ${formatBytes(data.length)}
+Content Type: ${determinedContentType}
+ACL: ${acl || 'Default bucket ACL'}` },
+          ],
+        };
+      } catch (error: any) {
+        console.error("Error uploading object:", error);
+        throw new Error(`Failed to upload object: ${error.message}`);
+      }
+    }
+  );
+
+  // Download Object
+  server.tool(
+    'download_object',
+    'Download an object from a bucket and save it to a local file',
+    schemas.downloadObjectSchema.shape,
+    async (params, extra) => {
+      try {
+        const { region, bucket, object_path, destination, expires_in } = params;
+        
+        // Get pre-signed URL for GET operation
+        const result = await client.objectStorage.getObjectURL(region, bucket, {
+          name: object_path,
+          method: 'GET',
+          expires_in: expires_in || 3600
+        });
+        
+        // If destination is provided, download the file
+        if (destination) {
+          // Download the file to the specified location
+          const downloadResult = await downloadToFile(result.url, destination);
+          
+          return {
+            content: [
+              { type: 'text', text: `Successfully downloaded '${object_path}' from bucket '${bucket}'.
+Saved to: ${downloadResult.filePath}
+Size: ${formatBytes(downloadResult.size)}
+Content Type: ${getContentType(object_path)}` },
+            ],
+          };
+        }
+        
+        // If no destination provided, attempt to save to Downloads folder or user's home directory
+        try {
+          // Get the appropriate download directory (Downloads folder or home directory)
+          const downloadDir = getDownloadDirectory();
+          const localFilename = path.basename(object_path);
+          const localPath = path.join(downloadDir, localFilename);
+          
+          // Download the file
+          const downloadResult = await downloadToFile(result.url, localPath);
+          
+          return {
+            content: [
+              { type: 'text', text: `Successfully downloaded '${object_path}' from bucket '${bucket}'.
+Saved to: ${downloadResult.filePath}
+Size: ${formatBytes(downloadResult.size)}
+Content Type: ${getContentType(object_path)}` },
+            ],
+          };
+        } catch (downloadError: any) {
+          // If download fails, provide the URL so the user can download manually
+          console.error("Error downloading file:", downloadError);
+          
+          return {
+            content: [
+              { type: 'text', text: `Unable to automatically download the file: ${downloadError.message}
+
+Pre-signed URL for downloading '${object_path}' from bucket '${bucket}':
+
+${result.url}
+
+Note: This URL is temporary and will expire after ${expires_in || 3600} seconds.
+You can directly open this URL in a browser or use it with tools like curl or wget:
+
+curl -o "${path.basename(object_path)}" "${result.url}"` },
+            ],
+          };
+        }
+      } catch (error: any) {
+        console.error("Error with download operation:", error);
+        throw new Error(`Failed to download object: ${error.message}`);
+      }
+    }
+  );
+
+  // Delete Object
+  server.tool(
+    'delete_object',
+    'Delete an object from an Object Storage bucket',
+    schemas.deleteObjectSchema.shape,
+    async (params, extra) => {
+      try {
+        const { region, bucket, object_path, expires_in } = params;
+        
+        // Get pre-signed URL for DELETE operation
+        const result = await client.objectStorage.getObjectURL(region, bucket, {
+          name: object_path,
+          method: 'DELETE',
+          expires_in: expires_in || 3600
+        });
+        
+        // Execute the DELETE request
+        await axios.delete(result.url);
+        
+        return {
+          content: [
+            { type: 'text', text: `Successfully deleted object '${object_path}' from bucket '${bucket}'.` },
+          ],
+        };
+      } catch (error: any) {
+        console.error("Error deleting object:", error);
+        throw new Error(`Failed to delete object: ${error.message}`);
+      }
+    }
+  );
+
   // Transfer Statistics
   server.tool(
     'get_object_storage_transfer',
@@ -647,4 +823,147 @@ function formatBytes(bytes: number, decimals: number = 2): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+/**
+ * Determines if a string is a URL
+ */
+function isURL(str: string): boolean {
+  try {
+    new URL(str);
+    return str.startsWith('http://') || str.startsWith('https://');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Determines if a string is likely a file path
+ */
+function isFilePath(str: string): boolean {
+  // Check for Unix-like paths
+  const unixPathPattern = str.startsWith('/') || str.includes('./') || str.includes('../');
+  
+  // Check for Windows paths (drive letter or UNC path)
+  const windowsDrivePattern = /^[a-zA-Z]:[/\\]/.test(str);
+  const windowsUNCPattern = /^\\\\/.test(str);
+  
+  return unixPathPattern || windowsDrivePattern || windowsUNCPattern;
+}
+
+/**
+ * Gets data from a URL
+ */
+async function fetchFromURL(url: string): Promise<Buffer> {
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    return Buffer.from(response.data);
+  } catch (error: any) {
+    throw new Error(`Failed to fetch from URL: ${error.message}`);
+  }
+}
+
+/**
+ * Reads data from a file
+ */
+async function readFromFile(filePath: string): Promise<Buffer> {
+  try {
+    return await fs.promises.readFile(filePath);
+  } catch (error: any) {
+    throw new Error(`Failed to read file: ${error.message}`);
+  }
+}
+
+/**
+ * Downloads data from a URL and saves it to a file
+ */
+async function downloadToFile(url: string, destinationPath: string): Promise<{ filePath: string, size: number }> {
+  try {
+    // Get the data from the URL
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    
+    // Make sure the directory exists
+    const dirname = path.dirname(destinationPath);
+    await fs.promises.mkdir(dirname, { recursive: true });
+    
+    // Write the file
+    await fs.promises.writeFile(destinationPath, response.data);
+    
+    return {
+      filePath: destinationPath,
+      size: response.data.length
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to download file: ${error.message}`);
+  }
+}
+
+/**
+ * Gets content type based on file path or URL
+ */
+function getContentType(source: string): string {
+  if (source.includes('.')) {
+    const extension = source.split('.').pop()?.toLowerCase();
+    if (extension) {
+      const mimeType = mime.lookup(extension);
+      if (mimeType) {
+        return mimeType;
+      }
+    }
+  }
+  return 'application/octet-stream'; // Default if no extension or unknown type
+}
+
+/**
+ * Gets the most appropriate download directory path based on OS
+ */
+function getDownloadDirectory(): string {
+  const homeDir = os.homedir();
+  
+  // Try standard download directories based on OS
+  if (process.platform === 'win32') {
+    // Windows: First try Downloads folder in user's home directory
+    const windowsDownloads = path.join(homeDir, 'Downloads');
+    if (fs.existsSync(windowsDownloads)) {
+      return windowsDownloads;
+    }
+  } else if (process.platform === 'darwin') {
+    // macOS: Check standard Downloads directory
+    const macDownloads = path.join(homeDir, 'Downloads');
+    if (fs.existsSync(macDownloads)) {
+      return macDownloads;
+    }
+  } else {
+    // Linux/Unix: Check standard XDG downloads directory or fallback
+    // Try XDG user directories first if defined
+    try {
+      // Check if XDG_DOWNLOAD_DIR is defined in user-dirs.dirs
+      const xdgConfigPath = path.join(homeDir, '.config', 'user-dirs.dirs');
+      if (fs.existsSync(xdgConfigPath)) {
+        const content = fs.readFileSync(xdgConfigPath, 'utf-8');
+        const match = content.match(/XDG_DOWNLOAD_DIR="([^"]+)"/);
+        if (match && match[1]) {
+          let downloadDir = match[1].replace('$HOME', homeDir);
+          // Handle tilde expansion
+          if (downloadDir.startsWith('~/')) {
+            downloadDir = path.join(homeDir, downloadDir.substring(2));
+          }
+          if (fs.existsSync(downloadDir)) {
+            return downloadDir;
+          }
+        }
+      }
+    } catch (error) {
+      // Ignore errors reading XDG config and fall back
+    }
+    
+    // Standard Linux fallback to ~/Downloads if it exists
+    const linuxDownloads = path.join(homeDir, 'Downloads');
+    if (fs.existsSync(linuxDownloads)) {
+      return linuxDownloads;
+    }
+  }
+  
+  // Default fallback to user's home directory if no Downloads folder exists
+  return homeDir;
 }
