@@ -30,7 +30,11 @@ program
     (val) => val.split(',').map(c => c.trim())
   )
   .option('--list-categories', 'List all available tool categories')
-  .action((options) => {
+  .option('--transport <type>', 'Transport type: stdio (default), sse, http', 'stdio')
+  .option('--port <port>', 'Server port (default: 8080 for HTTP, 3000 for SSE)', 'default')
+  .option('--endpoint <endpoint>', 'Server endpoint path (default: /mcp for HTTP, /sse for SSE)', 'default')
+  .option('--host <host>', 'SSE server host (default: 127.0.0.1)', '127.0.0.1')
+  .action(async (options) => {
     // If --list-categories was specified, show available categories and exit
     if (options.listCategories) {
       console.log('Available tool categories:');
@@ -66,18 +70,42 @@ program
       enabledCategories = options.categories as ToolCategory[];
     }
 
+    // Determine which transport to use
+    let useSSE = false;
+    let useHTTP = false;
+    
+    if (options.transport) {
+      if (options.transport.toLowerCase() === 'sse') {
+        useSSE = true;
+      } else if (options.transport.toLowerCase() === 'http') {
+        useHTTP = true;
+      } else if (options.transport.toLowerCase() !== 'stdio') {
+        console.error(`Error: Invalid transport type: ${options.transport}`);
+        console.error(`Available transport types: stdio, sse, http`);
+        process.exit(1);
+      }
+    }
+    
     // Prepare server options
     const serverOptions = {
       token,
       enabledCategories,
-      debug: options.debug || !!options.logFile,
-      logFile: options.logFile
+      transport: options.transport.toLowerCase(),
+      httpOptions: useHTTP ? {
+        port: options.port === 'default' ? 8080 : parseInt(options.port, 10),
+        endpoint: options.endpoint === 'default' ? '/mcp' : options.endpoint
+      } : undefined,
+      sseOptions: useSSE ? {
+        port: options.port === 'default' ? 3000 : parseInt(options.port, 10),
+        endpoint: options.endpoint === 'default' ? '/sse' : options.endpoint,
+        host: options.host
+      } : undefined
     };
 
     // Start the server
     try {
       // Start the server
-      startServer(serverOptions);
+      await startServer(serverOptions);
       
       // Add event listeners for errors
       process.on('uncaughtException', (error) => {
@@ -97,5 +125,10 @@ program
 
 // Auto-start server when this file is executed directly (not imported)
 if (require.main === module) {
-  program.parse();
+  try {
+    program.parse();
+  } catch (error: unknown) {
+    console.error('Error during program execution:', error);
+    process.exit(1);
+  }
 }

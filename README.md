@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
 [![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
 
-An MCP (Model Context Protocol) server that connect your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation.
+An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Now both SSE and StreamableHTTP transport support !
 
 ## What Can You Do With This?
 
@@ -72,6 +72,34 @@ You can provide your token in several ways:
    ```bash
    npx @takashito/linode-mcp-server
    ```
+
+### Transport Options
+
+By default, the server uses stdio transport which is compatible with Claude Desktop. The server now supports multiple transport options:
+
+1. **stdio transport** - Default transport compatible with Claude Desktop
+   ```bash
+   # Default stdio transport
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN
+   ```
+
+2. **SSE transport** - Server-Sent Events transport
+   ```bash
+   # Start with SSE transport on port 3000 with /sse
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport sse
+   ```
+
+3. **StreamableHTTP transport** - StreamableHTTP transport for web clients
+   ```bash
+   # Start with HTTP streaming transport on port 8080 with /mcp
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http
+   ```
+
+You can customize port and endpoint for both SSE and HTTP streaming transport:
+- `--port` : HTTP/SSE server port (default: 8080 for HTTP, 3000 for SSE)
+- `--endpoint` : HTTP/SSE server endpoint path (default: /mcp for HTTP, /sse for SSE)
+- `--host` : HTTP/SSE server host (default: 127.0.0.1, SSE only)
+
 
 ### Connecting to Claude Desktop
 
