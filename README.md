@@ -385,6 +385,7 @@ Manage Linode's load balancing service to distribute traffic across multiple Lin
 ### 📦 Object Storage
 Manage S3-compatible object storage for storing and retrieving files.
 
+#### Bucket Management
 - `list_object_storage_clusters` - Get a list of all Object Storage clusters
 - `list_object_storage_buckets` - Get a list of all Object Storage buckets
 - `get_object_storage_bucket` - Get details for a specific Object Storage bucket
@@ -392,12 +393,21 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `delete_object_storage_bucket` - Delete an Object Storage bucket
 - `get_object_storage_bucket_access` - Get access configuration for an Object Storage bucket
 - `update_object_storage_bucket_access` - Update access configuration for an Object Storage bucket
+
+#### Object Operations
 - `list_object_storage_objects` - List objects in an Object Storage bucket
+- `upload_object` - Upload a new object to a bucket from various sources (string, file, or URL)
+- `download_object` - Download an object from a bucket to your local file system
+- `delete_object` - Delete an object from a bucket
 - `update_object_acl` - Update access control level (ACL) for an object in a bucket
 - `generate_object_url` - Generate a pre-signed URL for an object in a bucket
+
+#### Certificate Management
 - `get_object_storage_bucket_certificate` - Get SSL/TLS certificate for an Object Storage bucket
 - `upload_object_storage_bucket_certificate` - Upload SSL/TLS certificate for an Object Storage bucket
 - `delete_object_storage_bucket_certificate` - Delete SSL/TLS certificate for an Object Storage bucket
+
+#### Access Key Management
 - `list_object_storage_keys` - Get a list of all Object Storage keys
 - `get_object_storage_key` - Get details for a specific Object Storage key
 - `create_object_storage_key` - Create a new Object Storage key
@@ -405,6 +415,8 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `delete_object_storage_key` - Delete an Object Storage key
 - `get_object_storage_default_bucket_access` - Get default bucket access configuration
 - `update_object_storage_default_bucket_access` - Update default bucket access configuration
+
+#### Usage and Service Information
 - `get_object_storage_transfer` - Get Object Storage transfer statistics
 - `list_object_storage_types` - Get a list of all available Object Storage types with pricing
 - `cancel_object_storage` - Cancel Object Storage service
@@ -638,18 +650,6 @@ Manage Linode account information, users, billing, and settings.
 - `delete_user` - Delete a user
 - `get_user_grants` - Get a user's grants
 - `update_user_grants` - Update a user's grants
-
-## Recent Updates
-
-- Implemented all missing Object Storage API endpoints:
-  - Object ACL management (`update_object_acl`)
-  - Object URL generation (`generate_object_url`)
-  - Transfer statistics (`get_object_storage_transfer`)
-  - Object storage types (`list_object_storage_types`)
-- Implemented NodeBalancer and Volume operations for Linode instances (`list_instance_nodebalancers` and `list_instance_volumes`)
-- Fixed duplicate tool registration issue by renaming account-level network transfer tool to `get_account_network_transfer`
-- Moved Linode instance types API implementation from client.ts to instances.ts for better code organization
-- Implemented all API endpoints for the Linode instances category
 
 ## License
 
