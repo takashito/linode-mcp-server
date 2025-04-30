@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 import { 
   LinodeClient,
   createInstancesClient,
@@ -51,7 +51,7 @@ export function createClient(token: string): LinodeClient {
   const images = createImagesClient(axiosInstance);
   const stackScripts = createStackScriptsClient(axiosInstance);
   const tags = createTagsClient(axiosInstance);
-  const support = createSupportClient(API_ROOT, token);
+  const support = createSupportClient(axiosInstance);
   const longview = createLongviewClient(axiosInstance);
   const profile = createProfileClient(axiosInstance);
   const account = createAccountClient(axiosInstance);

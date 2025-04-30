@@ -10,43 +10,35 @@ export interface SupportClient {
   uploadAttachment(ticketId: number, file: File): Promise<any>;
 }
 
-export function createSupportClient(baseURL: string, token: string): SupportClient {
-  const axiosInstance: AxiosInstance = axios.create({
-    baseURL,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
+export function createSupportClient(axios: AxiosInstance): SupportClient {
   return {
     listTickets: async (params) => {
-      const response = await axiosInstance.get('/support/tickets', { params });
+      const response = await axios.get('/support/tickets', { params });
       return response.data;
     },
 
     getTicket: async (ticketId) => {
-      const response = await axiosInstance.get(`/support/tickets/${ticketId}`);
+      const response = await axios.get(`/support/tickets/${ticketId}`);
       return response.data;
     },
 
     createTicket: async (data) => {
-      const response = await axiosInstance.post('/support/tickets', data);
+      const response = await axios.post('/support/tickets', data);
       return response.data;
     },
 
     closeTicket: async (ticketId) => {
-      const response = await axiosInstance.post(`/support/tickets/${ticketId}/close`);
+      const response = await axios.post(`/support/tickets/${ticketId}/close`);
       return response.data;
     },
 
     listReplies: async (ticketId, params) => {
-      const response = await axiosInstance.get(`/support/tickets/${ticketId}/replies`, { params });
+      const response = await axios.get(`/support/tickets/${ticketId}/replies`, { params });
       return response.data;
     },
 
     createReply: async (ticketId, data) => {
-      const response = await axiosInstance.post(`/support/tickets/${ticketId}/replies`, data);
+      const response = await axios.post(`/support/tickets/${ticketId}/replies`, data);
       return response.data;
     },
 
@@ -54,7 +46,7 @@ export function createSupportClient(baseURL: string, token: string): SupportClie
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await axiosInstance.post(`/support/tickets/${ticketId}/attachments`, formData, {
+      const response = await axios.post(`/support/tickets/${ticketId}/attachments`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
