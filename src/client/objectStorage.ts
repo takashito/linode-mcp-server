@@ -11,13 +11,12 @@ export interface ObjectStorageCluster {
 }
 
 export interface ObjectStorageBucket {
-  cluster: string;
+  region: string;
   created: string;
   label: string;
   hostname: string;
   objects: number;
   size: number;
-  region: string;
   cors_enabled: boolean;
   acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
 }
@@ -33,15 +32,14 @@ export interface ObjectStorageKey {
 }
 
 export interface BucketAccess {
-  cluster: string;
+  region: string;
   bucket_name: string;
   permissions: 'read_only' | 'read_write';
 }
 
 export interface DefaultBucketAccess {
-  cluster: string;
-  bucket_name: string;
   region: string;
+  bucket_name: string;
   cors_enabled: boolean;
   acl: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
 }
@@ -63,7 +61,7 @@ export interface BucketCertificate {
 // Request interfaces
 export interface CreateBucketRequest {
   label: string;
-  cluster: string; // This is actually the region ID, but API implementation expects 'cluster'
+  region: string;
   endpoint_type?: 'E0' | 'E1' | 'E2' | 'E3';
   acl?: 'private' | 'public-read' | 'authenticated-read' | 'public-read-write' | 'custom';
   cors_enabled?: boolean;
@@ -71,7 +69,8 @@ export interface CreateBucketRequest {
 
 export interface CreateObjectStorageKeyRequest {
   label: string;
-  bucket_access?: BucketAccess[];
+  bucket_access: BucketAccess[];
+  regions?: string[];
 }
 
 export interface UpdateObjectStorageKeyRequest {
@@ -137,21 +136,21 @@ export interface ObjectStorageClient {
   
   // Buckets
   getBuckets: (params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageBucket>>;
-  getBucket: (cluster: string, label: string) => Promise<ObjectStorageBucket>;
+  getBucket: (region: string, label: string) => Promise<ObjectStorageBucket>;
   createBucket: (data: CreateBucketRequest) => Promise<ObjectStorageBucket>;
-  deleteBucket: (cluster: string, label: string) => Promise<void>;
-  getBucketAccess: (cluster: string, label: string) => Promise<{ acl: string; cors_enabled: boolean }>;
-  updateBucketAccess: (cluster: string, label: string, data: UpdateBucketAccessRequest) => Promise<{ acl: string; cors_enabled: boolean }>;
+  deleteBucket: (region: string, label: string) => Promise<void>;
+  getBucketAccess: (region: string, label: string) => Promise<{ acl: string; cors_enabled: boolean }>;
+  updateBucketAccess: (region: string, label: string, data: UpdateBucketAccessRequest) => Promise<{ acl: string; cors_enabled: boolean }>;
   
   // Objects
-  getObjects: (cluster: string, bucket: string, params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageObject>>;
-  updateObjectACL: (cluster: string, bucket: string, name: string, data: ObjectACLRequest) => Promise<void>;
-  getObjectURL: (cluster: string, bucket: string, data: ObjectURLRequest) => Promise<ObjectURLResponse>;
+  getObjects: (region: string, bucket: string, params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageObject>>;
+  updateObjectACL: (region: string, bucket: string, name: string, data: ObjectACLRequest) => Promise<void>;
+  getObjectURL: (region: string, bucket: string, data: ObjectURLRequest) => Promise<ObjectURLResponse>;
   
   // SSL/TLS certificates
-  getBucketCertificate: (cluster: string, bucket: string) => Promise<BucketCertificate>;
-  uploadBucketCertificate: (cluster: string, bucket: string, data: UploadCertificateRequest) => Promise<BucketCertificate>;
-  deleteBucketCertificate: (cluster: string, bucket: string) => Promise<void>;
+  getBucketCertificate: (region: string, bucket: string) => Promise<BucketCertificate>;
+  uploadBucketCertificate: (region: string, bucket: string, data: UploadCertificateRequest) => Promise<BucketCertificate>;
+  deleteBucketCertificate: (region: string, bucket: string) => Promise<void>;
   
   // Access keys
   getKeys: (params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageKey>>;
@@ -194,85 +193,71 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
       return response.data;
     },
     
-    getBucket: async (cluster: string, label: string) => {
-      const response = await axios.get(`/object-storage/buckets/${cluster}/${label}`);
+    getBucket: async (region: string, label: string) => {
+      const response = await axios.get(`/object-storage/buckets/${region}/${label}`);
       return response.data;
     },
     
     createBucket: async (data: CreateBucketRequest) => {
-      try {
-        // The Linode API actually wants 'region' but our client interface uses 'cluster'
-        // This inconsistency exists because of legacy Linode API compatibility
-        const requestData = {
-          label: data.label,
-          region: data.cluster, // Map cluster to region for API consistency
-          endpoint_type: data.endpoint_type,
-          acl: data.acl,
-          cors_enabled: data.cors_enabled
-        };
-        
-        const response = await axios.post('/object-storage/buckets', requestData);
+      
+        const response = await axios.post('/object-storage/buckets', data);
         return response.data;
-      } catch (error: any) {
-        console.error("Error creating bucket:", error?.message || error);
-        if (error?.response?.data) {
-          console.error("API error response:", JSON.stringify(error.response.data));
-        }
-        throw error;
-      }
     },
     
-    deleteBucket: async (cluster: string, label: string) => {
-      await axios.delete(`/object-storage/buckets/${cluster}/${label}`);
-    },
-    
-    getBucketAccess: async (cluster: string, label: string) => {
-      const response = await axios.get(`/object-storage/buckets/${cluster}/${label}/access`);
+    deleteBucket: async (region: string, label: string) => {
+      const response = await axios.delete(`/object-storage/buckets/${region}/${label}`);
       return response.data;
     },
     
-    updateBucketAccess: async (cluster: string, label: string, data: UpdateBucketAccessRequest) => {
-      const response = await axios.post(`/object-storage/buckets/${cluster}/${label}/access`, data);
+    getBucketAccess: async (region: string, label: string) => {
+      const response = await axios.get(`/object-storage/buckets/${region}/${label}/access`);
+      return response.data;
+    },
+    
+    updateBucketAccess: async (region: string, label: string, data: UpdateBucketAccessRequest) => {
+      const response = await axios.post(`/object-storage/buckets/${region}/${label}/access`, data);
       return response.data;
     },
     
     // Objects
-    getObjects: async (cluster: string, bucket: string, params?: PaginationParams) => {
-      const response = await axios.get(`/object-storage/buckets/${cluster}/${bucket}/object-list`, { params });
+    getObjects: async (region: string, bucket: string, params?: PaginationParams) => {
+      const response = await axios.get(`/object-storage/buckets/${region}/${bucket}/object-list`, { params });
       return response.data;
     },
     
     // New Object ACL method
-    updateObjectACL: async (cluster: string, bucket: string, name: string, data: ObjectACLRequest) => {
-      await axios.put(`/object-storage/buckets/${cluster}/${bucket}/object-acl`, {
+    updateObjectACL: async (region: string, bucket: string, name: string, data: ObjectACLRequest) => {
+      const response = await axios.put(`/object-storage/buckets/${region}/${bucket}/object-acl`, {
         name,
         acl: data.acl
       });
+      return response.data;
     },
     
     // New Object URL generation method
-    getObjectURL: async (cluster: string, bucket: string, data: ObjectURLRequest) => {
+    getObjectURL: async (region: string, bucket: string, data: ObjectURLRequest) => {
       // Create a new object with all properties except 'name'
       const { ...requestData } = data;
       
       // According to OpenAPI spec, we need to include the object name in the path for some methods
-      const response = await axios.post(`/object-storage/buckets/${cluster}/${bucket}/object-url`, requestData);
+      const response = await axios.post(`/object-storage/buckets/${region}/${bucket}/object-url`, requestData);
       return response.data;
     },
     
     // SSL/TLS certificates
-    getBucketCertificate: async (cluster: string, bucket: string) => {
-      const response = await axios.get(`/object-storage/buckets/${cluster}/${bucket}/ssl`);
+    getBucketCertificate: async (region: string, bucket: string) => {
+      const response = await axios.get(`/object-storage/buckets/${region}/${bucket}/ssl`);
       return response.data;
     },
     
-    uploadBucketCertificate: async (cluster: string, bucket: string, data: UploadCertificateRequest) => {
-      const response = await axios.post(`/object-storage/buckets/${cluster}/${bucket}/ssl`, data);
+    uploadBucketCertificate: async (region: string, bucket: string, data: UploadCertificateRequest) => {
+      const response = await axios.post(`/object-storage/buckets/${region}/${bucket}/ssl`, data);
       return response.data;
     },
     
-    deleteBucketCertificate: async (cluster: string, bucket: string) => {
-      await axios.delete(`/object-storage/buckets/${cluster}/${bucket}/ssl`);
+    deleteBucketCertificate: async (region: string, bucket: string) => {
+      const response = await axios.delete(`/object-storage/buckets/${region}/${bucket}/ssl`);
+      return response.data;
     },
     
     // Access keys
@@ -297,7 +282,8 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
     },
     
     deleteKey: async (id: number) => {
-      await axios.delete(`/object-storage/keys/${id}`);
+      const response = await axios.delete(`/object-storage/keys/${id}`);
+      return response.data;
     },
     
     // Default bucket access
@@ -320,12 +306,13 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
     // New Object Storage types method
     getTypes: async () => {
       const response = await axios.get('/object-storage/types');
-      return response.data.data;
+      return response.data;
     },
     
     // Cancellation
     cancelObjectStorage: async () => {
-      await axios.post('/object-storage/cancel');
+      const response = await axios.post('/object-storage/cancel');
+      return response.data;
     }
   };
 }

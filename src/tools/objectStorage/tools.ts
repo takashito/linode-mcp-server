@@ -82,7 +82,7 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
       // The Linode API expects 'label' for the bucket name and 'region' for the location
       const createParams = {
         label: params.label,
-        cluster: params.region, // Use region parameter but map to cluster for client
+        region: params.region,
         endpoint_type: params.endpoint_type,
         acl: params.acl,
         cors_enabled: params.cors_enabled
@@ -292,9 +292,8 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
       return {
         content: [
           { type: 'text', text: `Default Bucket Access:
-Cluster: ${result.cluster}
-Bucket: ${result.bucket_name}
 Region: ${result.region}
+Bucket: ${result.bucket_name}
 ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
@@ -311,9 +310,8 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
       return {
         content: [
           { type: 'text', text: `Updated Default Bucket Access:
-Cluster: ${result.cluster}
-Bucket: ${result.bucket_name}
 Region: ${result.region}
+Bucket: ${result.bucket_name}
 ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
@@ -632,7 +630,6 @@ function formatObjectStorageClusters(clusters: ObjectStorageCluster[]): string {
 function formatObjectStorageBucket(bucket: ObjectStorageBucket): string {
   const details = [
     `Bucket: ${bucket.label}`,
-    `Cluster: ${bucket.cluster}`,
     `Region: ${bucket.region}`,
     `Created: ${new Date(bucket.created).toLocaleString()}`,
     `Size: ${formatBytes(bucket.size)}`,
@@ -654,7 +651,7 @@ function formatObjectStorageBuckets(buckets: ObjectStorageBucket[]): string {
   }
 
   const rows = buckets.map(bucket => {
-    return `${bucket.label} (Cluster: ${bucket.cluster}, Region: ${bucket.region}, Objects: ${bucket.objects}, Size: ${formatBytes(bucket.size)})`;
+    return `${bucket.label} (Region: ${bucket.region}, Objects: ${bucket.objects}, Size: ${formatBytes(bucket.size)})`;
   });
 
   return rows.join('\n');
@@ -668,7 +665,7 @@ function formatObjectStorageKey(key: ObjectStorageKey): string {
     `ID: ${key.id}`,
     `Label: ${key.label}`,
     `Access Key: ${key.access_key}`,
-    `Secret Key: ${key.secret_key ? '********' : 'Not available'}`,
+    `Secret Key: ${key.secret_key}`,
     `Limited: ${key.limited ? 'Yes' : 'No'}`,
     `Created: ${new Date(key.created).toLocaleString()}`
   ];
@@ -676,7 +673,7 @@ function formatObjectStorageKey(key: ObjectStorageKey): string {
   if (key.bucket_access && key.bucket_access.length > 0) {
     details.push('Bucket Access:');
     key.bucket_access.forEach(access => {
-      details.push(`  - ${access.cluster}/${access.bucket_name} (${access.permissions})`);
+      details.push(`  - ${access.region}/${access.bucket_name} (${access.permissions})`);
     });
   } else {
     details.push('Bucket Access: Full access to all buckets');

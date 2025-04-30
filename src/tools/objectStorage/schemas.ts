@@ -84,17 +84,18 @@ export const getKeySchema = z.object({
 export const createKeySchema = z.object({
   label: z.string().describe('The label for the Object Storage key. Used for identification and must be unique.'),
   bucket_access: z.array(z.object({
-    cluster: z.string().describe('The cluster of the bucket. Must be a valid cluster ID from List Clusters.'),
+    region: z.string().describe('The region of the bucket. Must be a valid region ID from List region.'),
     bucket_name: z.string().describe('The name of the bucket. Must be an existing bucket in the specified cluster.'),
     permissions: z.enum(['read_only', 'read_write']).describe('The permissions for this bucket. read_only allows GET operations only, read_write allows all operations.'),
-  })).optional().describe('Bucket access configuration for this key. When specified, the key will only have access to the listed buckets with the specified permissions. If not specified, the key will have full access to all buckets.'),
+  })).describe('Bucket access configuration for this key. When specified, the key will only have access to the listed buckets with the specified permissions. If not specified, the key will have full access to all buckets.'),
+  regions: z.array(z.string()).optional().describe('The regions where the key will be allowed to create new buckets.'),
 });
 
 export const updateKeySchema = z.object({
   id: z.number().describe('The ID of the Object Storage key'),
   label: z.string().optional().describe('The new label for the Object Storage key'),
   bucket_access: z.array(z.object({
-    cluster: z.string().describe('The cluster of the bucket'),
+    region: z.string().describe('The region of the bucket. Must be a valid region ID from List region.'),
     bucket_name: z.string().describe('The name of the bucket'),
     permissions: z.enum(['read_only', 'read_write']).describe('The permissions for this bucket'),
   })).optional().describe('Updated bucket access configuration for this key'),
