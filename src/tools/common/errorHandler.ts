@@ -56,21 +56,6 @@ export function formatLinodeError(error: any): string {
       // Add troubleshooting hints based on common errors
       let hints = '';
       
-      // Password related errors
-      if (errorsByField['root_pass'] && errorsByField['root_pass'].some(msg => msg.includes('strength requirement'))) {
-        hints += '\nHint: Passwords must include uppercase, lowercase, numbers, and special characters.';
-      }
-      
-      // Image related errors
-      if (errorsByField['image'] && errorsByField['image'].some(msg => msg.includes('not found'))) {
-        hints += '\nHint: Available images include: linode/debian11, linode/ubuntu22.04, linode/centos7, etc.';
-      }
-      
-      // Type related errors
-      if (errorsByField['type'] && errorsByField['type'].some(msg => msg.includes('not found'))) {
-        hints += '\nHint: Valid Linode types include: g6-nanode-1, g6-standard-1, g6-standard-2, etc.';
-      }
-      
       // Rate limiting
       if (statusCode === 429) {
         hints += '\nHint: You have exceeded the API rate limit. Please wait before making more requests.';

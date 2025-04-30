@@ -70,7 +70,7 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
     'update_instance',
     'Update a Linode instance',
     schemas.updateInstanceSchema.shape,
-    async (params: any, extra: any) => {
+    withErrorHandling(async (params: any, extra: any) => {
       const { id, ...updateParams } = params;
       const updateData: UpdateLinodeRequest = { 
         label: updateParams.label,
@@ -85,13 +85,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'reboot_instance',
     'Reboot a Linode instance',
     schemas.rebootInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.rebootLinode(params.id, params.config_id);
       return {
         content: [
@@ -99,13 +99,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'boot_instance',
     'Power on a Linode instance',
     schemas.bootInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.bootLinode(params.id, params.config_id);
       return {
         content: [
@@ -113,13 +113,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'shutdown_instance',
     'Power off a Linode instance',
     schemas.shutdownInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.shutdownLinode(params.id);
       return {
         content: [
@@ -127,13 +127,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_instance',
     'Delete a Linode instance',
     schemas.deleteInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.deleteLinode(params.id);
       return {
         content: [
@@ -141,13 +141,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'resize_instance',
     'Resize a Linode instance',
     schemas.resizeInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { id, ...resizeData } = params;
       const result = await client.instances.resizeLinode(id, resizeData);
       return {
@@ -156,13 +156,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'clone_instance',
     'Clone a Linode instance',
     schemas.cloneInstanceSchema.shape,
-    async (params: any, extra: any) => {
+    withErrorHandling(async (params: any, extra: any) => {
       const { id, ...cloneData } = params;
       const result = await client.instances.cloneLinode(Number(id), cloneData);
       return {
@@ -171,13 +171,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'rebuild_instance',
     'Rebuild a Linode instance',
     schemas.rebuildInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { id, ...rebuildData } = params;
       const result = await client.instances.rebuildLinode(id, rebuildData);
       return {
@@ -186,13 +186,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'rescue_instance',
     'Boot a Linode instance into rescue mode',
     schemas.rescueInstanceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { id, devices } = params;
       const result = await client.instances.rescueLinode(id, devices);
       return {
@@ -201,14 +201,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Config operations
   server.tool(
     'list_instance_configs',
     'Get all configuration profiles for a Linode instance',
     schemas.getLinodeConfigsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
         page,
@@ -221,13 +221,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_instance_config',
     'Get a specific configuration profile for a Linode instance',
     schemas.getLinodeConfigSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getLinodeConfig(params.linodeId, params.configId);
       return {
         content: [
@@ -235,13 +235,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'create_instance_config',
     'Create a new configuration profile for a Linode instance',
     schemas.createLinodeConfigSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, ...configData } = params;
       const result = await client.instances.createLinodeConfig(linodeId, configData);
       return {
@@ -250,13 +250,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'update_instance_config',
     'Update a configuration profile for a Linode instance',
     schemas.updateLinodeConfigSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, configId, ...updateData } = params;
       const result = await client.instances.updateLinodeConfig(linodeId, configId, updateData);
       return {
@@ -265,13 +265,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_instance_config',
     'Delete a configuration profile for a Linode instance',
     schemas.deleteLinodeConfigSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.deleteLinodeConfig(params.linodeId, params.configId);
       return {
         content: [
@@ -279,14 +279,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Disk operations
   server.tool(
     'list_instance_disks',
     'Get all disks for a Linode instance',
     schemas.getLinodeDisksSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
         page,
@@ -299,13 +299,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_instance_disk',
     'Get a specific disk for a Linode instance',
     schemas.getLinodeDiskSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getLinodeDisk(params.linodeId, params.diskId);
       return {
         content: [
@@ -313,13 +313,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'create_instance_disk',
     'Create a new disk for a Linode instance',
     schemas.createLinodeDiskSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, ...diskData } = params;
       const result = await client.instances.createLinodeDisk(linodeId, diskData);
       return {
@@ -328,13 +328,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'update_instance_disk',
     'Update a disk for a Linode instance',
     schemas.updateLinodeDiskSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, diskId, ...updateData } = params;
       const result = await client.instances.updateLinodeDisk(linodeId, diskId, updateData);
       return {
@@ -343,13 +343,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_instance_disk',
     'Delete a disk for a Linode instance',
     schemas.deleteLinodeDiskSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.deleteLinodeDisk(params.linodeId, params.diskId);
       return {
         content: [
@@ -357,13 +357,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'resize_instance_disk',
     'Resize a disk for a Linode instance',
     schemas.resizeLinodeDiskSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.resizeLinodeDisk(params.linodeId, params.diskId, params.size);
       return {
         content: [
@@ -371,14 +371,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Stats operations
   server.tool(
     'get_instance_stats',
     'Get current statistics for a Linode instance',
     schemas.getLinodeStatsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getLinodeStats(params.id);
       return {
         content: [
@@ -386,13 +386,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_instance_stats_by_date',
     'Get statistics for a Linode instance for a specific month',
     schemas.getLinodeStatsByDateSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getLinodeStatsByDate(params.id, params.year, params.month);
       return {
         content: [
@@ -400,14 +400,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Backup operations
   server.tool(
     'list_backups',
     'Get a list of all backups for a Linode instance',
     schemas.getBackupsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getBackups(params.linodeId);
       return {
         content: [
@@ -415,13 +415,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_backup',
     'Get details for a specific backup',
     schemas.getBackupSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getBackup(params.linodeId, params.backupId);
       return {
         content: [
@@ -429,13 +429,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'create_snapshot',
     'Create a snapshot for a Linode instance',
     schemas.createSnapshotSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, ...data } = params;
       const result = await client.instances.createSnapshot(linodeId, data);
       return {
@@ -444,13 +444,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'cancel_backups',
     'Cancel backups for a Linode instance',
     schemas.cancelBackupsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.cancelBackups(params.linodeId);
       return {
         content: [
@@ -458,13 +458,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'enable_backups',
     'Enable backups for a Linode instance',
     schemas.enableBackupsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.enableBackups(params.linodeId);
       return {
         content: [
@@ -472,13 +472,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'restore_backup',
     'Restore a backup to a Linode instance',
     schemas.restoreBackupSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, backupId, ...data } = params;
       await client.instances.restoreBackup(linodeId, backupId, data);
       return {
@@ -487,14 +487,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // IP operations
   server.tool(
     'get_networking_information',
     'Get networking information for a Linode instance',
     schemas.getLinodeIPsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getLinodeIPs(params.linodeId);
       return {
         content: [
@@ -502,13 +502,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'allocate_ipv4_address',
     'Allocate an IPv4 address for a Linode instance',
     schemas.linodeAllocateIPSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, ...data } = params;
       const result = await client.instances.allocateIP(linodeId, data as any);
       return {
@@ -517,13 +517,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_instance_ip_address',
     'Get details for a specific IP address for a Linode instance',
     schemas.getLinodeIPSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getLinodeIP(params.linodeId, params.address);
       return {
         content: [
@@ -531,13 +531,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'update_ip_address_rdns',
     'Update the RDNS for an IP address of a Linode instance',
     schemas.updateLinodeIPSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, address, ...data } = params;
       const result = await client.instances.updateLinodeIP(linodeId, address, data as any);
       return {
@@ -546,13 +546,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
   
   server.tool(
     'delete_ipv4_address',
     'Delete an IPv4 address from a Linode instance',
     schemas.deleteLinodeIPSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.deleteLinodeIP(params.linodeId, params.address);
       return {
         content: [
@@ -560,14 +560,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Firewall operations
   server.tool(
     'list_linode_firewalls',
     'List firewalls for a Linode instance',
     schemas.getLinodeFirewallsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = { page, page_size };
       const result = await client.instances.getLinodeFirewalls(linodeId, paginationParams);
@@ -577,13 +577,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'apply_linode_firewalls',
     'Apply firewalls to a Linode instance',
     schemas.applyFirewallsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.applyFirewalls(params.linodeId);
       return {
         content: [
@@ -591,14 +591,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Additional disk operations
   server.tool(
     'clone_disk',
     'Clone a disk for a Linode instance',
     schemas.cloneDiskSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, diskId, label } = params;
       const result = await client.instances.cloneDisk(linodeId, diskId, label ? { label } : undefined);
       return {
@@ -607,13 +607,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'reset_disk_root_password',
     'Reset the root password for a disk',
     schemas.resetDiskPasswordSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.resetDiskPassword(params.linodeId, params.diskId, params.password);
       return {
         content: [
@@ -621,14 +621,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Migration and upgrade operations
   server.tool(
     'initiate_migration',
     'Initiate a migration for a Linode instance',
     schemas.migrateLinodeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { id, region } = params;
       await client.instances.migrateLinode(id, region ? { region } : undefined);
       return {
@@ -637,13 +637,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'upgrade_linode',
     'Upgrade a Linode instance',
     schemas.mutateLinodeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.mutateLinode(params.id);
       return {
         content: [
@@ -651,14 +651,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Reset root password operation
   server.tool(
     'reset_root_password',
     'Reset the root password for a Linode instance. Your Linode must be shut down for a password reset to complete.',
     schemas.resetRootPasswordSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { id, ...data } = params;
       await client.instances.resetRootPassword(id, data);
       return {
@@ -667,14 +667,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Transfer operations
   server.tool(
     'get_network_transfer',
     'Get network transfer information for a Linode instance',
     schemas.getNetworkTransferSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getNetworkTransfer(params.id);
       return {
         content: [
@@ -682,13 +682,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_monthly_network_transfer',
     'Get monthly network transfer stats for a Linode instance',
     schemas.getMonthlyTransferSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getMonthlyTransfer(params.id, params.year, params.month);
       return {
         content: [
@@ -696,14 +696,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Kernel operations
   server.tool(
     'list_kernels',
     'Get a list of all available kernels',
     schemas.listKernelsSchema.shape,
-    async (params: { page?: number; page_size?: number }, extra: any) => {
+    withErrorHandling(async (params: { page?: number; page_size?: number }, extra: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
@@ -715,13 +715,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_kernel',
     'Get details for a specific kernel',
     schemas.getKernelSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getKernelById(params.id);
       return {
         content: [
@@ -729,14 +729,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Instance Type operations
   server.tool(
     'list_instance_types',
     'Get a list of all available Linode types, including pricing and specifications',
     schemas.listInstanceTypesSchema.shape,
-    async (params: { page?: number; page_size?: number }, extra: any) => {
+    withErrorHandling(async (params: { page?: number; page_size?: number }, extra: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
@@ -748,13 +748,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_instance_type',
     'Get details for a specific Linode type, including pricing and specifications',
     schemas.getInstanceTypeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getType(params.id);
       return {
         content: [
@@ -762,14 +762,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Config Interface operations
   server.tool(
     'list_config_interfaces',
     'List all interfaces for a configuration profile',
     schemas.getConfigInterfacesSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getConfigInterfaces(params.linodeId, params.configId);
       return {
         content: [
@@ -777,13 +777,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_config_interface',
     'Get details for a specific configuration profile interface',
     schemas.getConfigInterfaceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.instances.getConfigInterface(params.linodeId, params.configId, params.interfaceId);
       return {
         content: [
@@ -791,13 +791,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'create_config_interface',
     'Create a new interface for a configuration profile',
     schemas.createConfigInterfaceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, configId, ...data } = params;
       const result = await client.instances.createConfigInterface(linodeId, configId, data);
       return {
@@ -806,13 +806,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'update_config_interface',
     'Update an interface for a configuration profile',
     schemas.updateConfigInterfaceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, configId, interfaceId, ...data } = params;
       const result = await client.instances.updateConfigInterface(linodeId, configId, interfaceId, data);
       return {
@@ -821,13 +821,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_config_interface',
     'Delete an interface from a configuration profile',
     schemas.deleteConfigInterfaceSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.instances.deleteConfigInterface(params.linodeId, params.configId, params.interfaceId);
       return {
         content: [
@@ -835,13 +835,13 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'reorder_config_interfaces',
     'Reorder interfaces for a configuration profile',
     schemas.reorderConfigInterfacesSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, configId, ids } = params;
       await client.instances.reorderConfigInterfaces(linodeId, configId, { ids });
       return {
@@ -850,14 +850,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // NodeBalancer operations for instance
   server.tool(
     'list_instance_nodebalancers',
     'List NodeBalancers attached to a Linode instance',
     schemas.getLinodeNodeBalancersSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
         page,
@@ -870,14 +870,14 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   // Volume operations for instance
   server.tool(
     'list_instance_volumes',
     'List volumes attached to a Linode instance',
     schemas.getLinodeVolumesSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
         page,
@@ -890,5 +890,5 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 }

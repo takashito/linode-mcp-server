@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { LinodeClient } from '../../client';
 import * as schemas from './schemas';
+import { withErrorHandling } from '../common/errorHandler';
 
 export function registerRegionTools(server: McpServer, client: LinodeClient) {
   // Register region tools
@@ -22,7 +23,7 @@ export function registerRegionTools(server: McpServer, client: LinodeClient) {
     'get_region',
     'Get details for a specific region',
     schemas.getRegionSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.regions.getRegion(params.id);
       return {
         content: [
@@ -30,5 +31,5 @@ export function registerRegionTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 }

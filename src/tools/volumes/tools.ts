@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { LinodeClient, CreateVolumeRequest } from '../../client';
 import * as schemas from './schemas';
+import { withErrorHandling } from '../common/errorHandler';
 
 export function registerVolumeTools(server: McpServer, client: LinodeClient) {
   // Register volume tools
@@ -8,7 +9,7 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
     'list_volumes',
     'Get a list of all volumes',
     schemas.listVolumesSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.volumes.getVolumes(params);
       return {
         content: [
@@ -16,13 +17,13 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_volume',
     'Get details for a specific volume',
     schemas.getVolumeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.volumes.getVolumeById(params.id);
       return {
         content: [
@@ -30,13 +31,13 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'create_volume',
     'Create a new volume',
     schemas.createVolumeSchema.shape,
-    async (params: any, extra: any) => {
+    withErrorHandling(async (params: any, extra: any) => {
       const createData: CreateVolumeRequest = {
         region: String(params.region),
         size: Number(params.size),
@@ -53,13 +54,13 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_volume',
     'Delete a volume',
     schemas.deleteVolumeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.volumes.deleteVolume(params.id);
       return {
         content: [
@@ -67,13 +68,13 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'attach_volume',
     'Attach a volume to a Linode instance',
     schemas.attachVolumeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.volumes.attachVolume(params.id, {
         linode_id: params.linode_id,
         config_id: params.config_id,
@@ -84,13 +85,13 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'detach_volume',
     'Detach a volume from a Linode instance',
     schemas.detachVolumeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.volumes.detachVolume(params.id);
       return {
         content: [
@@ -98,13 +99,13 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'resize_volume',
     'Resize a volume',
     schemas.resizeVolumeSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.volumes.resizeVolume(params.id, { size: params.size });
       return {
         content: [
@@ -112,5 +113,5 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         ],
       };
     }
-  );
+  ));
 }

@@ -144,7 +144,7 @@ export const uploadObjectSchema = z.object({
   region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
   object_path: z.string().describe('The path for the object in the bucket (e.g., "folder/file.txt" or just "file.txt")'),
-  source: z.string().describe('The source data: raw string content, local file path, or URL'),
+  source: z.string().describe('The source data: local file path, raw string content, or URL'),
   content_type: z.string().optional().describe('The content type of the object (e.g., "text/plain", "image/jpeg")'),
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write', 'custom']).optional()
     .describe('The Access Control Level for the object. If not provided, bucket default is used.'),

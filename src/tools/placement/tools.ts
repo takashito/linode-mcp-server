@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { LinodeClient, PlacementGroup } from '../../client';
 import * as schemas from './schemas';
+import { withErrorHandling } from '../common/errorHandler';
 
 export function registerPlacementTools(server: McpServer, client: LinodeClient) {
   // Register placement tools
@@ -8,7 +9,7 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
     'list_placement_groups',
     'List all placement groups',
     schemas.listPlacementGroupsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         const paginationParams = {
           page: params.page,
@@ -40,13 +41,13 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 
   server.tool(
     'get_placement_group',
     'Get details for a specific placement group',
     schemas.getPlacementGroupSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         if (!params || params.id === undefined || params.id === null) {
           return {
@@ -80,13 +81,13 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 
   server.tool(
     'create_placement_group',
     'Create a new placement group',
     schemas.createPlacementGroupSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         const result = await client.placement.createPlacementGroup(params);
         return {
@@ -103,13 +104,13 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 
   server.tool(
     'update_placement_group',
     'Update an existing placement group',
     schemas.updatePlacementGroupSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         const { id, ...data } = params;
         const result = await client.placement.updatePlacementGroup(id, data);
@@ -127,13 +128,13 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 
   server.tool(
     'delete_placement_group',
     'Delete a placement group',
     schemas.deletePlacementGroupSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         await client.placement.deletePlacementGroup(params.id);
         return {
@@ -150,13 +151,13 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 
   server.tool(
     'assign_instances',
     'Assign Linode instances to a placement group',
     schemas.assignInstancesSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         const result = await client.placement.assignInstances(params.id, { linodes: params.linodes });
         return {
@@ -173,13 +174,13 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 
   server.tool(
     'unassign_instances',
     'Unassign Linode instances from a placement group',
     schemas.unassignInstancesSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       try {
         const result = await client.placement.unassignInstances(params.id, { linodes: params.linodes });
         return {
@@ -196,7 +197,7 @@ export function registerPlacementTools(server: McpServer, client: LinodeClient) 
         };
       }
     }
-  );
+  ));
 }
 
 /**

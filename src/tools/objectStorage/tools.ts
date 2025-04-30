@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { LinodeClient, ObjectStorageBucket, ObjectStorageCluster, ObjectStorageKey, ObjectStorageObject } from '../../client';
 import * as schemas from './schemas';
+import { withErrorHandling } from '../common/errorHandler';
 import * as fs from 'fs';
 import axios from 'axios';
 import * as path from 'path';
@@ -14,7 +15,7 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
     'list_object_storage_clusters',
     'Get a list of all Object Storage clusters',
     schemas.listClustersSchema.shape,
-    async (_, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const clusters = await client.objectStorage.getClusters();
       return {
         content: [
@@ -22,14 +23,14 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
         ],
       };
     }
-  );
+  ));
   
   // Endpoints
   server.tool(
     'list_object_storage_endpoints',
     'Get a list of all Object Storage endpoints with their types',
     schemas.listEndpointsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.getEndpoints(params);
       return {
         content: [
@@ -37,14 +38,14 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
         ],
       };
     }
-  );
+  ));
 
   // Buckets
   server.tool(
     'list_object_storage_buckets',
     'Get a list of all Object Storage buckets',
     schemas.listBucketsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.getBuckets(params);
       return {
         content: [
@@ -52,101 +53,86 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_object_storage_bucket',
     'Get details for a specific Object Storage bucket',
     schemas.getBucketSchema.shape,
-    async (params, extra) => {
-      try {
-        // The client implementation expects region (cluster in client code) and bucket name
-        const result = await client.objectStorage.getBucket(
-          params.region, 
-          params.bucket  // Use bucket parameter from the schema for lookup
-        );
-        return {
-          content: [
-            { type: 'text', text: formatObjectStorageBucket(result) },
-          ],
-        };
-      } catch (error: any) {
-        // If the error has a response, log that too
-        if (error?.response && error.response.data) {
-          console.error("Error response data:", JSON.stringify(error.response.data));
-        }
-        throw error; // Rethrow to maintain original behavior
-      }
+    withErrorHandling(async (params, _extra) => {
+      // The client implementation expects region (cluster in client code) and bucket name
+      const result = await client.objectStorage.getBucket(
+        params.region, 
+        params.bucket  // Use bucket parameter from the schema for lookup
+      );
+      return {
+        content: [
+          { type: 'text', text: formatObjectStorageBucket(result) },
+        ],
+      };
     }
-  );
+  ));
 
   server.tool(
     'create_object_storage_bucket',
     'Create a new Object Storage bucket',
     schemas.createBucketSchema.shape,
-    async (params, extra) => {
-      try {
-        // Ensure parameters match the client's expectations
-        // The Linode API expects 'label' for the bucket name and 'region' for the location
-        const createParams = {
-          label: params.label,
-          cluster: params.region, // Use region parameter but map to cluster for client
-          endpoint_type: params.endpoint_type,
-          acl: params.acl,
-          cors_enabled: params.cors_enabled
-        };
-        const result = await client.objectStorage.createBucket(createParams);
-        return {
-          content: [
-            { type: 'text', text: formatObjectStorageBucket(result) },
-          ],
-        };
-      } catch (error: any) {
-        console.error("Bucket creation error:", error?.message || error);
-        // If the error has a response, log that too
-        if (error?.response && error.response.data) {
-          console.error("Error response data:", JSON.stringify(error.response.data));
-        }
-        throw error; // Rethrow to maintain original behavior
-      }
+    withErrorHandling(async (params, _extra) => {
+      // Ensure parameters match the client's expectations
+      // The Linode API expects 'label' for the bucket name and 'region' for the location
+      const createParams = {
+        label: params.label,
+        cluster: params.region, // Use region parameter but map to cluster for client
+        endpoint_type: params.endpoint_type,
+        acl: params.acl,
+        cors_enabled: params.cors_enabled
+      };
+      const result = await client.objectStorage.createBucket(createParams);
+      return {
+        content: [
+          { type: 'text', text: formatObjectStorageBucket(result) },
+        ],
+      };
     }
-  );
+  ));
 
   server.tool(
     'delete_object_storage_bucket',
     'Delete an Object Storage bucket',
     schemas.deleteBucketSchema.shape,
-    async (params, extra) => {
-      await client.objectStorage.deleteBucket(params.region, params.bucket);
+    withErrorHandling(async (params, _extra) => {
+      const { region, bucket, ...data } = params;
+      await client.objectStorage.deleteBucket(region, bucket);
       return {
         content: [
           { type: 'text', text: `Bucket '${params.bucket}' in region '${params.region}' has been deleted.` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_object_storage_bucket_access',
     'Get access configuration for an Object Storage bucket',
     schemas.getBucketAccessSchema.shape,
-    async (params, extra) => {
-      const result = await client.objectStorage.getBucketAccess(params.region, params.bucket);
+    withErrorHandling(async (params, _extra) => {
+      const { region, bucket, ...data } = params;
+      const result = await client.objectStorage.getBucketAccess(region, bucket);
       return {
         content: [
-          { type: 'text', text: `Bucket Access for '${params.bucket}':
+          { type: 'text', text: `Bucket Access for '${bucket}':
 ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'update_object_storage_bucket_access',
     'Update access configuration for an Object Storage bucket',
     schemas.updateBucketAccessSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { region, bucket, ...data } = params;
       const result = await client.objectStorage.updateBucketAccess(region, bucket, data);
       return {
@@ -157,14 +143,14 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
     }
-  );
+  ));
 
   // Objects
   server.tool(
     'list_object_storage_objects',
     'List objects in an Object Storage bucket',
     schemas.listObjectsSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { region, bucket, ...paginationParams } = params;
       const result = await client.objectStorage.getObjects(region, bucket, paginationParams);
       return {
@@ -173,15 +159,14 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
     }
-  );
+  ));
 
   // SSL/TLS certificates
   server.tool(
     'get_object_storage_bucket_certificate',
     'Get SSL/TLS certificate for an Object Storage bucket',
     schemas.getBucketCertificateSchema.shape,
-    async (params, extra) => {
-      try {
+    withErrorHandling(async (params, _extra) => {
         const result = await client.objectStorage.getBucketCertificate(params.region, params.bucket);
         return {
           content: [
@@ -189,24 +174,14 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
 Expires: ${new Date(result.expiry).toLocaleString()}` },
           ],
         };
-      } catch (error: any) {
-        if (error.response && error.response.status === 404) {
-          return {
-            content: [
-              { type: 'text', text: `No certificate found for bucket '${params.bucket}' in region '${params.region}'.` },
-            ],
-          };
-        }
-        throw error;
-      }
     }
-  );
+  ));
 
   server.tool(
     'upload_object_storage_bucket_certificate',
     'Upload SSL/TLS certificate for an Object Storage bucket',
     schemas.uploadBucketCertificateSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { region, bucket, certificate, private_key } = params;
       const result = await client.objectStorage.uploadBucketCertificate(region, bucket, {
         certificate,
@@ -219,13 +194,13 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_object_storage_bucket_certificate',
     'Delete SSL/TLS certificate for an Object Storage bucket',
     schemas.deleteBucketCertificateSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.objectStorage.deleteBucketCertificate(params.region, params.bucket);
       return {
         content: [
@@ -233,14 +208,14 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   // Access keys
   server.tool(
     'list_object_storage_keys',
     'Get a list of all Object Storage keys',
     schemas.listKeysSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.getKeys(params);
       return {
         content: [
@@ -248,13 +223,13 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'get_object_storage_key',
     'Get details for a specific Object Storage key',
     schemas.getKeySchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.getKey(params.id);
       return {
         content: [
@@ -262,13 +237,13 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'create_object_storage_key',
     'Create a new Object Storage key',
     schemas.createKeySchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.createKey(params);
       return {
         content: [
@@ -276,13 +251,13 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'update_object_storage_key',
     'Update an Object Storage key',
     schemas.updateKeySchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { id, ...updateData } = params;
       const result = await client.objectStorage.updateKey(id, updateData);
       return {
@@ -291,13 +266,13 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   server.tool(
     'delete_object_storage_key',
     'Delete an Object Storage key',
     schemas.deleteKeySchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.objectStorage.deleteKey(params.id);
       return {
         content: [
@@ -305,44 +280,33 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
     }
-  );
+  ));
 
   // Default access
   server.tool(
     'get_object_storage_default_bucket_access',
     'Get default bucket access configuration',
     schemas.getDefaultBucketAccessSchema.shape,
-    async (_, extra) => {
-      try {
-        const result = await client.objectStorage.getDefaultBucketAccess();
-        return {
-          content: [
-            { type: 'text', text: `Default Bucket Access:
+    withErrorHandling(async (params, _extra) => {
+      const result = await client.objectStorage.getDefaultBucketAccess();
+      return {
+        content: [
+          { type: 'text', text: `Default Bucket Access:
 Cluster: ${result.cluster}
 Bucket: ${result.bucket_name}
 Region: ${result.region}
 ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
-          ],
-        };
-      } catch (error: any) {
-        if (error.response && error.response.status === 404) {
-          return {
-            content: [
-              { type: 'text', text: 'No default bucket access configuration found.' },
-            ],
-          };
-        }
-        throw error;
-      }
+        ],
+      };
     }
-  );
+  ));
 
   server.tool(
     'update_object_storage_default_bucket_access',
     'Update default bucket access configuration',
     schemas.updateDefaultBucketAccessSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.updateDefaultBucketAccess(params);
       return {
         content: [
@@ -355,14 +319,14 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
     }
-  );
+  ));
 
   // Object ACL Management
   server.tool(
     'update_object_acl',
     'Update access control level (ACL) for an object in a bucket',
     schemas.updateObjectACLSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { region, bucket, name, acl } = params;
       await client.objectStorage.updateObjectACL(region, bucket, name, { acl });
       return {
@@ -371,14 +335,14 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
     }
-  );
+  ));
 
   // Object URL Generation
   server.tool(
     'generate_object_url',
     'Generate a pre-signed URL for an object in a bucket',
     schemas.getObjectURLSchema.shape,
-    async (params, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const { region, bucket, name, ...urlParams } = params;
       
       // Ensure we're using the right parameter names for the API
@@ -398,184 +362,148 @@ Note: This URL is temporary and will expire after ${params.expires_in || 3600} s
         ],
       };
     }
-  );
+  ));
 
   // Upload Object
   server.tool(
     'upload_object',
     'Upload and create an new object to an Object Storage bucket',
     schemas.uploadObjectSchema.shape,
-    async (params, extra) => {
-      try {
-        const { region, bucket, object_path, source, content_type, acl, expires_in } = params;
-        
-        // Determine content type from file extension or parameter
-        const determinedContentType = content_type || getContentType(object_path);
-        
-        // Get pre-signed URL for PUT operation
-        const urlResult = await client.objectStorage.getObjectURL(region, bucket, {
-          name: object_path,
-          method: 'PUT',
-          expires_in: expires_in || 3600,
-          content_type: determinedContentType
-        });
-        
-        // Get data from source based on type
-        let data: Buffer;
-        let dataSource: string;
-        
-        if (isURL(source)) {
-          data = await fetchFromURL(source);
-          dataSource = 'URL';
-        } else if (isFilePath(source)) {
-          data = await readFromFile(source);
-          dataSource = 'File';
-        } else {
-          // Treat as raw string content
-          data = Buffer.from(source);
-          dataSource = 'String content';
+    withErrorHandling(async (params, _extra) => {
+      const { region, bucket, object_path, source, content_type, acl, expires_in } = params;
+      
+      // Determine content type from file extension or parameter
+      const determinedContentType = content_type || getContentType(object_path);
+      
+      // Get pre-signed URL for PUT operation
+      const urlResult = await client.objectStorage.getObjectURL(region, bucket, {
+        name: object_path,
+        method: 'PUT',
+        expires_in: expires_in || 3600,
+        content_type: determinedContentType
+      });
+      
+      // Get data from source based on type
+      let data: Buffer;
+      let dataSource: string;
+      
+      if (isURL(source)) {
+        data = await fetchFromURL(source);
+        dataSource = 'URL';
+      } else if (isFilePath(source)) {
+        data = await readFromFile(source);
+        dataSource = 'File';
+      } else {
+        // Treat as raw string content
+        data = Buffer.from(source);
+        dataSource = 'String content';
+      }
+      
+      // Upload to pre-signed URL
+      await axios.put(urlResult.url, data, {
+        headers: {
+          'Content-Type': determinedContentType
         }
-        
-        // Upload to pre-signed URL
-        await axios.put(urlResult.url, data, {
-          headers: {
-            'Content-Type': determinedContentType
-          }
-        });
-        
-        // Set ACL if provided
-        if (acl) {
-          await client.objectStorage.updateObjectACL(region, bucket, object_path, { acl });
-        }
-        
-        return {
-          content: [
-            { type: 'text', text: `Successfully uploaded object '${object_path}' to bucket '${bucket}'.
+      });
+      
+      // Set ACL if provided
+      if (acl) {
+        await client.objectStorage.updateObjectACL(region, bucket, object_path, { acl });
+      }
+      
+      return {
+        content: [
+          { type: 'text', text: `Successfully uploaded object '${object_path}' to bucket '${bucket}'.
 Source: ${dataSource}
 Size: ${formatBytes(data.length)}
 Content Type: ${determinedContentType}
 ACL: ${acl || 'Default bucket ACL'}` },
-          ],
-        };
-      } catch (error: any) {
-        console.error("Error uploading object:", error);
-        throw new Error(`Failed to upload object: ${error.message}`);
-      }
+        ],
+      };
     }
-  );
+  ));
 
   // Download Object
   server.tool(
     'download_object',
     'Download an object from a bucket and save it to a local file',
     schemas.downloadObjectSchema.shape,
-    async (params, extra) => {
-      try {
-        const { region, bucket, object_path, destination, expires_in } = params;
+    withErrorHandling(async (params, _extra) => {
+      const { region, bucket, object_path, destination, expires_in } = params;
+      
+      // Get pre-signed URL for GET operation
+      const result = await client.objectStorage.getObjectURL(region, bucket, {
+        name: object_path,
+        method: 'GET',
+        expires_in: expires_in || 3600
+      });
         
-        // Get pre-signed URL for GET operation
-        const result = await client.objectStorage.getObjectURL(region, bucket, {
-          name: object_path,
-          method: 'GET',
-          expires_in: expires_in || 3600
-        });
+      // If destination is provided, download the file
+      if (destination) {
+        // Download the file to the specified location
+        const downloadResult = await downloadToFile(result.url, destination);
         
-        // If destination is provided, download the file
-        if (destination) {
-          // Download the file to the specified location
-          const downloadResult = await downloadToFile(result.url, destination);
-          
-          return {
-            content: [
-              { type: 'text', text: `Successfully downloaded '${object_path}' from bucket '${bucket}'.
+        return {
+          content: [
+            { type: 'text', text: `Successfully downloaded '${object_path}' from bucket '${bucket}'.
 Saved to: ${downloadResult.filePath}
 Size: ${formatBytes(downloadResult.size)}
 Content Type: ${getContentType(object_path)}` },
-            ],
-          };
-        }
-        
-        // If no destination provided, attempt to save to Downloads folder or user's home directory
-        try {
-          // Get the appropriate download directory (Downloads folder or home directory)
-          const downloadDir = getDownloadDirectory();
-          const localFilename = path.basename(object_path);
-          const localPath = path.join(downloadDir, localFilename);
-          
-          // Download the file
-          const downloadResult = await downloadToFile(result.url, localPath);
-          
-          return {
-            content: [
-              { type: 'text', text: `Successfully downloaded '${object_path}' from bucket '${bucket}'.
-Saved to: ${downloadResult.filePath}
-Size: ${formatBytes(downloadResult.size)}
-Content Type: ${getContentType(object_path)}` },
-            ],
-          };
-        } catch (downloadError: any) {
-          // If download fails, provide the URL so the user can download manually
-          console.error("Error downloading file:", downloadError);
-          
-          return {
-            content: [
-              { type: 'text', text: `Unable to automatically download the file: ${downloadError.message}
-
-Pre-signed URL for downloading '${object_path}' from bucket '${bucket}':
-
-${result.url}
-
-Note: This URL is temporary and will expire after ${expires_in || 3600} seconds.
-You can directly open this URL in a browser or use it with tools like curl or wget:
-
-curl -o "${path.basename(object_path)}" "${result.url}"` },
-            ],
-          };
-        }
-      } catch (error: any) {
-        console.error("Error with download operation:", error);
-        throw new Error(`Failed to download object: ${error.message}`);
+          ],
+        };
       }
+        
+      // Get the appropriate download directory (Downloads folder or home directory)
+      const downloadDir = getDownloadDirectory();
+      const localFilename = path.basename(object_path);
+      const localPath = path.join(downloadDir, localFilename);
+      
+      // Download the file
+      const downloadResult = await downloadToFile(result.url, localPath);
+      
+      return {
+        content: [
+          { type: 'text', text: `Successfully downloaded '${object_path}' from bucket '${bucket}'.
+Saved to: ${downloadResult.filePath}
+Size: ${formatBytes(downloadResult.size)}
+Content Type: ${getContentType(object_path)}` },
+        ],
+      };
     }
-  );
+  ));
 
   // Delete Object
   server.tool(
     'delete_object',
     'Delete an object from an Object Storage bucket',
     schemas.deleteObjectSchema.shape,
-    async (params, extra) => {
-      try {
-        const { region, bucket, object_path, expires_in } = params;
-        
-        // Get pre-signed URL for DELETE operation
-        const result = await client.objectStorage.getObjectURL(region, bucket, {
-          name: object_path,
-          method: 'DELETE',
-          expires_in: expires_in || 3600
-        });
-        
-        // Execute the DELETE request
-        await axios.delete(result.url);
-        
-        return {
-          content: [
-            { type: 'text', text: `Successfully deleted object '${object_path}' from bucket '${bucket}'.` },
-          ],
-        };
-      } catch (error: any) {
-        console.error("Error deleting object:", error);
-        throw new Error(`Failed to delete object: ${error.message}`);
-      }
+    withErrorHandling(async (params, _extra) => {
+      const { region, bucket, object_path, expires_in } = params;
+      
+      // Get pre-signed URL for DELETE operation
+      const result = await client.objectStorage.getObjectURL(region, bucket, {
+        name: object_path,
+        method: 'DELETE',
+        expires_in: expires_in || 3600
+      });
+      
+      // Execute the DELETE request
+      await axios.delete(result.url);
+      
+      return {
+        content: [
+          { type: 'text', text: `Successfully deleted object '${object_path}' from bucket '${bucket}'.` },
+        ],
+      };
     }
-  );
+  ));
 
   // Transfer Statistics
   server.tool(
     'get_object_storage_transfer',
     'Get Object Storage transfer statistics',
     schemas.getTransferStatsSchema.shape,
-    async (_, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.getTransferStats();
       return {
         content: [
@@ -583,14 +511,14 @@ curl -o "${path.basename(object_path)}" "${result.url}"` },
         ],
       };
     }
-  );
+  ));
 
   // Object Storage Types
   server.tool(
     'list_object_storage_types',
     'Get a list of all available Object Storage types and prices, including any region-specific rates.',
     schemas.listObjectStorageTypesSchema.shape,
-    async (_, extra) => {
+    withErrorHandling(async (params, _extra) => {
       const result = await client.objectStorage.getTypes();
       return {
         content: [
@@ -598,14 +526,14 @@ curl -o "${path.basename(object_path)}" "${result.url}"` },
         ],
       };
     }
-  );
+  ));
   
   // Service
   server.tool(
     'cancel_object_storage',
     'Cancel Object Storage service',
     schemas.cancelObjectStorageSchema.shape,
-    async (_, extra) => {
+    withErrorHandling(async (params, _extra) => {
       await client.objectStorage.cancelObjectStorage();
       return {
         content: [
@@ -613,7 +541,7 @@ curl -o "${path.basename(object_path)}" "${result.url}"` },
         ],
       };
     }
-  );
+  ));
 }
 
 /**
