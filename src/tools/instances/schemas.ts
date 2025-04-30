@@ -397,7 +397,7 @@ export const mutateLinodeSchema = z.object({
 // Reset root password
 export const resetRootPasswordSchema = z.object({
   id: z.number().describe('The ID of the Linode instance'),
-  password: z.string().describe('The new root password')
+  root_pass: z.string().describe('The new root password')
 });
 
 // Transfer stats
