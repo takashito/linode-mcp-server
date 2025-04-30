@@ -272,8 +272,7 @@ export interface LinodeIPUpdateRequest {
 }
 
 export interface ResetRootPasswordRequest {
-  password: string;
-  root_ssh_key?: string;
+  root_pass: string;
 }
 
 export interface MigrateLinodeRequest {
