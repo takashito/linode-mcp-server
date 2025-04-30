@@ -656,7 +656,7 @@ export function registerInstanceTools(server: McpServer, client: LinodeClient) {
   // Reset root password operation
   server.tool(
     'reset_root_password',
-    'Reset the root password for a Linode instance',
+    'Reset the root password for a Linode instance. Your Linode must be shut down for a password reset to complete.',
     schemas.resetRootPasswordSchema.shape,
     async (params, extra) => {
       const { id, ...data } = params;
