@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/takashito-linode-mcp-server-badge.png)](https://mseep.ai/app/takashito-linode-mcp-server)
+
 # Linode MCP Server
 
 [![main version](https://img.shields.io/github/package-json/v/takashito/linode-mcp-server?color=blue)](https://github.com/takashito/linode-mcp-server)
