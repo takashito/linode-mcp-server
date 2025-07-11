@@ -73,73 +73,34 @@ You can provide your token in several ways:
    npx @takashito/linode-mcp-server
    ```
 
-### Connecting to Claude Desktop
+### Connecting to AI Clients
 
-To add this MCP server to Claude Desktop:
-
-1. Open Claude settings > Developer > Edit Config
-2. Add following lines to configure the MCP server:
-
+#### Claude Desktop
+Open Claude settings > Developer > Edit Config:
 ```json
 {
   "mcpServers": {
     "linode": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@takashito/linode-mcp-server",
-        "--token", 
-        "YOUR_LINODE_API_TOKEN"
-      ]
+      "args": ["-y", "@takashito/linode-mcp-server", "--token", "YOUR_LINODE_API_TOKEN"]
     }
   }
 }
 ```
 
-Or with environment variables:
-
+#### VSCode/Cursor/Windsurf
+Add to your settings.json:
 ```json
 {
   "mcpServers": {
     "linode": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@takashito/linode-mcp-server"
-      ],
-      "env": {
-        "LINODE_API_TOKEN": "YOUR_LINODE_API_TOKEN"
-      }
+      "args": ["-y", "@takashito/linode-mcp-server", "--token", "YOUR_LINODE_API_TOKEN", "--categories", "instances,volumes,regions"]
     }
   }
 }
 ```
-
-### Connecting to VSCode Copilot Agent
-
-Add this MCP server to VSCode Copilot Agent in your VSCode settings (setting.json):
-
-```json
-{
-  "mcpServers": {
-    "linode": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@takashito/linode-mcp-server",
-        "--token", 
-        "YOUR_LINODE_API_TOKEN",
-        "--categories",
-        "instances,volumes,regions"
-      ]
-    }
-  }
-}
-```
-
-⚠️ **Important for GPT-4o users**: When using this server with GPT-4o, use the `--categories` parameter to limit the number of tools. Otherwise, you might get a 400 error in your chat responses.
-
-![chat error](<./img/vscode-gpt-4o-error.png>)
+⚠️ **Note**: For GPT-4o based clients, use `--categories` to limit tools and avoid context window errors.
 
 ### Automatic Installation via Smithery to Claude Desktop
 
@@ -187,8 +148,6 @@ npx @takashito/linode-mcp-server --list-categories
 
 ## Transport Options
 
-By default, the server uses stdio transport which is compatible with Claude Desktop. The server is built with FastMCP framework and supports multiple transport options:
-
 1. **stdio transport** - Default transport compatible with Claude Desktop
    ```bash
    # Default stdio transport
@@ -197,19 +156,50 @@ By default, the server uses stdio transport which is compatible with Claude Desk
 
 2. **SSE transport** - Server-Sent Events transport for web clients
    ```bash
-   # Start with SSE transport on port 3000
-   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport sse --port 3000
+   # Start with SSE transport on port 3000 /sse
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport sse --port 3000 --endpoint /sse
    ```
 
 3. **httpStream transport** - HTTP streaming transport for web clients
    ```bash
-   # Start with HTTP streaming transport on port 8080
-   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http --port 8080
+   # Start with HTTP streaming transport on port 8080 /mcp
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http --port 8080 --endpoint /mcp
    ```
 
 You can customize port and host for both SSE and HTTP streaming transport:
-- `--port` : Server port (default: 8080)
+- `--port` : Server port (default: http: 8080, sse: 3000)
+- `--endpoint` : Server Path (default: http: /mcp, sse: /sse)
 - `--host` : Server host (default: 127.0.0.1)
+
+## Pass Linode API Key via Authorization Header
+
+For http / sse transport, you can run mcp server without --token parameter. 
+
+   ```bash
+   # Start with HTTP streaming transport on port 8080 /mcp at localhost
+   npx @takashito/linode-mcp-server --transport http
+   ```
+
+Configure your mcp client to add Authorization Header. linode-mcp-server forward this API token to access Linode API at backend.
+
+```json
+{
+  "mcpServers": {
+    "linode-remote-mcp": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:8080/mcp",
+        "--header",
+        "Authorization: Bearer ${LINODE_API_TOKEN}"
+      ],
+      "env": {
+        "LINODE_API_TOKEN": "..."
+      }
+    },
+  }
+}
+```
 
 ## Available Tools
 
