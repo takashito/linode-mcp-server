@@ -1,35 +1,26 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
-export function registerRegionTools(server: McpServer, client: LinodeClient) {
+export function registerRegionTools(server: FastMCP, client: LinodeClient) {
   // Register region tools
-  server.tool(
-    'list_regions',
-    'Get a list of all available regions',
-    schemas.listRegionsSchema.shape,
-    async (_, extra) => {
+  server.addTool({
+    name: 'list_regions',
+    description: 'Get a list of all available regions',
+    parameters: schemas.listRegionsSchema,
+    execute: async () => {
       const result = await client.regions.getRegions();
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     }
-  );
-
-  server.tool(
-    'get_region',
-    'Get details for a specific region',
-    schemas.getRegionSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  });
+  server.addTool({
+    name: 'get_region',
+    description: 'Get details for a specific region',
+    parameters: schemas.getRegionSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.regions.getRegion(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
+      return JSON.stringify(result, null, 2);
+    })
+  });
 }

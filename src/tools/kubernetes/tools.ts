@@ -1,7 +1,7 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient, KubernetesCluster, KubernetesNodePool, KubernetesNode, KubernetesVersion, KubeConfig, APIEndpoint, KubernetesDashboard, KubernetesType } from '../../client';
 import * as schemas from './schemas';
-import { registerToolsWithErrorHandling, ToolRegistration } from '../common/errorHandler';
+import { withErrorHandling } from '../common/errorHandler';
 
 /**
  * Formats a Kubernetes cluster for display
@@ -30,12 +30,12 @@ function formatKubernetesCluster(cluster: KubernetesCluster): string {
  */
 function formatKubernetesClusters(clusters: KubernetesCluster[]): string {
   if (clusters.length === 0) {
-    return 'No Kubernetes clusters found.';
+      return 'No Kubernetes clusters found.';
   }
 
   return clusters.map((cluster) => {
-    return `${cluster.label} (ID: ${cluster.id}, Region: ${cluster.region}, K8s: ${cluster.k8s_version}, Status: ${cluster.status})`;
-  }).join('\n');
+      return `${cluster.label} (ID: ${cluster.id}, Region: ${cluster.region}, K8s: ${cluster.k8s_version}, Status: ${cluster.status})`;
+    }).join('\n');
 }
 
 /**
@@ -79,12 +79,12 @@ function formatNodePool(pool: KubernetesNodePool): string {
  */
 function formatNodePools(pools: KubernetesNodePool[]): string {
   if (pools.length === 0) {
-    return 'No node pools found.';
+      return 'No node pools found.';
   }
 
   return pools.map((pool) => {
-    return `ID: ${pool.id}, Type: ${pool.type}, ${pool.count} nodes, ${pool.nodes.length} active`;
-  }).join('\n');
+      return `ID: ${pool.id}, Type: ${pool.type}, ${pool.count} nodes, ${pool.nodes.length} active`;
+    }).join('\n');
 }
 
 /**
@@ -92,7 +92,7 @@ function formatNodePools(pools: KubernetesNodePool[]): string {
  */
 function formatKubernetesVersions(versions: KubernetesVersion[]): string {
   if (versions.length === 0) {
-    return 'No Kubernetes versions found.';
+      return 'No Kubernetes versions found.';
   }
 
   return versions.map((version) => version.id).join('\n');
@@ -103,7 +103,7 @@ function formatKubernetesVersions(versions: KubernetesVersion[]): string {
  */
 function formatAPIEndpoints(endpoints: APIEndpoint[]): string {
   if (endpoints.length === 0) {
-    return 'No API endpoints found.';
+      return 'No API endpoints found.';
   }
 
   return endpoints.map((endpoint) => endpoint.endpoint).join('\n');
@@ -113,7 +113,7 @@ function formatAPIEndpoints(endpoints: APIEndpoint[]): string {
  * Formats Kubernetes dashboard URL for display
  */
 function formatDashboardURL(dashboard: KubernetesDashboard): string {
-  return `Dashboard URL: ${dashboard.url}`;
+      return `Dashboard URL: ${dashboard.url}`;
 }
 
 /**
@@ -134,323 +134,229 @@ function formatNode(node: KubernetesNode): string {
  */
 function formatKubernetesTypes(types: KubernetesType[]): string {
   if (types.length === 0) {
-    return 'No Kubernetes types found.';
+      return 'No Kubernetes types found.';
   }
 
   return types.map((type) => {
-    return `${type.label} (ID: ${type.id}, Monthly: $${type.price.monthly}, Hourly: $${type.price.hourly})`;
-  }).join('\n');
+      return `${type.label} (ID: ${type.id}, Monthly: $${type.price.monthly}, Hourly: $${type.price.hourly})`;
+    }).join('\n');
 }
 
 /**
  * Registers Kubernetes tools with the MCP server
  */
-export function registerKubernetesTools(server: McpServer, client: LinodeClient) {
-  // Define all Kubernetes tools with error handling
-  const kubernetesTools: ToolRegistration[] = [
-    // Cluster operations
-    {
-      name: 'list_kubernetes_clusters',
-      description: 'List all Kubernetes clusters',
-      schema: schemas.listKubernetesClustersSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getClusters(params);
-        return {
-          content: [
-            { type: 'text', text: formatKubernetesClusters(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_kubernetes_cluster',
-      description: 'Get details for a specific Kubernetes cluster',
-      schema: schemas.getClusterSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getCluster(params.id);
-        return {
-          content: [
-            { type: 'text', text: formatKubernetesCluster(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'create_kubernetes_cluster',
-      description: 'Create a new Kubernetes cluster',
-      schema: schemas.createClusterSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.createCluster(params);
-        return {
-          content: [
-            { type: 'text', text: formatKubernetesCluster(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'update_kubernetes_cluster',
-      description: 'Update an existing Kubernetes cluster',
-      schema: schemas.updateClusterSchema.shape,
-      handler: async (params, extra) => {
-        const { id, ...data } = params;
-        const result = await client.kubernetes.updateCluster(id, data);
-        return {
-          content: [
-            { type: 'text', text: formatKubernetesCluster(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_kubernetes_cluster',
-      description: 'Delete a Kubernetes cluster',
-      schema: schemas.deleteClusterSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.deleteCluster(params.id);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
+export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
+  // Cluster operations
+  server.addTool({
+    name: 'list_kubernetes_clusters',
+    description: 'List all Kubernetes clusters',
+    parameters: schemas.listKubernetesClustersSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getClusters(params);
+      return formatKubernetesClusters(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_kubernetes_cluster',
+    description: 'Get details for a specific Kubernetes cluster',
+    parameters: schemas.getClusterSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getCluster(params.id);
+      return formatKubernetesCluster(result);
+    })
+  });
+  server.addTool({
+    name: 'create_kubernetes_cluster',
+    description: 'Create a new Kubernetes cluster',
+    parameters: schemas.createClusterSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.createCluster(params);
+      return formatKubernetesCluster(result);
+    })
+  });
+  server.addTool({
+    name: 'update_kubernetes_cluster',
+    description: 'Update an existing Kubernetes cluster',
+    parameters: schemas.updateClusterSchema,
+    execute: withErrorHandling(async (params) => {
+      const { id, ...data } = params;
+      const result = await client.kubernetes.updateCluster(id, data);
+      return formatKubernetesCluster(result);
+    })
+  });
+  server.addTool({
+    name: 'delete_kubernetes_cluster',
+    description: 'Delete a Kubernetes cluster',
+    parameters: schemas.deleteClusterSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.deleteCluster(params.id);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 
-    // Node pool operations
-    {
-      name: 'list_kubernetes_node_pools',
-      description: 'List all node pools in a Kubernetes cluster',
-      schema: schemas.getNodePoolsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getNodePools(params.clusterId);
-        return {
-          content: [
-            { type: 'text', text: formatNodePools(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_kubernetes_node_pool',
-      description: 'Get details for a specific node pool in a Kubernetes cluster',
-      schema: schemas.getNodePoolSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getNodePool(params.clusterId, params.poolId);
-        return {
-          content: [
-            { type: 'text', text: formatNodePool(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'create_kubernetes_node_pool',
-      description: 'Create a new node pool in a Kubernetes cluster',
-      schema: schemas.createNodePoolSchema.shape,
-      handler: async (params, extra) => {
-        const { clusterId, ...data } = params;
-        const result = await client.kubernetes.createNodePool(clusterId, data);
-        return {
-          content: [
-            { type: 'text', text: formatNodePool(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'update_kubernetes_node_pool',
-      description: 'Update an existing node pool in a Kubernetes cluster',
-      schema: schemas.updateNodePoolSchema.shape,
-      handler: async (params, extra) => {
-        const { clusterId, poolId, ...data } = params;
-        const result = await client.kubernetes.updateNodePool(clusterId, poolId, data);
-        return {
-          content: [
-            { type: 'text', text: formatNodePool(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_kubernetes_node_pool',
-      description: 'Delete a node pool from a Kubernetes cluster',
-      schema: schemas.deleteNodePoolSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.deleteNodePool(params.clusterId, params.poolId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'recycle_kubernetes_nodes',
-      description: 'Recycle specified nodes in a node pool',
-      schema: schemas.recycleNodesSchema.shape,
-      handler: async (params, extra) => {
-        const { clusterId, poolId, nodes } = params;
-        await client.kubernetes.recycleNodes(clusterId, poolId, { nodes });
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
+  // Node pool operations
+  server.addTool({
+    name: 'list_kubernetes_node_pools',
+    description: 'List all node pools in a Kubernetes cluster',
+    parameters: schemas.getNodePoolsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getNodePools(params.clusterId);
+      return formatNodePools(result);
+    })
+  });
+  server.addTool({
+    name: 'get_kubernetes_node_pool',
+    description: 'Get details for a specific node pool in a Kubernetes cluster',
+    parameters: schemas.getNodePoolSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getNodePool(params.clusterId, params.poolId);
+      return formatNodePool(result);
+    })
+  });
+  server.addTool({
+    name: 'create_kubernetes_node_pool',
+    description: 'Create a new node pool in a Kubernetes cluster',
+    parameters: schemas.createNodePoolSchema,
+    execute: withErrorHandling(async (params) => {
+      const { clusterId, ...data } = params;
+      const result = await client.kubernetes.createNodePool(clusterId, data);
+      return formatNodePool(result);
+    })
+  });
+  server.addTool({
+    name: 'update_kubernetes_node_pool',
+    description: 'Update an existing node pool in a Kubernetes cluster',
+    parameters: schemas.updateNodePoolSchema,
+    execute: withErrorHandling(async (params) => {
+      const { clusterId, poolId, ...data } = params;
+      const result = await client.kubernetes.updateNodePool(clusterId, poolId, data);
+      return formatNodePool(result);
+    })
+  });
+  server.addTool({
+    name: 'delete_kubernetes_node_pool',
+    description: 'Delete a node pool from a Kubernetes cluster',
+    parameters: schemas.deleteNodePoolSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.deleteNodePool(params.clusterId, params.poolId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'recycle_kubernetes_nodes',
+    description: 'Recycle specified nodes in a node pool',
+    parameters: schemas.recycleNodesSchema,
+    execute: withErrorHandling(async (params) => {
+      const { clusterId, poolId, nodes } = params;
+      await client.kubernetes.recycleNodes(clusterId, poolId, { nodes });
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 
-    // Other Kubernetes operations
-    {
-      name: 'list_kubernetes_versions',
-      description: 'List all available Kubernetes versions',
-      schema: schemas.getVersionsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getVersions();
-        return {
-          content: [
-            { type: 'text', text: formatKubernetesVersions(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_kubernetes_kubeconfig',
-      description: 'Get the kubeconfig for a Kubernetes cluster',
-      schema: schemas.getKubeconfigSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getKubeconfig(params.id);
-        return {
-          content: [
-            { type: 'text', text: result.kubeconfig },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_kubernetes_api_endpoints',
-      description: 'Get the API endpoints for a Kubernetes cluster',
-      schema: schemas.getAPIEndpointsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getAPIEndpoints(params.id);
-        return {
-          content: [
-            { type: 'text', text: formatAPIEndpoints(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'recycle_kubernetes_cluster',
-      description: 'Recycle all nodes in a Kubernetes cluster',
-      schema: schemas.recycleClusterSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.recycleCluster(params.id);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'upgrade_kubernetes_cluster',
-      description: 'Upgrade a Kubernetes cluster to the latest patch version',
-      schema: schemas.upgradeClusterSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.upgradeCluster(params.id);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
+  // Other Kubernetes operations
+  server.addTool({
+    name: 'list_kubernetes_versions',
+    description: 'List all available Kubernetes versions',
+    parameters: schemas.getVersionsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getVersions();
+      return formatKubernetesVersions(result);
+    })
+  });
+  server.addTool({
+    name: 'get_kubernetes_kubeconfig',
+    description: 'Get the kubeconfig for a Kubernetes cluster',
+    parameters: schemas.getKubeconfigSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getKubeconfig(params.id);
+      return result.kubeconfig;
+    })
+  });
+  server.addTool({
+    name: 'get_kubernetes_api_endpoints',
+    description: 'Get the API endpoints for a Kubernetes cluster',
+    parameters: schemas.getAPIEndpointsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getAPIEndpoints(params.id);
+      return formatAPIEndpoints(result);
+    })
+  });
+  server.addTool({
+    name: 'recycle_kubernetes_cluster',
+    description: 'Recycle all nodes in a Kubernetes cluster',
+    parameters: schemas.recycleClusterSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.recycleCluster(params.id);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'upgrade_kubernetes_cluster',
+    description: 'Upgrade a Kubernetes cluster to the latest patch version',
+    parameters: schemas.upgradeClusterSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.upgradeCluster(params.id);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 
-    // Node operations
-    {
-      name: 'delete_kubernetes_node',
-      description: 'Delete a node from a Kubernetes cluster',
-      schema: schemas.deleteNodeSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.deleteNode(params.clusterId, params.nodeId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'recycle_kubernetes_node',
-      description: 'Recycle a node in a Kubernetes cluster',
-      schema: schemas.recycleNodeSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.recycleNode(params.clusterId, params.nodeId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
+  // Node operations
+  server.addTool({
+    name: 'delete_kubernetes_node',
+    description: 'Delete a node from a Kubernetes cluster',
+    parameters: schemas.deleteNodeSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.deleteNode(params.clusterId, params.nodeId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'recycle_kubernetes_node',
+    description: 'Recycle a node in a Kubernetes cluster',
+    parameters: schemas.recycleNodeSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.recycleNode(params.clusterId, params.nodeId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 
-    // Dashboard and service token operations
-    {
-      name: 'get_kubernetes_dashboard_url',
-      description: 'Get the dashboard URL for a Kubernetes cluster',
-      schema: schemas.getDashboardURLSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getDashboardURL(params.id);
-        return {
-          content: [
-            { type: 'text', text: formatDashboardURL(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_kubernetes_service_token',
-      description: 'Delete the service token for a Kubernetes cluster',
-      schema: schemas.deleteServiceTokenSchema.shape,
-      handler: async (params, extra) => {
-        await client.kubernetes.deleteServiceToken(params.id);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
+  // Dashboard and service token operations
+  server.addTool({
+    name: 'get_kubernetes_dashboard_url',
+    description: 'Get the dashboard URL for a Kubernetes cluster',
+    parameters: schemas.getDashboardURLSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getDashboardURL(params.id);
+      return formatDashboardURL(result);
+    })
+  });
+  server.addTool({
+    name: 'delete_kubernetes_service_token',
+    description: 'Delete the service token for a Kubernetes cluster',
+    parameters: schemas.deleteServiceTokenSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.kubernetes.deleteServiceToken(params.id);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 
-    // Version and type operations
-    {
-      name: 'get_kubernetes_version',
-      description: 'Get details for a specific Kubernetes version',
-      schema: schemas.getVersionSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getVersion(params.version);
-        return {
-          content: [
-            { type: 'text', text: result.id },
-          ],
-        };
-      }
-    },
-    {
-      name: 'list_kubernetes_types',
-      description: 'List all available Kubernetes types',
-      schema: schemas.getTypesSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.kubernetes.getTypes();
-        return {
-          content: [
-            { type: 'text', text: formatKubernetesTypes(result) },
-          ],
-        };
-      }
-    }
-  ];
-  
-  // Register all tools with error handling
-  registerToolsWithErrorHandling(server, kubernetesTools);
+  // Version and type operations
+  server.addTool({
+    name: 'get_kubernetes_version',
+    description: 'Get details for a specific Kubernetes version',
+    parameters: schemas.getVersionSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getVersion(params.version);
+      return result.id;
+    })
+  });
+  server.addTool({
+    name: 'list_kubernetes_types',
+    description: 'List all available Kubernetes types',
+    parameters: schemas.getTypesSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.kubernetes.getTypes();
+      return formatKubernetesTypes(result);
+    })
+  });
 }

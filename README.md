@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
 [![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
 
-An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Now both SSE and StreamableHTTP transport support !
+An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Built with FastMCP framework and supports stdio, SSE, and HTTP streaming transports!
 
 ## What Can You Do With This?
 
@@ -187,7 +187,7 @@ npx @takashito/linode-mcp-server --list-categories
 
 ## Transport Options
 
-By default, the server uses stdio transport which is compatible with Claude Desktop. The server now supports multiple transport options:
+By default, the server uses stdio transport which is compatible with Claude Desktop. The server is built with FastMCP framework and supports multiple transport options:
 
 1. **stdio transport** - Default transport compatible with Claude Desktop
    ```bash
@@ -195,22 +195,21 @@ By default, the server uses stdio transport which is compatible with Claude Desk
    npx @takashito/linode-mcp-server --token YOUR_TOKEN
    ```
 
-2. **SSE transport** - Server-Sent Events transport
+2. **SSE transport** - Server-Sent Events transport for web clients
    ```bash
-   # Start with SSE transport on port 3000 with /sse
-   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport sse
+   # Start with SSE transport on port 3000
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport sse --port 3000
    ```
 
-3. **StreamableHTTP transport** - StreamableHTTP transport for web clients
+3. **httpStream transport** - HTTP streaming transport for web clients
    ```bash
-   # Start with HTTP streaming transport on port 8080 with /mcp
-   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http
+   # Start with HTTP streaming transport on port 8080
+   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http --port 8080
    ```
 
-You can customize port and endpoint for both SSE and HTTP streaming transport:
-- `--port` : HTTP/SSE server port (default: 8080 for HTTP, 3000 for SSE)
-- `--endpoint` : HTTP/SSE server endpoint path (default: /mcp for HTTP, /sse for SSE)
-- `--host` : HTTP/SSE server host (default: 127.0.0.1, SSE only)
+You can customize port and host for both SSE and HTTP streaming transport:
+- `--port` : Server port (default: 8080)
+- `--host` : Server host (default: 127.0.0.1)
 
 ## Available Tools
 

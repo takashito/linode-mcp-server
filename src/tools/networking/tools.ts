@@ -1,160 +1,129 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient } from '../../client';
 import * as schemas from './schemas';
 
-export function registerNetworkingTools(server: McpServer, client: LinodeClient) {
+export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
   // IP Address operations
-  server.tool(
-    'get_ip_addresses',
-    'Get all IP addresses',
-    schemas.getIPAddressesSchema.shape,
-    async (_, extra) => {
+    server.addTool({
+    name: 'get_ip_addresses',
+    description: 'Get all IP addresses',
+    parameters: schemas.getIPAddressesSchema,
+    execute: async () => {
       const result = await client.networking.getIPAddresses();
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'get_ip_address',
-    'Get details for a specific IP address',
-    schemas.getIPAddressSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_ip_address',
+    description: 'Get details for a specific IP address',
+    parameters: schemas.getIPAddressSchema,
+    execute: async (params) => {
       const result = await client.networking.getIPAddress(params.address);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'update_ip_address',
-    'Update reverse DNS for an IP address',
-    schemas.updateIPSchema.shape,
-    async (params, extra) => {
+  server.addTool({
+    name: 'update_ip_address',
+    description: 'Update reverse DNS for an IP address',
+    parameters: schemas.updateIPSchema,
+    execute: async (params) => {
       const result = await client.networking.updateIPAddress(params.address, { rdns: params.rdns });
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     }
-  );
+  });
 
-  server.tool(
-    'allocate_ip',
-    'Allocate a new IP address',
-    schemas.allocateIPSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'allocate_ip',
+    description: 'Allocate a new IP address',
+    parameters: schemas.allocateIPSchema,
+    execute: async (params) => {
       const result = await client.networking.allocateIPAddress(params);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'share_ips',
-    'Share IP addresses between Linodes',
-    schemas.shareIPsSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'share_ips',
+    description: 'Share IP addresses between Linodes',
+    parameters: schemas.shareIPsSchema,
+    execute: async (params) => {
       const result = await client.networking.shareIPAddresses(params);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
   // IPv6 operations
-  server.tool(
-    'get_ipv6_ranges',
-    'Get all IPv6 ranges',
-    schemas.getIPv6RangesSchema.shape,
-    async (_, extra) => {
+    server.addTool({
+    name: 'get_ipv6_ranges',
+    description: 'Get all IPv6 ranges',
+    parameters: schemas.getIPv6RangesSchema,
+    execute: async () => {
       const result = await client.networking.getIPv6Ranges();
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'get_ipv6_range',
-    'Get a specific IPv6 range',
-    schemas.getIPv6RangeSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_ipv6_range',
+    description: 'Get a specific IPv6 range',
+    parameters: schemas.getIPv6RangeSchema,
+    execute: async (params) => {
       const result = await client.networking.getIPv6Range(params.range);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'get_ipv6_pools',
-    'Get all IPv6 pools',
-    schemas.getIPv6PoolsSchema.shape,
-    async (_, extra) => {
+    server.addTool({
+    name: 'get_ipv6_pools',
+    description: 'Get all IPv6 pools',
+    parameters: schemas.getIPv6PoolsSchema,
+    execute: async () => {
       const result = await client.networking.getIPv6Pools();
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
   // Firewall operations
-  server.tool(
-    'get_firewalls',
-    'Get all firewalls',
-    schemas.getFirewallsSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_firewalls',
+    description: 'Get all firewalls',
+    parameters: schemas.getFirewallsSchema,
+    execute: async (params) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
       const result = await client.networking.getFirewalls(paginationParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'get_firewall',
-    'Get details for a specific firewall',
-    schemas.getFirewallSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_firewall',
+    description: 'Get details for a specific firewall',
+    parameters: schemas.getFirewallSchema,
+    execute: async (params) => {
       const result = await client.networking.getFirewall(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'create_firewall',
-    'Create a new firewall',
-    schemas.createFirewallSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'create_firewall',
+    description: 'Create a new firewall',
+    parameters: schemas.createFirewallSchema,
+    execute: async (params) => {
       // Create FirewallRequest with correct structure
       const firewall: any = {
         label: params.label,
@@ -176,149 +145,119 @@ export function registerNetworkingTools(server: McpServer, client: LinodeClient)
       }
       
       const result = await client.networking.createFirewall(firewall);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'update_firewall',
-    'Update a firewall',
-    schemas.updateFirewallSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'update_firewall',
+    description: 'Update a firewall',
+    parameters: schemas.updateFirewallSchema,
+    execute: async (params) => {
       const { id, ...updateData } = params;
       const result = await client.networking.updateFirewall(id, updateData);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'delete_firewall',
-    'Delete a firewall',
-    schemas.deleteFirewallSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'delete_firewall',
+    description: 'Delete a firewall',
+    parameters: schemas.deleteFirewallSchema,
+    execute: async (params) => {
       const result = await client.networking.deleteFirewall(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
   // Firewall rules operations
-  server.tool(
-    'get_firewall_rules',
-    'Get all rules for a specific firewall',
-    schemas.getFirewallRulesSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_firewall_rules',
+    description: 'Get all rules for a specific firewall',
+    parameters: schemas.getFirewallRulesSchema,
+    execute: async (params) => {
       const result = await client.networking.getFirewallRules(params.firewallId);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'update_firewall_rules',
-    'Update rules for a specific firewall',
-    schemas.updateFirewallRulesSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'update_firewall_rules',
+    description: 'Update rules for a specific firewall',
+    parameters: schemas.updateFirewallRulesSchema,
+    execute: async (params) => {
       const { firewallId, ...ruleData } = params;
       const result = await client.networking.updateFirewallRules(firewallId, ruleData);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
   // Firewall device operations
-  server.tool(
-    'get_firewall_devices',
-    'Get all devices for a specific firewall',
-    schemas.getFirewallDevicesSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_firewall_devices',
+    description: 'Get all devices for a specific firewall',
+    parameters: schemas.getFirewallDevicesSchema,
+    execute: async (params) => {
       const { firewallId, page, page_size } = params;
       // The client doesn't accept pagination for this endpoint based on the interface
       const result = await client.networking.getFirewallDevices(firewallId);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'create_firewall_device',
-    'Create a new device for a specific firewall',
-    schemas.createFirewallDeviceSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'create_firewall_device',
+    description: 'Create a new device for a specific firewall',
+    parameters: schemas.createFirewallDeviceSchema,
+    execute: async (params) => {
       const { firewallId, ...deviceData } = params;
       const result = await client.networking.createFirewallDevice(firewallId, deviceData);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'delete_firewall_device',
-    'Delete a device from a specific firewall',
-    schemas.deleteFirewallDeviceSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'delete_firewall_device',
+    description: 'Delete a device from a specific firewall',
+    parameters: schemas.deleteFirewallDeviceSchema,
+    execute: async (params) => {
       const result = await client.networking.deleteFirewallDevice(params.firewallId, params.deviceId);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
   // VLAN operations
-  server.tool(
-    'get_vlans',
-    'Get all VLANs',
-    schemas.getVLANsSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_vlans',
+    description: 'Get all VLANs',
+    parameters: schemas.getVLANsSchema,
+    execute: async (params) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
       const result = await client.networking.getVLANs(paginationParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 
-  server.tool(
-    'get_vlan',
-    'Get a specific VLAN',
-    schemas.getVLANSchema.shape,
-    async (params, extra) => {
+    server.addTool({
+    name: 'get_vlan',
+    description: 'Get a specific VLAN',
+    parameters: schemas.getVLANSchema,
+    execute: async (params) => {
       const result = await client.networking.getVLAN(params.regionId, params.label);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
+    
     }
-  );
+  });
 }

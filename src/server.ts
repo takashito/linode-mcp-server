@@ -1,9 +1,6 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { startHTTPStreamServer, startSSEServer, InMemoryEventStore } from 'mcp-proxy';
+import { FastMCP } from 'fastmcp';
 import { createClient } from './client';
 import { registerAllTools, ToolCategory } from './tools';
-import { ListPromptsRequestSchema, ListResourcesRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 export const VERSION = '0.2.1';
 
@@ -11,19 +8,9 @@ export interface ServerOptions {
   token: string;
   enabledCategories?: ToolCategory[];
   transport?: 'stdio' | 'sse' | 'http';
-  httpOptions?: HttpServerOptions;
-  sseOptions?: SSEServerOptions;
-}
-
-export interface HttpServerOptions {
-  port: number;
-  endpoint: string;
-}
-
-export interface SSEServerOptions {
-  port: number;
-  endpoint: string;
-  host: string;
+  port?: number;
+  host?: string;
+  endpoint?: string;
 }
 
 /**
@@ -34,20 +21,14 @@ export interface SSEServerOptions {
 export async function startServer(options: ServerOptions) {
   console.error('Starting Linode MCP server...');
   
-  // Initialize the server
   try {
-    const server = new McpServer({
+    // Initialize FastMCP server
+    const server = new FastMCP({
       name: 'linode-mcp-server',
-      version: VERSION,
-      description: 'MCP server for Linode API integration'
+      version: VERSION
     });
 
-    server.server.registerCapabilities({
-      resources: {},
-      prompts: {}
-    });
-    
-    console.error('MCP Server initialized successfully');
+    console.error('FastMCP Server initialized successfully');
 
     // Create Linode client with the provided token
     const client = createClient(options.token);
@@ -64,67 +45,39 @@ export async function startServer(options: ServerOptions) {
       throw error;
     }
 
-    server.server.setRequestHandler(ListResourcesRequestSchema, async () => { return { resources:[] } });
-    server.server.setRequestHandler(ListPromptsRequestSchema, async () => { return { prompts:[] } });
+    // Start the server with the specified transport
+    const transport = options.transport || 'stdio';
+    console.error(`Starting server with transport: ${transport}`);
     
-    // Start HTTP server if enabled
-    if (options.transport === 'http' && options.httpOptions) {
-      try {
-        const { port, endpoint } = options.httpOptions;
-        console.error(`Starting StreamableHTTP server on port ${port}, endpoint ${endpoint}`);
-        
-        const { close } = await startHTTPStreamServer({
-          port,
-          endpoint,
-          createServer: async () => {
-            // Return the already configured server
-            return server;
-          },
-          eventStore: new InMemoryEventStore(),
-        });
-        
-        console.error(`HTTP StreamableHTTP server started successfully`);
-      } catch (error) {
-        console.error(`Failed to start StreamableHTTP server: ${error instanceof Error ? error.message : String(error)}`);
-        // Continue with stdio even if HTTP server fails
-      }
-    }
-    
-    // Start SSE server if enabled
-    if (options.transport === 'sse' && options.sseOptions) {
-      try {
-        const { port, endpoint, host } = options.sseOptions;
-        console.error(`Starting SSE server on ${host}:${port}, endpoint ${endpoint}`);
-        
-        // Remove host parameter as it's not supported by startSSEServer
-        const { close } = await startSSEServer({
-          port,
-          endpoint,
-          createServer: async () => {
-            // Return the already configured server
-            return server;
-          },
-        });
-        
-        console.error(`SSE server started successfully`);
-      } catch (error) {
-        console.error(`Failed to start SSE server: ${error instanceof Error ? error.message : String(error)}`);
-        // Continue with stdio even if SSE server fails
-      }
-    }
-    
-    // Start the server with stdio transport
-    if (options.transport === 'stdio' || !options.transport) {
-      try {
-        const transport = new StdioServerTransport();
-        server.connect(transport);
-        console.error('Stdio MCP server transport connected');
-      } catch (error) {
-        console.error(`Failed to start stdio server: ${error instanceof Error ? error.message : String(error)}`);
-        throw error;
-      }
+    if (transport === 'http') {
+      const port = options.port || 8080;
+      const host = options.host || '127.0.0.1';
+      const endpoint = (options.endpoint || '/mcp') as `/${string}`;
+      console.error(`Starting HTTP server on ${host}:${port}${endpoint}`);
+      
+      server.start({
+        transportType: 'httpStream',
+        httpStream: { port, endpoint }
+      });
+    } else if (transport === 'sse') {
+      const port = options.port || 3000;
+      const host = options.host || '127.0.0.1';
+      const endpoint = (options.endpoint || '/sse') as `/${string}`;
+      console.error(`Starting SSE server on ${host}:${port}${endpoint}`);
+      
+      server.start({
+        transportType: 'sse',
+        sse: { port, endpoint }
+      });
+    } else {
+      // Default to stdio
+      console.error('Starting stdio server');
+      server.start({
+        transportType: 'stdio'
+      });
     }
 
+    console.error('Server started successfully');
     return server;
   } catch (error) {
     console.error(`Failed to initialize MCP server: ${error instanceof Error ? error.message : String(error)}`);

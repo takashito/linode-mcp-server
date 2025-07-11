@@ -1,43 +1,33 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient, CreateNodeBalancerRequest } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
-export function registerNodeBalancerTools(server: McpServer, client: LinodeClient) {
+export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient) {
   // Register NodeBalancer tools
-  server.tool(
-    'list_nodebalancers',
-    'Get a list of all NodeBalancers',
-    schemas.listNodeBalancersSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_nodebalancers',
+    description: 'Get a list of all NodeBalancers',
+    parameters: schemas.listNodeBalancersSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.getNodeBalancers(params);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'get_nodebalancer',
-    'Get details for a specific NodeBalancer',
-    schemas.getNodeBalancerSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_nodebalancer',
+    description: 'Get details for a specific NodeBalancer',
+    parameters: schemas.getNodeBalancerSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.getNodeBalancer(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'create_nodebalancer',
-    'Create a new NodeBalancer',
-    schemas.createNodeBalancerSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'create_nodebalancer',
+    description: 'Create a new NodeBalancer',
+    parameters: schemas.createNodeBalancerSchema,
+    execute: withErrorHandling(async (params) => {
       const createParams: CreateNodeBalancerRequest = {
         region: String(params.region),
         label: params.label,
@@ -45,115 +35,76 @@ export function registerNodeBalancerTools(server: McpServer, client: LinodeClien
         tags: params.tags
       };
       const result = await client.nodeBalancers.createNodeBalancer(createParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'delete_nodebalancer',
-    'Delete a NodeBalancer',
-    schemas.deleteNodeBalancerSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_nodebalancer',
+    description: 'Delete a NodeBalancer',
+    parameters: schemas.deleteNodeBalancerSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.deleteNodeBalancer(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'list_nodebalancer_configs',
-    'Get a list of config nodes for a NodeBalancer',
-    schemas.listNodeBalancerConfigsSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'list_nodebalancer_configs',
+    description: 'Get a list of config nodes for a NodeBalancer',
+    parameters: schemas.listNodeBalancerConfigsSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.getNodeBalancerConfigs(params.nodebalancer_id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'create_nodebalancer_config',
-    'Create a new config for a NodeBalancer',
-    schemas.createNodeBalancerConfigSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'create_nodebalancer_config',
+    description: 'Create a new config for a NodeBalancer',
+    parameters: schemas.createNodeBalancerConfigSchema,
+    execute: withErrorHandling(async (params) => {
       const { nodebalancer_id, ...configParams } = params;
       const result = await client.nodeBalancers.createNodeBalancerConfig(nodebalancer_id, configParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'delete_nodebalancer_config',
-    'Delete a NodeBalancer config',
-    schemas.deleteNodeBalancerConfigSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_nodebalancer_config',
+    description: 'Delete a NodeBalancer config',
+    parameters: schemas.deleteNodeBalancerConfigSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.deleteNodeBalancerConfig(params.nodebalancer_id, params.config_id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'list_nodebalancer_nodes',
-    'Get a list of nodes for a NodeBalancer config',
-    schemas.listNodeBalancerNodesSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'list_nodebalancer_nodes',
+    description: 'Get a list of nodes for a NodeBalancer config',
+    parameters: schemas.listNodeBalancerNodesSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.getNodeBalancerConfigNodes(params.nodebalancer_id, params.config_id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'create_nodebalancer_node',
-    'Create a new node for a NodeBalancer config',
-    schemas.createNodeBalancerNodeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'create_nodebalancer_node',
+    description: 'Create a new node for a NodeBalancer config',
+    parameters: schemas.createNodeBalancerNodeSchema,
+    execute: withErrorHandling(async (params) => {
       const { nodebalancer_id, config_id, ...nodeParams } = params;
       const result = await client.nodeBalancers.createNodeBalancerConfigNode(nodebalancer_id, config_id, nodeParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'delete_nodebalancer_node',
-    'Delete a node from a NodeBalancer config',
-    schemas.deleteNodeBalancerNodeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_nodebalancer_node',
+    description: 'Delete a node from a NodeBalancer config',
+    parameters: schemas.deleteNodeBalancerNodeSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.nodeBalancers.deleteNodeBalancerConfigNode(
         params.nodebalancer_id,
         params.config_id,
         params.node_id
       );
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
+      return JSON.stringify(result, null, 2);
+    })
+  });
 }

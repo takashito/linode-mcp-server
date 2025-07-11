@@ -107,10 +107,10 @@ export function formatLinodeError(error: any): string {
  * @param handler The handler function to wrap
  * @returns A wrapped handler function with error handling
  */
-export function withErrorHandling<P, R>(handler: (params: P, extra: any) => Promise<R>): (params: P, extra: any) => Promise<R> {
-  return async (params: P, extra: any) => {
+export function withErrorHandling<P, R>(handler: (params: P, context?: any) => Promise<R>): (params: P, context?: any) => Promise<R> {
+  return async (params: P, context?: any) => {
     try {
-      return await handler(params, extra);
+      return await handler(params, context);
     } catch (error) {
       const errorMessage = formatLinodeError(error);
       // Throw an error with the formatted message

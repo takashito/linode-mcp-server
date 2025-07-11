@@ -1,130 +1,93 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
-export function registerLongviewTools(server: McpServer, client: LinodeClient) {
+export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
   // Longview client operations
-  server.tool(
-    'list_longview_clients',
-    'Get a list of all Longview clients',
-    schemas.listLongviewClientsSchema.shape,
-    withErrorHandling(async (params: { page?: number; page_size?: number }, extra: any) => {
+  server.addTool({
+    name: 'list_longview_clients',
+    description: 'Get a list of all Longview clients',
+    parameters: schemas.listLongviewClientsSchema,
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
       const result = await client.longview.getLongviewClients(paginationParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
-
-  server.tool(
-    'get_longview_client',
-    'Get details for a specific Longview client',
-    schemas.getLongviewClientSchema.shape,
-    withErrorHandling(async (params, extra) => {
+  });
+  server.addTool({
+    name: 'get_longview_client',
+    description: 'Get details for a specific Longview client',
+    parameters: schemas.getLongviewClientSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.longview.getLongviewClient(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
-
-  server.tool(
-    'create_longview_client',
-    'Create a new Longview client',
-    schemas.createLongviewClientSchema.shape,
-    withErrorHandling(async (params, extra) => {
+  });
+  server.addTool({
+    name: 'create_longview_client',
+    description: 'Create a new Longview client',
+    parameters: schemas.createLongviewClientSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.longview.createLongviewClient(params);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
-
-  server.tool(
-    'update_longview_client',
-    'Update a Longview client',
-    schemas.updateLongviewClientSchema.shape,
-    withErrorHandling(async (params, extra) => {
+  });
+  server.addTool({
+    name: 'update_longview_client',
+    description: 'Update a Longview client',
+    parameters: schemas.updateLongviewClientSchema,
+    execute: withErrorHandling(async (params) => {
       const { id, ...updateData } = params;
       const result = await client.longview.updateLongviewClient(id, updateData);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
-
-  server.tool(
-    'delete_longview_client',
-    'Delete a Longview client',
-    schemas.deleteLongviewClientSchema.shape,
-    withErrorHandling(async (params, extra) => {
+  });
+  server.addTool({
+    name: 'delete_longview_client',
+    description: 'Delete a Longview client',
+    parameters: schemas.deleteLongviewClientSchema,
+    execute: withErrorHandling(async (params) => {
       await client.longview.deleteLongviewClient(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-        ],
-      };
+      return JSON.stringify({ success: true }, null, 2);
     })
-  );
+  });
 
   // Longview subscription operations
-  server.tool(
-    'list_longview_subscriptions',
-    'Get a list of all Longview subscription plans',
-    schemas.listLongviewSubscriptionsSchema.shape,
-    withErrorHandling(async (params: { page?: number; page_size?: number }, extra: any) => {
+  server.addTool({
+    name: 'list_longview_subscriptions',
+    description: 'Get a list of all Longview subscription plans',
+    parameters: schemas.listLongviewSubscriptionsSchema,
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
       const result = await client.longview.getLongviewSubscriptions(paginationParams);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
-
-  server.tool(
-    'get_longview_subscription',
-    'Get details for a specific Longview subscription plan',
-    schemas.getLongviewSubscriptionSchema.shape,
-    withErrorHandling(async (params, extra) => {
+  });
+  server.addTool({
+    name: 'get_longview_subscription',
+    description: 'Get details for a specific Longview subscription plan',
+    parameters: schemas.getLongviewSubscriptionSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.longview.getLongviewSubscription(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
+  });
 
   // Longview data operations
-  server.tool(
-    'get_longview_data',
-    'Get monitoring data from a Longview client',
-    schemas.getLongviewDataSchema.shape,
-    withErrorHandling(async (params, extra) => {
+  server.addTool({
+    name: 'get_longview_data',
+    description: 'Get monitoring data from a Longview client',
+    parameters: schemas.getLongviewDataSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.longview.getLongviewData(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
-  );
+  });
 }

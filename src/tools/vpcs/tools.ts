@@ -1,164 +1,114 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient, VPC, VPCSubnet } from '../../client';
 import { VPCIP } from '../../client/vpcs';
 import * as schemas from './schemas';
-import { registerToolsWithErrorHandling, ToolRegistration } from '../common/errorHandler';
+import { withErrorHandling } from '../common/errorHandler';
 
-export function registerVPCTools(server: McpServer, client: LinodeClient) {
-  // Define all VPC tools with error handling
-  const vpcTools: ToolRegistration[] = [
-    {
-      name: 'list_vpcs',
-      description: 'List all VPCs',
-      schema: schemas.listVPCsSchema.shape,
-      handler: async (_, extra) => {
-        const result = await client.vpcs.getVPCs();
-        return {
-          content: [
-            { type: 'text', text: formatVPCs(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_vpc',
-      description: 'Get details for a specific VPC',
-      schema: schemas.getVPCSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.vpcs.getVPC(params.id);
-        return {
-          content: [
-            { type: 'text', text: formatVPC(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'create_vpc',
-      description: 'Create a new VPC',
-      schema: schemas.createVPCSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.vpcs.createVPC(params);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify(result, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'update_vpc',
-      description: 'Update an existing VPC',
-      schema: schemas.updateVPCSchema.shape,
-      handler: async (params, extra) => {
-        const { id, ...data } = params;
-        const result = await client.vpcs.updateVPC(id, data);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify(result, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_vpc',
-      description: 'Delete a VPC',
-      schema: schemas.deleteVPCSchema.shape,
-      handler: async (params, extra) => {
-        await client.vpcs.deleteVPC(params.id);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    // VPC Subnet tools
-    {
-      name: 'list_vpc_subnets',
-      description: 'List all subnets in a VPC',
-      schema: schemas.listSubnetsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.vpcs.getSubnets(params.id);
-        return {
-          content: [
-            { type: 'text', text: formatVPCSubnets(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_vpc_subnet',
-      description: 'Get details for a specific subnet in a VPC',
-      schema: schemas.getSubnetSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.vpcs.getSubnet(params.id, params.subnet_id);
-        return {
-          content: [
-            { type: 'text', text: formatVPCSubnet(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'create_vpc_subnet',
-      description: 'Create a new subnet in a VPC',
-      schema: schemas.createSubnetSchema.shape,
-      handler: async (params, extra) => {
-        const { id, ...data } = params;
-        const result = await client.vpcs.createSubnet(id, data);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify(result, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'update_vpc_subnet',
-      description: 'Update an existing subnet in a VPC',
-      schema: schemas.updateSubnetSchema.shape,
-      handler: async (params, extra) => {
-        const { id, subnet_id, ...data } = params;
-        const result = await client.vpcs.updateSubnet(id, subnet_id, data);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify(result, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_vpc_subnet',
-      description: 'Delete a subnet in a VPC',
-      schema: schemas.deleteSubnetSchema.shape,
-      handler: async (params, extra) => {
-        await client.vpcs.deleteSubnet(params.id, params.subnet_id);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    // VPC IP tools
-    {
-      name: 'list_vpc_ips',
-      description: 'List all IP addresses in a VPC',
-      schema: schemas.listVPCIPsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.vpcs.getVPCIPs(params.id);
-        return {
-          content: [
-            { type: 'text', text: formatVPCIPs(result.data) },
-          ],
-        };
-      }
-    }
-  ];
-  
-  // Register all tools with error handling
-  registerToolsWithErrorHandling(server, vpcTools);
+export function registerVPCTools(server: FastMCP, client: LinodeClient) {
+  server.addTool({
+    name: 'list_vpcs',
+    description: 'List all VPCs',
+    parameters: schemas.listVPCsSchema,
+    execute: withErrorHandling(async (_) => {
+      const result = await client.vpcs.getVPCs();
+      return formatVPCs(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_vpc',
+    description: 'Get details for a specific VPC',
+    parameters: schemas.getVPCSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.vpcs.getVPC(params.id);
+      return formatVPC(result);
+    })
+  });
+  server.addTool({
+    name: 'create_vpc',
+    description: 'Create a new VPC',
+    parameters: schemas.createVPCSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.vpcs.createVPC(params);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'update_vpc',
+    description: 'Update an existing VPC',
+    parameters: schemas.updateVPCSchema,
+    execute: withErrorHandling(async (params) => {
+      const { id, ...data } = params;
+      const result = await client.vpcs.updateVPC(id, data);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_vpc',
+    description: 'Delete a VPC',
+    parameters: schemas.deleteVPCSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.vpcs.deleteVPC(params.id);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  // VPC Subnet tools
+  server.addTool({
+    name: 'list_vpc_subnets',
+    description: 'List all subnets in a VPC',
+    parameters: schemas.listSubnetsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.vpcs.getSubnets(params.id);
+      return formatVPCSubnets(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_vpc_subnet',
+    description: 'Get details for a specific subnet in a VPC',
+    parameters: schemas.getSubnetSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.vpcs.getSubnet(params.id, params.subnet_id);
+      return formatVPCSubnet(result);
+    })
+  });
+  server.addTool({
+    name: 'create_vpc_subnet',
+    description: 'Create a new subnet in a VPC',
+    parameters: schemas.createSubnetSchema,
+    execute: withErrorHandling(async (params) => {
+      const { id, ...data } = params;
+      const result = await client.vpcs.createSubnet(id, data);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'update_vpc_subnet',
+    description: 'Update an existing subnet in a VPC',
+    parameters: schemas.updateSubnetSchema,
+    execute: withErrorHandling(async (params) => {
+      const { id, subnet_id, ...data } = params;
+      const result = await client.vpcs.updateSubnet(id, subnet_id, data);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_vpc_subnet',
+    description: 'Delete a subnet in a VPC',
+    parameters: schemas.deleteSubnetSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.vpcs.deleteSubnet(params.id, params.subnet_id);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  // VPC IP tools
+  server.addTool({
+    name: 'list_vpc_ips',
+    description: 'List all IP addresses in a VPC',
+    parameters: schemas.listVPCIPsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.vpcs.getVPCIPs(params.id);
+      return formatVPCIPs(result.data);
+    })
+  });
 }
 
 /**
@@ -224,12 +174,12 @@ function formatVPCSubnet(subnet: VPCSubnet): string {
  */
 function formatVPCs(vpcs: VPC[]): string {
   if (vpcs.length === 0) {
-    return 'No VPCs found.';
+      return 'No VPCs found.';
   }
 
   const formattedVPCs = vpcs.map((vpc) => {
-    return `${vpc.label} (ID: ${vpc.id}, Region: ${vpc.region}, Subnets: ${vpc.subnets.length})`;
-  });
+      return `${vpc.label} (ID: ${vpc.id}, Region: ${vpc.region}, Subnets: ${vpc.subnets.length})`;
+    });
 
   return formattedVPCs.join('\n');
 }
@@ -239,12 +189,12 @@ function formatVPCs(vpcs: VPC[]): string {
  */
 function formatVPCSubnets(subnets: VPCSubnet[]): string {
   if (subnets.length === 0) {
-    return 'No subnets found.';
+      return 'No subnets found.';
   }
 
   const formattedSubnets = subnets.map((subnet) => {
-    return `${subnet.label} (ID: ${subnet.id}, CIDR: ${subnet.ipv4})`;
-  });
+      return `${subnet.label} (ID: ${subnet.id}, CIDR: ${subnet.ipv4})`;
+    });
 
   return formattedSubnets.join('\n');
 }
@@ -254,7 +204,7 @@ function formatVPCSubnets(subnets: VPCSubnet[]): string {
  */
 function formatVPCIPs(ips: VPCIP[]): string {
   if (ips.length === 0) {
-    return 'No IP addresses found in this VPC.';
+      return 'No IP addresses found in this VPC.';
   }
 
   const formattedIPs = ips.map((ip) => {
@@ -270,7 +220,7 @@ function formatVPCIPs(ips: VPCIP[]): string {
     
     ipInfo += ')';
     return ipInfo;
-  });
+    });
 
   return formattedIPs.join('\n');
 }

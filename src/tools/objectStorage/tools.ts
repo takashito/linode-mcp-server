@@ -1,4 +1,4 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient, ObjectStorageBucket, ObjectStorageCluster, ObjectStorageKey, ObjectStorageObject } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
@@ -9,57 +9,56 @@ import * as os from 'os';
 import { URL } from 'url';
 import * as mime from 'mime-types';
 
-export function registerObjectStorageTools(server: McpServer, client: LinodeClient) {
+export function registerObjectStorageTools(server: FastMCP, client: LinodeClient) {
   // Clusters
-  server.tool(
-    'list_object_storage_clusters',
-    'Get a list of all Object Storage clusters',
-    schemas.listClustersSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_object_storage_clusters',
+    description: 'Get a list of all Object Storage clusters',
+    parameters: schemas.listClustersSchema,
+    execute: withErrorHandling(async (params) => {
       const clusters = await client.objectStorage.getClusters();
       return {
         content: [
           { type: 'text', text: formatObjectStorageClusters(clusters) },
         ],
       };
-    }
-  ));
+    })
+  });
   
   // Endpoints
-  server.tool(
-    'list_object_storage_endpoints',
-    'Get a list of all Object Storage endpoints with their types',
-    schemas.listEndpointsSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_object_storage_endpoints',
+    description: 'Get a list of all Object Storage endpoints with their types',
+    parameters: schemas.listEndpointsSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getEndpoints(params);
       return {
         content: [
           { type: 'text', text: formatObjectStorageEndpoints(result.data) },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Buckets
-  server.tool(
-    'list_object_storage_buckets',
-    'Get a list of all Object Storage buckets',
-    schemas.listBucketsSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_object_storage_buckets',
+    description: 'Get a list of all Object Storage buckets',
+    parameters: schemas.listBucketsSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getBuckets(params);
       return {
         content: [
           { type: 'text', text: formatObjectStorageBuckets(result.data) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'get_object_storage_bucket',
-    'Get details for a specific Object Storage bucket',
-    schemas.getBucketSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'get_object_storage_bucket',
+    description: 'Get details for a specific Object Storage bucket',
+    parameters: schemas.getBucketSchema,
+    execute: withErrorHandling(async (params) => {
       // The client implementation expects region (cluster in client code) and bucket name
       const result = await client.objectStorage.getBucket(
         params.region, 
@@ -70,14 +69,13 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
           { type: 'text', text: formatObjectStorageBucket(result) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'create_object_storage_bucket',
-    'Create a new Object Storage bucket',
-    schemas.createBucketSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'create_object_storage_bucket',
+    description: 'Create a new Object Storage bucket',
+    parameters: schemas.createBucketSchema,
+    execute: withErrorHandling(async (params) => {
       // Ensure parameters match the client's expectations
       // The Linode API expects 'label' for the bucket name and 'region' for the location
       const createParams = {
@@ -93,14 +91,13 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
           { type: 'text', text: formatObjectStorageBucket(result) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'delete_object_storage_bucket',
-    'Delete an Object Storage bucket',
-    schemas.deleteBucketSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'delete_object_storage_bucket',
+    description: 'Delete an Object Storage bucket',
+    parameters: schemas.deleteBucketSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, ...data } = params;
       await client.objectStorage.deleteBucket(region, bucket);
       return {
@@ -108,14 +105,13 @@ export function registerObjectStorageTools(server: McpServer, client: LinodeClie
           { type: 'text', text: `Bucket '${params.bucket}' in region '${params.region}' has been deleted.` },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'get_object_storage_bucket_access',
-    'Get access configuration for an Object Storage bucket',
-    schemas.getBucketAccessSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'get_object_storage_bucket_access',
+    description: 'Get access configuration for an Object Storage bucket',
+    parameters: schemas.getBucketAccessSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, ...data } = params;
       const result = await client.objectStorage.getBucketAccess(region, bucket);
       return {
@@ -125,14 +121,13 @@ ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'update_object_storage_bucket_access',
-    'Update access configuration for an Object Storage bucket',
-    schemas.updateBucketAccessSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'update_object_storage_bucket_access',
+    description: 'Update access configuration for an Object Storage bucket',
+    parameters: schemas.updateBucketAccessSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, ...data } = params;
       const result = await client.objectStorage.updateBucketAccess(region, bucket, data);
       return {
@@ -142,15 +137,15 @@ ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Objects
-  server.tool(
-    'list_object_storage_objects',
-    'List objects in an Object Storage bucket',
-    schemas.listObjectsSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_object_storage_objects',
+    description: 'List objects in an Object Storage bucket',
+    parameters: schemas.listObjectsSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, ...paginationParams } = params;
       const result = await client.objectStorage.getObjects(region, bucket, paginationParams);
       return {
@@ -158,15 +153,15 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
           { type: 'text', text: formatObjectStorageObjects(result.data) },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // SSL/TLS certificates
-  server.tool(
-    'get_object_storage_bucket_certificate',
-    'Get SSL/TLS certificate for an Object Storage bucket',
-    schemas.getBucketCertificateSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'get_object_storage_bucket_certificate',
+    description: 'Get SSL/TLS certificate for an Object Storage bucket',
+    parameters: schemas.getBucketCertificateSchema,
+    execute: withErrorHandling(async (params) => {
         const result = await client.objectStorage.getBucketCertificate(params.region, params.bucket);
         return {
           content: [
@@ -174,14 +169,13 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
 Expires: ${new Date(result.expiry).toLocaleString()}` },
           ],
         };
-    }
-  ));
-
-  server.tool(
-    'upload_object_storage_bucket_certificate',
-    'Upload SSL/TLS certificate for an Object Storage bucket',
-    schemas.uploadBucketCertificateSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'upload_object_storage_bucket_certificate',
+    description: 'Upload SSL/TLS certificate for an Object Storage bucket',
+    parameters: schemas.uploadBucketCertificateSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, certificate, private_key } = params;
       const result = await client.objectStorage.uploadBucketCertificate(region, bucket, {
         certificate,
@@ -193,71 +187,67 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
 Expires: ${new Date(result.expiry).toLocaleString()}` },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'delete_object_storage_bucket_certificate',
-    'Delete SSL/TLS certificate for an Object Storage bucket',
-    schemas.deleteBucketCertificateSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'delete_object_storage_bucket_certificate',
+    description: 'Delete SSL/TLS certificate for an Object Storage bucket',
+    parameters: schemas.deleteBucketCertificateSchema,
+    execute: withErrorHandling(async (params) => {
       await client.objectStorage.deleteBucketCertificate(params.region, params.bucket);
       return {
         content: [
           { type: 'text', text: `Certificate for bucket '${params.bucket}' in region '${params.region}' has been deleted.` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Access keys
-  server.tool(
-    'list_object_storage_keys',
-    'Get a list of all Object Storage keys',
-    schemas.listKeysSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_object_storage_keys',
+    description: 'Get a list of all Object Storage keys',
+    parameters: schemas.listKeysSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getKeys(params);
       return {
         content: [
           { type: 'text', text: formatObjectStorageKeys(result.data) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'get_object_storage_key',
-    'Get details for a specific Object Storage key',
-    schemas.getKeySchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'get_object_storage_key',
+    description: 'Get details for a specific Object Storage key',
+    parameters: schemas.getKeySchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getKey(params.id);
       return {
         content: [
           { type: 'text', text: formatObjectStorageKey(result) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'create_object_storage_key',
-    'Create a new Object Storage key',
-    schemas.createKeySchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'create_object_storage_key',
+    description: 'Create a new Object Storage key',
+    parameters: schemas.createKeySchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.createKey(params);
       return {
         content: [
           { type: 'text', text: formatObjectStorageKey(result) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'update_object_storage_key',
-    'Update an Object Storage key',
-    schemas.updateKeySchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'update_object_storage_key',
+    description: 'Update an Object Storage key',
+    parameters: schemas.updateKeySchema,
+    execute: withErrorHandling(async (params) => {
       const { id, ...updateData } = params;
       const result = await client.objectStorage.updateKey(id, updateData);
       return {
@@ -265,29 +255,28 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
           { type: 'text', text: formatObjectStorageKey(result) },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'delete_object_storage_key',
-    'Delete an Object Storage key',
-    schemas.deleteKeySchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'delete_object_storage_key',
+    description: 'Delete an Object Storage key',
+    parameters: schemas.deleteKeySchema,
+    execute: withErrorHandling(async (params) => {
       await client.objectStorage.deleteKey(params.id);
       return {
         content: [
           { type: 'text', text: `Object Storage key with ID ${params.id} has been deleted.` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Default access
-  server.tool(
-    'get_object_storage_default_bucket_access',
-    'Get default bucket access configuration',
-    schemas.getDefaultBucketAccessSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'get_object_storage_default_bucket_access',
+    description: 'Get default bucket access configuration',
+    parameters: schemas.getDefaultBucketAccessSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getDefaultBucketAccess();
       return {
         content: [
@@ -298,14 +287,13 @@ ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
-    }
-  ));
-
-  server.tool(
-    'update_object_storage_default_bucket_access',
-    'Update default bucket access configuration',
-    schemas.updateDefaultBucketAccessSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+    })
+  });
+  server.addTool({
+    name: 'update_object_storage_default_bucket_access',
+    description: 'Update default bucket access configuration',
+    parameters: schemas.updateDefaultBucketAccessSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.updateDefaultBucketAccess(params);
       return {
         content: [
@@ -316,15 +304,15 @@ ACL: ${result.acl}
 CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Object ACL Management
-  server.tool(
-    'update_object_acl',
-    'Update access control level (ACL) for an object in a bucket',
-    schemas.updateObjectACLSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'update_object_acl',
+    description: 'Update access control level (ACL) for an object in a bucket',
+    parameters: schemas.updateObjectACLSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, name, acl } = params;
       await client.objectStorage.updateObjectACL(region, bucket, name, { acl });
       return {
@@ -332,15 +320,15 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
           { type: 'text', text: `ACL for object '${name}' in bucket '${bucket}' has been updated to '${acl}'.` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Object URL Generation
-  server.tool(
-    'generate_object_url',
-    'Generate a pre-signed URL for an object in a bucket',
-    schemas.getObjectURLSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'generate_object_url',
+    description: 'Generate a pre-signed URL for an object in a bucket',
+    parameters: schemas.getObjectURLSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, name, ...urlParams } = params;
       
       // Ensure we're using the right parameter names for the API
@@ -359,15 +347,15 @@ ${result.url}
 Note: This URL is temporary and will expire after ${params.expires_in || 3600} seconds.` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Upload Object
-  server.tool(
-    'upload_object',
-    'Upload and create an new object to an Object Storage bucket',
-    schemas.uploadObjectSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'upload_object',
+    description: 'Upload and create an new object to an Object Storage bucket',
+    parameters: schemas.uploadObjectSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, object_path, source, content_type, acl, expires_in } = params;
       
       // Determine content type from file extension or parameter
@@ -418,15 +406,15 @@ Content Type: ${determinedContentType}
 ACL: ${acl || 'Default bucket ACL'}` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Download Object
-  server.tool(
-    'download_object',
-    'Download an object from a bucket and save it to a local file',
-    schemas.downloadObjectSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'download_object',
+    description: 'Download an object from a bucket and save it to a local file',
+    parameters: schemas.downloadObjectSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, object_path, destination, expires_in } = params;
       
       // Get pre-signed URL for GET operation
@@ -467,15 +455,15 @@ Size: ${formatBytes(downloadResult.size)}
 Content Type: ${getContentType(object_path)}` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Delete Object
-  server.tool(
-    'delete_object',
-    'Delete an object from an Object Storage bucket',
-    schemas.deleteObjectSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'delete_object',
+    description: 'Delete an object from an Object Storage bucket',
+    parameters: schemas.deleteObjectSchema,
+    execute: withErrorHandling(async (params) => {
       const { region, bucket, object_path, expires_in } = params;
       
       // Get pre-signed URL for DELETE operation
@@ -493,53 +481,53 @@ Content Type: ${getContentType(object_path)}` },
           { type: 'text', text: `Successfully deleted object '${object_path}' from bucket '${bucket}'.` },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Transfer Statistics
-  server.tool(
-    'get_object_storage_transfer',
-    'Get Object Storage transfer statistics',
-    schemas.getTransferStatsSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'get_object_storage_transfer',
+    description: 'Get Object Storage transfer statistics',
+    parameters: schemas.getTransferStatsSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getTransferStats();
       return {
         content: [
           { type: 'text', text: formatTransferStats(result) },
         ],
       };
-    }
-  ));
+    })
+  });
 
   // Object Storage Types
-  server.tool(
-    'list_object_storage_types',
-    'Get a list of all available Object Storage types and prices, including any region-specific rates.',
-    schemas.listObjectStorageTypesSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_object_storage_types',
+    description: 'Get a list of all available Object Storage types and prices, including any region-specific rates.',
+    parameters: schemas.listObjectStorageTypesSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.objectStorage.getTypes();
       return {
         content: [
           { type: 'text', text: formatObjectStorageTypes(result) },
         ],
       };
-    }
-  ));
+    })
+  });
   
   // Service
-  server.tool(
-    'cancel_object_storage',
-    'Cancel Object Storage service',
-    schemas.cancelObjectStorageSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'cancel_object_storage',
+    description: 'Cancel Object Storage service',
+    parameters: schemas.cancelObjectStorageSchema,
+    execute: withErrorHandling(async (params) => {
       await client.objectStorage.cancelObjectStorage();
       return {
         content: [
           { type: 'text', text: 'Object Storage service has been cancelled.' },
         ],
       };
-    }
-  ));
+    })
+  });
 }
 
 /**
@@ -555,7 +543,7 @@ function formatTransferStats(stats: {
     billable: number;
     quota: number;
   }[];
-}): string {
+    }): string {
   const overall = [
     'Overall Transfer Statistics:',
     `Used: ${formatBytes(stats.used)}`,
@@ -591,7 +579,7 @@ function formatObjectStorageTypes(types: {
   transfer_price: number;
 }[]): string {
   if (types.length === 0) {
-    return 'No Object Storage types found.';
+      return 'No Object Storage types found.';
   }
 
   const headers = [
@@ -600,8 +588,8 @@ function formatObjectStorageTypes(types: {
   ];
 
   const rows = types.map(type => {
-    return `${type.id} | ${type.label} | $${type.storage_price.toFixed(4)}/GB | $${type.transfer_price.toFixed(4)}/GB`;
-  });
+      return `${type.id} | ${type.label} | $${type.storage_price.toFixed(4)}/GB | $${type.transfer_price.toFixed(4)}/GB`;
+    });
 
   return headers.concat(rows).join('\n');
 }
@@ -610,7 +598,7 @@ function formatObjectStorageTypes(types: {
  * Formats an Object Storage cluster for display
  */
 function formatObjectStorageCluster(cluster: ObjectStorageCluster): string {
-  return `${cluster.id} (${cluster.region}, Status: ${cluster.status})`;
+      return `${cluster.id} (${cluster.region}, Status: ${cluster.status})`;
 }
 
 /**
@@ -618,7 +606,7 @@ function formatObjectStorageCluster(cluster: ObjectStorageCluster): string {
  */
 function formatObjectStorageClusters(clusters: ObjectStorageCluster[]): string {
   if (clusters.length === 0) {
-    return 'No Object Storage clusters found.';
+      return 'No Object Storage clusters found.';
   }
 
   return clusters.map(formatObjectStorageCluster).join('\n');
@@ -647,12 +635,12 @@ function formatObjectStorageBucket(bucket: ObjectStorageBucket): string {
  */
 function formatObjectStorageBuckets(buckets: ObjectStorageBucket[]): string {
   if (buckets.length === 0) {
-    return 'No Object Storage buckets found.';
+      return 'No Object Storage buckets found.';
   }
 
   const rows = buckets.map(bucket => {
-    return `${bucket.label} (Region: ${bucket.region}, Objects: ${bucket.objects}, Size: ${formatBytes(bucket.size)})`;
-  });
+      return `${bucket.label} (Region: ${bucket.region}, Objects: ${bucket.objects}, Size: ${formatBytes(bucket.size)})`;
+    });
 
   return rows.join('\n');
 }
@@ -687,13 +675,13 @@ function formatObjectStorageKey(key: ObjectStorageKey): string {
  */
 function formatObjectStorageKeys(keys: ObjectStorageKey[]): string {
   if (keys.length === 0) {
-    return 'No Object Storage keys found.';
+      return 'No Object Storage keys found.';
   }
 
   const rows = keys.map(key => {
     const accessType = key.limited ? 'Limited' : 'Full';
     return `${key.label} (ID: ${key.id}, Access: ${key.access_key}, Type: ${accessType})`;
-  });
+    });
 
   return rows.join('\n');
 }
@@ -702,7 +690,7 @@ function formatObjectStorageKeys(keys: ObjectStorageKey[]): string {
  * Formats an Object Storage object for display
  */
 function formatObjectStorageObject(obj: ObjectStorageObject): string {
-  return `${obj.name} (Size: ${formatBytes(obj.size)}, Modified: ${new Date(obj.last_modified).toLocaleString()})`;
+      return `${obj.name} (Size: ${formatBytes(obj.size)}, Modified: ${new Date(obj.last_modified).toLocaleString()})`;
 }
 
 /**
@@ -710,7 +698,7 @@ function formatObjectStorageObject(obj: ObjectStorageObject): string {
  */
 function formatObjectStorageObjects(objects: ObjectStorageObject[]): string {
   if (objects.length === 0) {
-    return 'No objects found in bucket.';
+      return 'No objects found in bucket.';
   }
 
   return objects.map(formatObjectStorageObject).join('\n');
@@ -729,7 +717,7 @@ function formatEndpoint(endpoint: { region: string; endpoint_type: string; s3_en
  */
 function formatObjectStorageEndpoints(endpoints: { region: string; endpoint_type: string; s3_endpoint: string | null }[]): string {
   if (endpoints.length === 0) {
-    return 'No Object Storage endpoints found.';
+      return 'No Object Storage endpoints found.';
   }
 
   return endpoints.map(formatEndpoint).join('\n');
@@ -758,7 +746,7 @@ function isURL(str: string): boolean {
     new URL(str);
     return str.startsWith('http://') || str.startsWith('https://');
   } catch {
-    return false;
+      return false;
   }
 }
 
@@ -793,7 +781,7 @@ async function fetchFromURL(url: string): Promise<Buffer> {
  */
 async function readFromFile(filePath: string): Promise<Buffer> {
   try {
-    return await fs.promises.readFile(filePath);
+      return await fs.promises.readFile(filePath);
   } catch (error: any) {
     throw new Error(`Failed to read file: ${error.message}`);
   }
@@ -832,7 +820,7 @@ function getContentType(source: string): string {
     if (extension) {
       const mimeType = mime.lookup(extension);
       if (mimeType) {
-        return mimeType;
+      return mimeType;
       }
     }
   }
@@ -874,7 +862,7 @@ function getDownloadDirectory(): string {
             downloadDir = path.join(homeDir, downloadDir.substring(2));
           }
           if (fs.existsSync(downloadDir)) {
-            return downloadDir;
+      return downloadDir;
           }
         }
       }

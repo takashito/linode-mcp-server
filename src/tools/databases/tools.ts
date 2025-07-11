@@ -1,13 +1,13 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient, DatabaseEngine, DatabaseType, DatabaseInstance, MySQLDatabaseInstance, PostgreSQLDatabaseInstance, DatabaseCredentials, SSLCertificate } from '../../client';
 import * as schemas from './schemas';
-import { registerToolsWithErrorHandling, ToolRegistration } from '../common/errorHandler';
+import { withErrorHandling } from '../common/errorHandler';
 
 /**
  * Formats a database engine for display
  */
 function formatDatabaseEngine(engine: DatabaseEngine): string {
-  return `Engine: ${engine.engine} v${engine.version} (ID: ${engine.id})`;
+      return `Engine: ${engine.engine} v${engine.version} (ID: ${engine.id})`;
 }
 
 /**
@@ -15,12 +15,12 @@ function formatDatabaseEngine(engine: DatabaseEngine): string {
  */
 function formatDatabaseEngines(engines: DatabaseEngine[]): string {
   if (engines.length === 0) {
-    return 'No database engines found.';
+      return 'No database engines found.';
   }
 
   return engines.map((engine) => {
-    return formatDatabaseEngine(engine);
-  }).join('\n');
+      return formatDatabaseEngine(engine);
+    }).join('\n');
 }
 
 /**
@@ -53,12 +53,12 @@ function formatDatabaseType(type: DatabaseType): string {
  */
 function formatDatabaseTypes(types: DatabaseType[]): string {
   if (types.length === 0) {
-    return 'No database types found.';
+      return 'No database types found.';
   }
 
   return types.map((type) => {
-    return `${type.label} (ID: ${type.id}, Class: ${type.class}, vCPUs: ${type.vcpus}, Memory: ${type.memory_mb} MB)`;
-  }).join('\n');
+      return `${type.label} (ID: ${type.id}, Class: ${type.class}, vCPUs: ${type.vcpus}, Memory: ${type.memory_mb} MB)`;
+    }).join('\n');
 }
 
 /**
@@ -117,26 +117,26 @@ function formatDatabaseInstance(instance: DatabaseInstance): string {
  */
 function formatDatabaseInstances(instances: DatabaseInstance[]): string {
   if (instances.length === 0) {
-    return 'No database instances found.';
+      return 'No database instances found.';
   }
 
   return instances.map((instance) => {
-    return `${instance.label} (ID: ${instance.id}, Engine: ${instance.engine} v${instance.version}, Status: ${instance.status})`;
-  }).join('\n');
+      return `${instance.label} (ID: ${instance.id}, Engine: ${instance.engine} v${instance.version}, Status: ${instance.status})`;
+    }).join('\n');
 }
 
 /**
  * Formats database credentials for display
  */
 function formatDatabaseCredentials(credentials: DatabaseCredentials): string {
-  return `Username: ${credentials.username}\nPassword: ${credentials.password}`;
+      return `Username: ${credentials.username}\nPassword: ${credentials.password}`;
 }
 
 /**
  * Formats SSL certificate for display
  */
 function formatSSLCertificate(certificate: SSLCertificate): string {
-  return `CA Certificate:\n${certificate.ca_certificate}`;
+      return `CA Certificate:\n${certificate.ca_certificate}`;
 }
 
 /**
@@ -150,373 +150,259 @@ function getDayName(day: number): string {
 /**
  * Registers database tools with the MCP server
  */
-export function registerDatabaseTools(server: McpServer, client: LinodeClient) {
-  // Define all database tools with error handling
-  const databaseTools: ToolRegistration[] = [
-    // Engine operations
-    {
-      name: 'list_database_engines',
-      description: 'Get a list of all available database engines',
-      schema: schemas.listEnginesSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getEngines(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseEngines(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_database_engine',
-      description: 'Get details for a specific database engine',
-      schema: schemas.getEngineSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getEngine(params.engineId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseEngine(result) },
-          ],
-        };
-      }
-    },
+export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
+  // Engine operations
+  server.addTool({
+    name: 'list_database_engines',
+    description: 'Get a list of all available database engines',
+    parameters: schemas.listEnginesSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getEngines(params);
+      return formatDatabaseEngines(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_database_engine',
+    description: 'Get details for a specific database engine',
+    parameters: schemas.getEngineSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getEngine(params.engineId);
+      return formatDatabaseEngine(result);
+    })
+  });
 
-    // Type operations
-    {
-      name: 'list_database_types',
-      description: 'Get a list of all available database types',
-      schema: schemas.listTypesSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getTypes(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseTypes(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_database_type',
-      description: 'Get details for a specific database type',
-      schema: schemas.getTypeSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getType(params.typeId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseType(result) },
-          ],
-        };
-      }
-    },
+  // Type operations
+  server.addTool({
+    name: 'list_database_types',
+    description: 'Get a list of all available database types',
+    parameters: schemas.listTypesSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getTypes(params);
+      return formatDatabaseTypes(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_database_type',
+    description: 'Get details for a specific database type',
+    parameters: schemas.getTypeSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getType(params.typeId);
+      return formatDatabaseType(result);
+    })
+  });
 
-    // General database instances operations
-    {
-      name: 'list_database_instances',
-      description: 'Get a list of all database instances',
-      schema: schemas.listDatabaseInstancesSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getDatabaseInstances(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstances(result.data) },
-          ],
-        };
-      }
-    },
+  // General database instances operations
+  server.addTool({
+    name: 'list_database_instances',
+    description: 'Get a list of all database instances',
+    parameters: schemas.listDatabaseInstancesSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getDatabaseInstances(params);
+      return formatDatabaseInstances(result.data);
+    })
+  });
 
-    // MySQL specific operations
-    {
-      name: 'list_mysql_instances',
-      description: 'Get a list of all MySQL database instances',
-      schema: schemas.listMySQLInstancesSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getMySQLInstances(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstances(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_mysql_instance',
-      description: 'Get details for a specific MySQL database instance',
-      schema: schemas.getMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getMySQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstance(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'create_mysql_instance',
-      description: 'Create a new MySQL database instance',
-      schema: schemas.createMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.createMySQLInstance(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstance(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'update_mysql_instance',
-      description: 'Update an existing MySQL database instance',
-      schema: schemas.updateMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        const { instanceId, ...data } = params;
-        const result = await client.databases.updateMySQLInstance(instanceId, data);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstance(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_mysql_instance',
-      description: 'Delete a MySQL database instance',
-      schema: schemas.deleteMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.deleteMySQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_mysql_credentials',
-      description: 'Get credentials for a MySQL database instance',
-      schema: schemas.getMySQLCredentialsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getMySQLCredentials(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseCredentials(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'reset_mysql_credentials',
-      description: 'Reset credentials for a MySQL database instance',
-      schema: schemas.resetMySQLCredentialsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.resetMySQLCredentials(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseCredentials(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_mysql_ssl_certificate',
-      description: 'Get the SSL certificate for a MySQL database instance',
-      schema: schemas.getMySQLSSLCertificateSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getMySQLSSLCertificate(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatSSLCertificate(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'patch_mysql_instance',
-      description: 'Apply the latest updates to a MySQL database instance',
-      schema: schemas.patchMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.patchMySQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'suspend_mysql_instance',
-      description: 'Suspend a MySQL database instance',
-      schema: schemas.suspendMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.suspendMySQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'resume_mysql_instance',
-      description: 'Resume a suspended MySQL database instance',
-      schema: schemas.resumeMySQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.resumeMySQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
+  // MySQL specific operations
+  server.addTool({
+    name: 'list_mysql_instances',
+    description: 'Get a list of all MySQL database instances',
+    parameters: schemas.listMySQLInstancesSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getMySQLInstances(params);
+      return formatDatabaseInstances(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_mysql_instance',
+    description: 'Get details for a specific MySQL database instance',
+    parameters: schemas.getMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getMySQLInstance(params.instanceId);
+      return formatDatabaseInstance(result);
+    })
+  });
+  server.addTool({
+    name: 'create_mysql_instance',
+    description: 'Create a new MySQL database instance',
+    parameters: schemas.createMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.createMySQLInstance(params);
+      return formatDatabaseInstance(result);
+    })
+  });
+  server.addTool({
+    name: 'update_mysql_instance',
+    description: 'Update an existing MySQL database instance',
+    parameters: schemas.updateMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      const { instanceId, ...data } = params;
+      const result = await client.databases.updateMySQLInstance(instanceId, data);
+      return formatDatabaseInstance(result);
+    })
+  });
+  server.addTool({
+    name: 'delete_mysql_instance',
+    description: 'Delete a MySQL database instance',
+    parameters: schemas.deleteMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.deleteMySQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_mysql_credentials',
+    description: 'Get credentials for a MySQL database instance',
+    parameters: schemas.getMySQLCredentialsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getMySQLCredentials(params.instanceId);
+      return formatDatabaseCredentials(result);
+    })
+  });
+  server.addTool({
+    name: 'reset_mysql_credentials',
+    description: 'Reset credentials for a MySQL database instance',
+    parameters: schemas.resetMySQLCredentialsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.resetMySQLCredentials(params.instanceId);
+      return formatDatabaseCredentials(result);
+    })
+  });
+  server.addTool({
+    name: 'get_mysql_ssl_certificate',
+    description: 'Get the SSL certificate for a MySQL database instance',
+    parameters: schemas.getMySQLSSLCertificateSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getMySQLSSLCertificate(params.instanceId);
+      return formatSSLCertificate(result);
+    })
+  });
+  server.addTool({
+    name: 'patch_mysql_instance',
+    description: 'Apply the latest updates to a MySQL database instance',
+    parameters: schemas.patchMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.patchMySQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'suspend_mysql_instance',
+    description: 'Suspend a MySQL database instance',
+    parameters: schemas.suspendMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.suspendMySQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'resume_mysql_instance',
+    description: 'Resume a suspended MySQL database instance',
+    parameters: schemas.resumeMySQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.resumeMySQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 
-    // PostgreSQL specific operations
-    {
-      name: 'list_postgresql_instances',
-      description: 'Get a list of all PostgreSQL database instances',
-      schema: schemas.listPostgreSQLInstancesSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getPostgreSQLInstances(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstances(result.data) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_postgresql_instance',
-      description: 'Get details for a specific PostgreSQL database instance',
-      schema: schemas.getPostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getPostgreSQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstance(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'create_postgresql_instance',
-      description: 'Create a new PostgreSQL database instance',
-      schema: schemas.createPostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.createPostgreSQLInstance(params);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstance(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'update_postgresql_instance',
-      description: 'Update an existing PostgreSQL database instance',
-      schema: schemas.updatePostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        const { instanceId, ...data } = params;
-        const result = await client.databases.updatePostgreSQLInstance(instanceId, data);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseInstance(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'delete_postgresql_instance',
-      description: 'Delete a PostgreSQL database instance',
-      schema: schemas.deletePostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.deletePostgreSQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_postgresql_credentials',
-      description: 'Get credentials for a PostgreSQL database instance',
-      schema: schemas.getPostgreSQLCredentialsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getPostgreSQLCredentials(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseCredentials(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'reset_postgresql_credentials',
-      description: 'Reset credentials for a PostgreSQL database instance',
-      schema: schemas.resetPostgreSQLCredentialsSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.resetPostgreSQLCredentials(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatDatabaseCredentials(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'get_postgresql_ssl_certificate',
-      description: 'Get the SSL certificate for a PostgreSQL database instance',
-      schema: schemas.getPostgreSQLSSLCertificateSchema.shape,
-      handler: async (params, extra) => {
-        const result = await client.databases.getPostgreSQLSSLCertificate(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: formatSSLCertificate(result) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'patch_postgresql_instance',
-      description: 'Apply the latest updates to a PostgreSQL database instance',
-      schema: schemas.patchPostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.patchPostgreSQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'suspend_postgresql_instance',
-      description: 'Suspend a PostgreSQL database instance',
-      schema: schemas.suspendPostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.suspendPostgreSQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    },
-    {
-      name: 'resume_postgresql_instance',
-      description: 'Resume a suspended PostgreSQL database instance',
-      schema: schemas.resumePostgreSQLInstanceSchema.shape,
-      handler: async (params, extra) => {
-        await client.databases.resumePostgreSQLInstance(params.instanceId);
-        return {
-          content: [
-            { type: 'text', text: JSON.stringify({ success: true }, null, 2) },
-          ],
-        };
-      }
-    }
-  ];
-  
-  // Register all tools with error handling
-  registerToolsWithErrorHandling(server, databaseTools);
+  // PostgreSQL specific operations
+  server.addTool({
+    name: 'list_postgresql_instances',
+    description: 'Get a list of all PostgreSQL database instances',
+    parameters: schemas.listPostgreSQLInstancesSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getPostgreSQLInstances(params);
+      return formatDatabaseInstances(result.data);
+    })
+  });
+  server.addTool({
+    name: 'get_postgresql_instance',
+    description: 'Get details for a specific PostgreSQL database instance',
+    parameters: schemas.getPostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getPostgreSQLInstance(params.instanceId);
+      return formatDatabaseInstance(result);
+    })
+  });
+  server.addTool({
+    name: 'create_postgresql_instance',
+    description: 'Create a new PostgreSQL database instance',
+    parameters: schemas.createPostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.createPostgreSQLInstance(params);
+      return formatDatabaseInstance(result);
+    })
+  });
+  server.addTool({
+    name: 'update_postgresql_instance',
+    description: 'Update an existing PostgreSQL database instance',
+    parameters: schemas.updatePostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      const { instanceId, ...data } = params;
+      const result = await client.databases.updatePostgreSQLInstance(instanceId, data);
+      return formatDatabaseInstance(result);
+    })
+  });
+  server.addTool({
+    name: 'delete_postgresql_instance',
+    description: 'Delete a PostgreSQL database instance',
+    parameters: schemas.deletePostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.deletePostgreSQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_postgresql_credentials',
+    description: 'Get credentials for a PostgreSQL database instance',
+    parameters: schemas.getPostgreSQLCredentialsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getPostgreSQLCredentials(params.instanceId);
+      return formatDatabaseCredentials(result);
+    })
+  });
+  server.addTool({
+    name: 'reset_postgresql_credentials',
+    description: 'Reset credentials for a PostgreSQL database instance',
+    parameters: schemas.resetPostgreSQLCredentialsSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.resetPostgreSQLCredentials(params.instanceId);
+      return formatDatabaseCredentials(result);
+    })
+  });
+  server.addTool({
+    name: 'get_postgresql_ssl_certificate',
+    description: 'Get the SSL certificate for a PostgreSQL database instance',
+    parameters: schemas.getPostgreSQLSSLCertificateSchema,
+    execute: withErrorHandling(async (params) => {
+      const result = await client.databases.getPostgreSQLSSLCertificate(params.instanceId);
+      return formatSSLCertificate(result);
+    })
+  });
+  server.addTool({
+    name: 'patch_postgresql_instance',
+    description: 'Apply the latest updates to a PostgreSQL database instance',
+    parameters: schemas.patchPostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.patchPostgreSQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'suspend_postgresql_instance',
+    description: 'Suspend a PostgreSQL database instance',
+    parameters: schemas.suspendPostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.suspendPostgreSQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'resume_postgresql_instance',
+    description: 'Resume a suspended PostgreSQL database instance',
+    parameters: schemas.resumePostgreSQLInstanceSchema,
+    execute: withErrorHandling(async (params) => {
+      await client.databases.resumePostgreSQLInstance(params.instanceId);
+      return JSON.stringify({ success: true }, null, 2);
+    })
+  });
 }

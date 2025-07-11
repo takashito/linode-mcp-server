@@ -31,9 +31,8 @@ program
   )
   .option('--list-categories', 'List all available tool categories')
   .option('--transport <type>', 'Transport type: stdio (default), sse, http', 'stdio')
-  .option('--port <port>', 'Server port (default: 8080 for HTTP, 3000 for SSE)', 'default')
-  .option('--endpoint <endpoint>', 'Server endpoint path (default: /mcp for HTTP, /sse for SSE)', 'default')
-  .option('--host <host>', 'SSE server host (default: 127.0.0.1)', '127.0.0.1')
+  .option('--port <port>', 'Server port (default: 3000 for sse, 8080 for http)', undefined)
+  .option('--host <host>', 'Server host (default: 127.0.0.1)', '127.0.0.1')
   .action(async (options) => {
     // If --list-categories was specified, show available categories and exit
     if (options.listCategories) {
@@ -70,36 +69,32 @@ program
       enabledCategories = options.categories as ToolCategory[];
     }
 
-    // Determine which transport to use
-    let useSSE = false;
-    let useHTTP = false;
+    // Validate transport type
+    const validTransports = ['stdio', 'sse', 'http'];
+    if (!validTransports.includes(options.transport.toLowerCase())) {
+      console.error(`Error: Invalid transport type: ${options.transport}`);
+      console.error(`Available transport types: ${validTransports.join(', ')}`);
+      process.exit(1);
+    }
     
-    if (options.transport) {
-      if (options.transport.toLowerCase() === 'sse') {
-        useSSE = true;
-      } else if (options.transport.toLowerCase() === 'http') {
-        useHTTP = true;
-      } else if (options.transport.toLowerCase() !== 'stdio') {
-        console.error(`Error: Invalid transport type: ${options.transport}`);
-        console.error(`Available transport types: stdio, sse, http`);
-        process.exit(1);
-      }
+    // Set default ports based on transport type
+    let defaultPort: number;
+    if (options.transport.toLowerCase() === 'sse') {
+      defaultPort = 3000;
+    } else if (options.transport.toLowerCase() === 'http') {
+      defaultPort = 8080;
+    } else {
+      defaultPort = 8000; // stdio (not used, but for consistency)
     }
     
     // Prepare server options
-    const serverOptions = {
+    const serverOptions: ServerOptions = {
       token,
       enabledCategories,
-      transport: options.transport.toLowerCase(),
-      httpOptions: useHTTP ? {
-        port: options.port === 'default' ? 8080 : parseInt(options.port, 10),
-        endpoint: options.endpoint === 'default' ? '/mcp' : options.endpoint
-      } : undefined,
-      sseOptions: useSSE ? {
-        port: options.port === 'default' ? 3000 : parseInt(options.port, 10),
-        endpoint: options.endpoint === 'default' ? '/sse' : options.endpoint,
-        host: options.host
-      } : undefined
+      transport: options.transport.toLowerCase() as 'stdio' | 'sse' | 'http',
+      port: options.port ? parseInt(options.port, 10) : defaultPort,
+      host: options.host,
+      endpoint: options.endpoint
     };
 
     // Start the server

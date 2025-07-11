@@ -129,7 +129,7 @@ export const registerAllTools = (
   const categories = enabledCategories || [...TOOL_CATEGORIES];
   
   // Direct function mapping for better traceability
-  const registerFunctions: Record<string, (server: any, client: LinodeClient) => void> = {
+  const registerFunctions: Record<string, any> = {
     'instances': registerInstanceTools,
     'volumes': registerVolumeTools,
     'networking': registerNetworkingTools,
@@ -152,6 +152,8 @@ export const registerAllTools = (
   
   // Register only the enabled categories
   for (const category of categories) {
-    registerFunctions[category](server, client);
+    if (registerFunctions[category]) {
+      registerFunctions[category](server, client);
+    }
   }
 };

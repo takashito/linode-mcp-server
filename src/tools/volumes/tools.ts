@@ -1,43 +1,33 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { FastMCP } from 'fastmcp';
 import { LinodeClient, CreateVolumeRequest } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
-export function registerVolumeTools(server: McpServer, client: LinodeClient) {
+export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
   // Register volume tools
-  server.tool(
-    'list_volumes',
-    'Get a list of all volumes',
-    schemas.listVolumesSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+  server.addTool({
+    name: 'list_volumes',
+    description: 'Get a list of all volumes',
+    parameters: schemas.listVolumesSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.volumes.getVolumes(params);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'get_volume',
-    'Get details for a specific volume',
-    schemas.getVolumeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_volume',
+    description: 'Get details for a specific volume',
+    parameters: schemas.getVolumeSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.volumes.getVolumeById(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'create_volume',
-    'Create a new volume',
-    schemas.createVolumeSchema.shape,
-    withErrorHandling(async (params: any, extra: any) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'create_volume',
+    description: 'Create a new volume',
+    parameters: schemas.createVolumeSchema,
+    execute: withErrorHandling(async (params: any) => {
       const createData: CreateVolumeRequest = {
         region: String(params.region),
         size: Number(params.size),
@@ -48,70 +38,46 @@ export function registerVolumeTools(server: McpServer, client: LinodeClient) {
         encryption: params.encryption
       };
       const result = await client.volumes.createVolume(createData);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'delete_volume',
-    'Delete a volume',
-    schemas.deleteVolumeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_volume',
+    description: 'Delete a volume',
+    parameters: schemas.deleteVolumeSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.volumes.deleteVolume(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'attach_volume',
-    'Attach a volume to a Linode instance',
-    schemas.attachVolumeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'attach_volume',
+    description: 'Attach a volume to a Linode instance',
+    parameters: schemas.attachVolumeSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.volumes.attachVolume(params.id, {
         linode_id: params.linode_id,
         config_id: params.config_id,
       });
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'detach_volume',
-    'Detach a volume from a Linode instance',
-    schemas.detachVolumeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'detach_volume',
+    description: 'Detach a volume from a Linode instance',
+    parameters: schemas.detachVolumeSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.volumes.detachVolume(params.id);
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
-
-  server.tool(
-    'resize_volume',
-    'Resize a volume',
-    schemas.resizeVolumeSchema.shape,
-    withErrorHandling(async (params, _extra) => {
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'resize_volume',
+    description: 'Resize a volume',
+    parameters: schemas.resizeVolumeSchema,
+    execute: withErrorHandling(async (params) => {
       const result = await client.volumes.resizeVolume(params.id, { size: params.size });
-      return {
-        content: [
-          { type: 'text', text: JSON.stringify(result, null, 2) },
-        ],
-      };
-    }
-  ));
+      return JSON.stringify(result, null, 2);
+    })
+  });
 }
