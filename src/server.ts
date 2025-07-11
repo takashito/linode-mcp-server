@@ -2,7 +2,7 @@ import { FastMCP } from 'fastmcp';
 import { createClient } from './client';
 import { registerAllTools, ToolCategory } from './tools';
 
-export const VERSION = '0.2.1';
+export const VERSION = '0.2.2';
 
 export interface ServerOptions {
   token: string;
@@ -28,7 +28,7 @@ export async function startServer(options: ServerOptions) {
       version: VERSION
     });
 
-    console.error('FastMCP Server initialized successfully');
+    console.error('Server initialized successfully');
 
     // Create Linode client with the provided token
     const client = createClient(options.token);
