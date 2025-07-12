@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import { AxiosInstance } from 'axios';
 import { PaginatedResponse, PaginationParams } from './instances';
 
 // Account interfaces
