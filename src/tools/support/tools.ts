@@ -14,7 +14,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await createClient(context).support.listTickets(paginationParams);
+      const result = await createClient(context, server).support.listTickets(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -25,7 +25,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details of a specific support ticket',
     parameters: schemas.getTicketSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).support.getTicket(params.ticket_id);
+      const result = await createClient(context, server).support.getTicket(params.ticket_id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -36,7 +36,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     description: 'Open a new support ticket',
     parameters: schemas.createTicketSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).support.createTicket(params);
+      const result = await createClient(context, server).support.createTicket(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -47,7 +47,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     description: 'Close a support ticket',
     parameters: schemas.closeTicketSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).support.closeTicket(params.ticket_id);
+      const result = await createClient(context, server).support.closeTicket(params.ticket_id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -62,7 +62,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await createClient(context).support.listReplies(params.ticket_id, paginationParams);
+      const result = await createClient(context, server).support.listReplies(params.ticket_id, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -74,7 +74,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createReplySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { ticket_id, description } = params;
-      const result = await createClient(context).support.createReply(ticket_id, { description });
+      const result = await createClient(context, server).support.createReply(ticket_id, { description });
       return JSON.stringify(result, null, 2);
     })
   });
@@ -106,7 +106,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
       const blob = new Blob(byteArrays);
       const fileObj = new File([blob], "attachment", { type: "application/octet-stream" });
       
-      const result = await createClient(context).support.uploadAttachment(ticket_id, fileObj);
+      const result = await createClient(context, server).support.uploadAttachment(ticket_id, fileObj);
       return JSON.stringify(result, null, 2);
     })
   });

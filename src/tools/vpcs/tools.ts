@@ -10,7 +10,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'List all VPCs',
     parameters: schemas.listVPCsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).vpcs.getVPCs();
+      const result = await createClient(context, server).vpcs.getVPCs();
       return formatVPCs(result.data);
     })
   });
@@ -19,7 +19,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific VPC',
     parameters: schemas.getVPCSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).vpcs.getVPC(params.id);
+      const result = await createClient(context, server).vpcs.getVPC(params.id);
       return formatVPC(result);
     })
   });
@@ -28,7 +28,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new VPC',
     parameters: schemas.createVPCSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).vpcs.createVPC(params);
+      const result = await createClient(context, server).vpcs.createVPC(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -38,7 +38,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateVPCSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
-      const result = await createClient(context).vpcs.updateVPC(id, data);
+      const result = await createClient(context, server).vpcs.updateVPC(id, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -47,7 +47,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a VPC',
     parameters: schemas.deleteVPCSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).vpcs.deleteVPC(params.id);
+      await createClient(context, server).vpcs.deleteVPC(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -57,7 +57,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'List all subnets in a VPC',
     parameters: schemas.listSubnetsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).vpcs.getSubnets(params.id);
+      const result = await createClient(context, server).vpcs.getSubnets(params.id);
       return formatVPCSubnets(result.data);
     })
   });
@@ -66,7 +66,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific subnet in a VPC',
     parameters: schemas.getSubnetSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).vpcs.getSubnet(params.id, params.subnet_id);
+      const result = await createClient(context, server).vpcs.getSubnet(params.id, params.subnet_id);
       return formatVPCSubnet(result);
     })
   });
@@ -76,7 +76,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createSubnetSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
-      const result = await createClient(context).vpcs.createSubnet(id, data);
+      const result = await createClient(context, server).vpcs.createSubnet(id, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -86,7 +86,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateSubnetSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, subnet_id, ...data } = params;
-      const result = await createClient(context).vpcs.updateSubnet(id, subnet_id, data);
+      const result = await createClient(context, server).vpcs.updateSubnet(id, subnet_id, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -95,7 +95,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a subnet in a VPC',
     parameters: schemas.deleteSubnetSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).vpcs.deleteSubnet(params.id, params.subnet_id);
+      await createClient(context, server).vpcs.deleteSubnet(params.id, params.subnet_id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -105,7 +105,7 @@ export function registerVPCTools(server: FastMCP, client: LinodeClient) {
     description: 'List all IP addresses in a VPC',
     parameters: schemas.listVPCIPsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).vpcs.getVPCIPs(params.id);
+      const result = await createClient(context, server).vpcs.getVPCIPs(params.id);
       return formatVPCIPs(result.data);
     })
   });

@@ -10,7 +10,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all volumes',
     parameters: schemas.listVolumesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).volumes.getVolumes(params);
+      const result = await createClient(context, server).volumes.getVolumes(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -19,7 +19,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific volume',
     parameters: schemas.getVolumeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).volumes.getVolumeById(params.id);
+      const result = await createClient(context, server).volumes.getVolumeById(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -37,7 +37,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
         config_id: params.config_id ? Number(params.config_id) : undefined,
         encryption: params.encryption
       };
-      const result = await createClient(context).volumes.createVolume(createData);
+      const result = await createClient(context, server).volumes.createVolume(createData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -46,7 +46,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a volume',
     parameters: schemas.deleteVolumeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).volumes.deleteVolume(params.id);
+      const result = await createClient(context, server).volumes.deleteVolume(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -55,7 +55,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     description: 'Attach a volume to a Linode instance',
     parameters: schemas.attachVolumeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).volumes.attachVolume(params.id, {
+      const result = await createClient(context, server).volumes.attachVolume(params.id, {
         linode_id: params.linode_id,
         config_id: params.config_id,
       });
@@ -67,7 +67,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     description: 'Detach a volume from a Linode instance',
     parameters: schemas.detachVolumeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).volumes.detachVolume(params.id);
+      const result = await createClient(context, server).volumes.detachVolume(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -76,7 +76,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     description: 'Resize a volume',
     parameters: schemas.resizeVolumeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).volumes.resizeVolume(params.id, { size: params.size });
+      const result = await createClient(context, server).volumes.resizeVolume(params.id, { size: params.size });
       return JSON.stringify(result, null, 2);
     })
   });

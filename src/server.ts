@@ -3,7 +3,7 @@ import { IncomingHttpHeaders } from "http";
 import { registerAllTools, ToolCategory } from './tools';
 import { createClient, LinodeClient } from './client';
 
-export const VERSION = '0.2.3';
+export const VERSION = '0.2.4';
 
 export interface ServerOptions {
   token: string;
@@ -16,7 +16,6 @@ export interface ServerOptions {
 
 export interface SessionData {
   headers: IncomingHttpHeaders;
-  token: string;
   [key: string]: unknown; // Add index signature to satisfy Record<string, unknown>
 }
 
@@ -35,11 +34,13 @@ export async function startServer(options: ServerOptions) {
       version: VERSION,
       authenticate: async (request: any): Promise<SessionData> => {
         return {
-          headers: request.headers,
-          token: options.token
+          headers: request.headers
         };
-      },
+      }
     });
+
+    // Save token in server options
+    (server.options as any).token = options.token;
 
     console.error('Server initialized successfully');
 

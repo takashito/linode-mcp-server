@@ -14,7 +14,8 @@ export function registerInstanceTools(server: FastMCP) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await createClient(context).instances.getLinodes(paginationParams);
+      
+      const result = await createClient(context, server).instances.getLinodes(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -24,7 +25,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get details for a specific Linode instance',
     parameters: schemas.getInstanceSchema,
     execute: withErrorHandling(async (params: { id: number }, context?: any) => {
-      const result = await createClient(context).instances.getLinodeById(params.id);
+      const result = await createClient(context, server).instances.getLinodeById(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -49,7 +50,7 @@ export function registerInstanceTools(server: FastMCP) {
         group: params.group,
         firewall_id: params.firewall_id
       };
-      const result = await createClient(context).instances.createLinode(createParams);
+      const result = await createClient(context, server).instances.createLinode(createParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -66,7 +67,7 @@ export function registerInstanceTools(server: FastMCP) {
         group: updateParams.group,
         alerts: updateParams.alerts
       };
-      const result = await createClient(context).instances.updateLinode(Number(id), updateData);
+      const result = await createClient(context, server).instances.updateLinode(Number(id), updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -76,7 +77,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Reboot a Linode instance',
     parameters: schemas.rebootInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.rebootLinode(params.id, params.config_id);
+      const result = await createClient(context, server).instances.rebootLinode(params.id, params.config_id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -86,7 +87,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Power on a Linode instance',
     parameters: schemas.bootInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.bootLinode(params.id, params.config_id);
+      const result = await createClient(context, server).instances.bootLinode(params.id, params.config_id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -96,7 +97,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Power off a Linode instance',
     parameters: schemas.shutdownInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.shutdownLinode(params.id);
+      const result = await createClient(context, server).instances.shutdownLinode(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -106,7 +107,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Delete a Linode instance',
     parameters: schemas.deleteInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.deleteLinode(params.id);
+      const result = await createClient(context, server).instances.deleteLinode(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -117,7 +118,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.resizeInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...resizeData } = params;
-      const result = await createClient(context).instances.resizeLinode(id, resizeData);
+      const result = await createClient(context, server).instances.resizeLinode(id, resizeData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -128,7 +129,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.cloneInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...cloneData } = params;
-      const result = await createClient(context).instances.cloneLinode(Number(id), cloneData);
+      const result = await createClient(context, server).instances.cloneLinode(Number(id), cloneData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -139,7 +140,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.rebuildInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...rebuildData } = params;
-      const result = await createClient(context).instances.rebuildLinode(id, rebuildData);
+      const result = await createClient(context, server).instances.rebuildLinode(id, rebuildData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -150,7 +151,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.rescueInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, devices } = params;
-      const result = await createClient(context).instances.rescueLinode(id, devices);
+      const result = await createClient(context, server).instances.rescueLinode(id, devices);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -166,7 +167,7 @@ export function registerInstanceTools(server: FastMCP) {
         page,
         page_size
       };
-      const result = await createClient(context).instances.getLinodeConfigs(linodeId, paginationParams);
+      const result = await createClient(context, server).instances.getLinodeConfigs(linodeId, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -176,7 +177,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get a specific configuration profile for a Linode instance',
     parameters: schemas.getLinodeConfigSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getLinodeConfig(params.linodeId, params.configId);
+      const result = await createClient(context, server).instances.getLinodeConfig(params.linodeId, params.configId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -187,7 +188,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.createLinodeConfigSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...configData } = params;
-      const result = await createClient(context).instances.createLinodeConfig(linodeId, configData);
+      const result = await createClient(context, server).instances.createLinodeConfig(linodeId, configData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -198,7 +199,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.updateLinodeConfigSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, ...updateData } = params;
-      const result = await createClient(context).instances.updateLinodeConfig(linodeId, configId, updateData);
+      const result = await createClient(context, server).instances.updateLinodeConfig(linodeId, configId, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -208,7 +209,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Delete a configuration profile for a Linode instance',
     parameters: schemas.deleteLinodeConfigSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.deleteLinodeConfig(params.linodeId, params.configId);
+      const result = await createClient(context, server).instances.deleteLinodeConfig(params.linodeId, params.configId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -224,7 +225,7 @@ export function registerInstanceTools(server: FastMCP) {
         page,
         page_size
       };
-      const result = await createClient(context).instances.getLinodeDisks(linodeId, paginationParams);
+      const result = await createClient(context, server).instances.getLinodeDisks(linodeId, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -234,7 +235,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get a specific disk for a Linode instance',
     parameters: schemas.getLinodeDiskSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getLinodeDisk(params.linodeId, params.diskId);
+      const result = await createClient(context, server).instances.getLinodeDisk(params.linodeId, params.diskId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -245,7 +246,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.createLinodeDiskSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...diskData } = params;
-      const result = await createClient(context).instances.createLinodeDisk(linodeId, diskData);
+      const result = await createClient(context, server).instances.createLinodeDisk(linodeId, diskData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -256,7 +257,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.updateLinodeDiskSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, diskId, ...updateData } = params;
-      const result = await createClient(context).instances.updateLinodeDisk(linodeId, diskId, updateData);
+      const result = await createClient(context, server).instances.updateLinodeDisk(linodeId, diskId, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -266,7 +267,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Delete a disk for a Linode instance',
     parameters: schemas.deleteLinodeDiskSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.deleteLinodeDisk(params.linodeId, params.diskId);
+      const result = await createClient(context, server).instances.deleteLinodeDisk(params.linodeId, params.diskId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -276,7 +277,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Resize a disk for a Linode instance',
     parameters: schemas.resizeLinodeDiskSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.resizeLinodeDisk(params.linodeId, params.diskId, params.size);
+      const result = await createClient(context, server).instances.resizeLinodeDisk(params.linodeId, params.diskId, params.size);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -287,7 +288,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get current statistics for a Linode instance',
     parameters: schemas.getLinodeStatsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getLinodeStats(params.id);
+      const result = await createClient(context, server).instances.getLinodeStats(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -297,7 +298,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get statistics for a Linode instance for a specific month',
     parameters: schemas.getLinodeStatsByDateSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getLinodeStatsByDate(params.id, params.year, params.month);
+      const result = await createClient(context, server).instances.getLinodeStatsByDate(params.id, params.year, params.month);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -308,7 +309,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get a list of all backups for a Linode instance',
     parameters: schemas.getBackupsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getBackups(params.linodeId);
+      const result = await createClient(context, server).instances.getBackups(params.linodeId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -318,7 +319,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get details for a specific backup',
     parameters: schemas.getBackupSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getBackup(params.linodeId, params.backupId);
+      const result = await createClient(context, server).instances.getBackup(params.linodeId, params.backupId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -329,7 +330,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.createSnapshotSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...data } = params;
-      const result = await createClient(context).instances.createSnapshot(linodeId, data);
+      const result = await createClient(context, server).instances.createSnapshot(linodeId, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -339,7 +340,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Cancel backups for a Linode instance',
     parameters: schemas.cancelBackupsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.cancelBackups(params.linodeId);
+      await createClient(context, server).instances.cancelBackups(params.linodeId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -349,7 +350,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Enable backups for a Linode instance',
     parameters: schemas.enableBackupsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.enableBackups(params.linodeId);
+      await createClient(context, server).instances.enableBackups(params.linodeId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -360,7 +361,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.restoreBackupSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, backupId, ...data } = params;
-      await createClient(context).instances.restoreBackup(linodeId, backupId, data);
+      await createClient(context, server).instances.restoreBackup(linodeId, backupId, data);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -371,7 +372,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get networking information for a Linode instance',
     parameters: schemas.getLinodeIPsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getLinodeIPs(params.linodeId);
+      const result = await createClient(context, server).instances.getLinodeIPs(params.linodeId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -382,7 +383,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.linodeAllocateIPSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...data } = params;
-      const result = await createClient(context).instances.allocateIP(linodeId, data as any);
+      const result = await createClient(context, server).instances.allocateIP(linodeId, data as any);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -392,7 +393,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get details for a specific IP address for a Linode instance',
     parameters: schemas.getLinodeIPSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getLinodeIP(params.linodeId, params.address);
+      const result = await createClient(context, server).instances.getLinodeIP(params.linodeId, params.address);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -403,7 +404,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.updateLinodeIPSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, address, ...data } = params;
-      const result = await createClient(context).instances.updateLinodeIP(linodeId, address, data as any);
+      const result = await createClient(context, server).instances.updateLinodeIP(linodeId, address, data as any);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -413,7 +414,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Delete an IPv4 address from a Linode instance',
     parameters: schemas.deleteLinodeIPSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.deleteLinodeIP(params.linodeId, params.address);
+      await createClient(context, server).instances.deleteLinodeIP(params.linodeId, params.address);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -426,7 +427,7 @@ export function registerInstanceTools(server: FastMCP) {
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = { page, page_size };
-      const result = await createClient(context).instances.getLinodeFirewalls(linodeId, paginationParams);
+      const result = await createClient(context, server).instances.getLinodeFirewalls(linodeId, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -436,7 +437,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Apply firewalls to a Linode instance',
     parameters: schemas.applyFirewallsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.applyFirewalls(params.linodeId);
+      await createClient(context, server).instances.applyFirewalls(params.linodeId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -448,7 +449,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.cloneDiskSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, diskId, label } = params;
-      const result = await createClient(context).instances.cloneDisk(linodeId, diskId, label ? { label } : undefined);
+      const result = await createClient(context, server).instances.cloneDisk(linodeId, diskId, label ? { label } : undefined);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -458,7 +459,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Reset the root password for a disk',
     parameters: schemas.resetDiskPasswordSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.resetDiskPassword(params.linodeId, params.diskId, params.password);
+      await createClient(context, server).instances.resetDiskPassword(params.linodeId, params.diskId, params.password);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -470,7 +471,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.migrateLinodeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, region } = params;
-      await createClient(context).instances.migrateLinode(id, region ? { region } : undefined);
+      await createClient(context, server).instances.migrateLinode(id, region ? { region } : undefined);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -480,7 +481,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Upgrade a Linode instance',
     parameters: schemas.mutateLinodeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.mutateLinode(params.id);
+      await createClient(context, server).instances.mutateLinode(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -492,7 +493,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.resetRootPasswordSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
-      await createClient(context).instances.resetRootPassword(id, data);
+      await createClient(context, server).instances.resetRootPassword(id, data);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -503,7 +504,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get network transfer information for a Linode instance',
     parameters: schemas.getNetworkTransferSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getNetworkTransfer(params.id);
+      const result = await createClient(context, server).instances.getNetworkTransfer(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -513,7 +514,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get monthly network transfer stats for a Linode instance',
     parameters: schemas.getMonthlyTransferSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getMonthlyTransfer(params.id, params.year, params.month);
+      const result = await createClient(context, server).instances.getMonthlyTransfer(params.id, params.year, params.month);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -528,7 +529,7 @@ export function registerInstanceTools(server: FastMCP) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await createClient(context).instances.getKernels(paginationParams);
+      const result = await createClient(context, server).instances.getKernels(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -538,7 +539,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get details for a specific kernel',
     parameters: schemas.getKernelSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getKernelById(params.id);
+      const result = await createClient(context, server).instances.getKernelById(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -553,7 +554,7 @@ export function registerInstanceTools(server: FastMCP) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await createClient(context).instances.getTypes(paginationParams);
+      const result = await createClient(context, server).instances.getTypes(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -563,7 +564,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get details for a specific Linode type, including pricing and specifications',
     parameters: schemas.getInstanceTypeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getType(params.id);
+      const result = await createClient(context, server).instances.getType(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -574,7 +575,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'List all interfaces for a configuration profile',
     parameters: schemas.getConfigInterfacesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getConfigInterfaces(params.linodeId, params.configId);
+      const result = await createClient(context, server).instances.getConfigInterfaces(params.linodeId, params.configId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -584,7 +585,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Get details for a specific configuration profile interface',
     parameters: schemas.getConfigInterfaceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).instances.getConfigInterface(params.linodeId, params.configId, params.interfaceId);
+      const result = await createClient(context, server).instances.getConfigInterface(params.linodeId, params.configId, params.interfaceId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -595,7 +596,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.createConfigInterfaceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, ...data } = params;
-      const result = await createClient(context).instances.createConfigInterface(linodeId, configId, data);
+      const result = await createClient(context, server).instances.createConfigInterface(linodeId, configId, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -606,7 +607,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.updateConfigInterfaceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, interfaceId, ...data } = params;
-      const result = await createClient(context).instances.updateConfigInterface(linodeId, configId, interfaceId, data);
+      const result = await createClient(context, server).instances.updateConfigInterface(linodeId, configId, interfaceId, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -616,7 +617,7 @@ export function registerInstanceTools(server: FastMCP) {
     description: 'Delete an interface from a configuration profile',
     parameters: schemas.deleteConfigInterfaceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).instances.deleteConfigInterface(params.linodeId, params.configId, params.interfaceId);
+      await createClient(context, server).instances.deleteConfigInterface(params.linodeId, params.configId, params.interfaceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -627,7 +628,7 @@ export function registerInstanceTools(server: FastMCP) {
     parameters: schemas.reorderConfigInterfacesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, ids } = params;
-      await createClient(context).instances.reorderConfigInterfaces(linodeId, configId, { ids });
+      await createClient(context, server).instances.reorderConfigInterfaces(linodeId, configId, { ids });
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -643,7 +644,7 @@ export function registerInstanceTools(server: FastMCP) {
         page,
         page_size
       };
-      const result = await createClient(context).instances.getLinodeNodeBalancers(linodeId, paginationParams);
+      const result = await createClient(context, server).instances.getLinodeNodeBalancers(linodeId, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -659,7 +660,7 @@ export function registerInstanceTools(server: FastMCP) {
         page,
         page_size
       };
-      const result = await createClient(context).instances.getLinodeVolumes(linodeId, paginationParams);
+      const result = await createClient(context, server).instances.getLinodeVolumes(linodeId, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
