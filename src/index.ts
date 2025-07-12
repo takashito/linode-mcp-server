@@ -3,16 +3,10 @@
 import { Command } from 'commander';
 import { config } from 'dotenv';
 import { VERSION, startServer, ServerOptions } from './server';
-import { createClient, LinodeClient } from './client';
 import { TOOL_CATEGORIES, ToolCategory } from './tools';
 
 // Load environment variables from .env file
 config();
-
-// Export key components for programmatic use
-export { startServer, ServerOptions };
-export { createClient, LinodeClient };
-export { VERSION };
 
 // Define CLI program
 const program = new Command();
@@ -43,13 +37,6 @@ program
 
     // Check for token in command line args, then env var, then .env file
     const token = options.token || process.env.LINODE_API_TOKEN;
-
-    // Ensure the token is provided
-    if (!token) {
-      console.error('Error: Linode API token is required');
-      console.error('Please provide a token with --token option or set LINODE_API_TOKEN environment variable');
-      process.exit(1);
-    }
 
     // Validate categories if provided
     let enabledCategories: ToolCategory[] | undefined = undefined;
@@ -85,6 +72,13 @@ program
       defaultPort = 8080;
     } else {
       defaultPort = 8000; // stdio (not used, but for consistency)
+
+      // Ensure the token is provided
+      if (!token) {
+        console.error('Error: Linode API token is required for stdio transport');
+        console.error('Please provide a token with --token option or set LINODE_API_TOKEN environment variable');
+        process.exit(1);
+      }
     }
     
     // Prepare server options

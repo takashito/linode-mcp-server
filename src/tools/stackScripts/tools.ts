@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import {
   listStackScriptsSchema,
   getStackScriptSchema,
@@ -19,7 +19,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     description: 'Get a list of all StackScripts',
     parameters: listStackScriptsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.stackScripts.getStackScripts(params);
+      const result = await createClient(context).stackScripts.getStackScripts(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -31,7 +31,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     parameters: getStackScriptSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id } = params;
-      const result = await client.stackScripts.getStackScript(id);
+      const result = await createClient(context).stackScripts.getStackScript(id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -42,7 +42,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     description: 'Create a new StackScript',
     parameters: createStackScriptSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.stackScripts.createStackScript(params);
+      const result = await createClient(context).stackScripts.createStackScript(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -54,7 +54,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     parameters: updateStackScriptSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
-      const result = await client.stackScripts.updateStackScript(id, data);
+      const result = await createClient(context).stackScripts.updateStackScript(id, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -66,7 +66,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     parameters: deleteStackScriptSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id } = params;
-      await client.stackScripts.deleteStackScript(id);
+      await createClient(context).stackScripts.deleteStackScript(id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });

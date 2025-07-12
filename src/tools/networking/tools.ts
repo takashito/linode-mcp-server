@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -10,7 +10,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get all IP addresses',
     parameters: schemas.getIPAddressesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getIPAddresses();
+      const result = await createClient(context).networking.getIPAddresses();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -20,7 +20,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific IP address',
     parameters: schemas.getIPAddressSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getIPAddress(params.address);
+      const result = await createClient(context).networking.getIPAddress(params.address);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -30,7 +30,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Update reverse DNS for an IP address',
     parameters: schemas.updateIPSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.updateIPAddress(params.address, { rdns: params.rdns });
+      const result = await createClient(context).networking.updateIPAddress(params.address, { rdns: params.rdns });
       return JSON.stringify(result, null, 2);
     })
   });
@@ -40,7 +40,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Allocate a new IP address',
     parameters: schemas.allocateIPSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.allocateIPAddress(params);
+      const result = await createClient(context).networking.allocateIPAddress(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -50,7 +50,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Share IP addresses between Linodes',
     parameters: schemas.shareIPsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.shareIPAddresses(params);
+      const result = await createClient(context).networking.shareIPAddresses(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -61,7 +61,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get all IPv6 ranges',
     parameters: schemas.getIPv6RangesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getIPv6Ranges();
+      const result = await createClient(context).networking.getIPv6Ranges();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -71,7 +71,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a specific IPv6 range',
     parameters: schemas.getIPv6RangeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getIPv6Range(params.range);
+      const result = await createClient(context).networking.getIPv6Range(params.range);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -81,7 +81,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get all IPv6 pools',
     parameters: schemas.getIPv6PoolsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getIPv6Pools();
+      const result = await createClient(context).networking.getIPv6Pools();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -96,7 +96,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.networking.getFirewalls(paginationParams);
+      const result = await createClient(context).networking.getFirewalls(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -106,7 +106,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific firewall',
     parameters: schemas.getFirewallSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getFirewall(params.id);
+      const result = await createClient(context).networking.getFirewall(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -136,7 +136,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
         firewall.devices = params.devices;
       }
       
-      const result = await client.networking.createFirewall(firewall);
+      const result = await createClient(context).networking.createFirewall(firewall);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -147,7 +147,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateFirewallSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
-      const result = await client.networking.updateFirewall(id, updateData);
+      const result = await createClient(context).networking.updateFirewall(id, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -157,7 +157,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a firewall',
     parameters: schemas.deleteFirewallSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.deleteFirewall(params.id);
+      const result = await createClient(context).networking.deleteFirewall(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -168,7 +168,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get all rules for a specific firewall',
     parameters: schemas.getFirewallRulesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getFirewallRules(params.firewallId);
+      const result = await createClient(context).networking.getFirewallRules(params.firewallId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -179,7 +179,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateFirewallRulesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { firewallId, ...ruleData } = params;
-      const result = await client.networking.updateFirewallRules(firewallId, ruleData);
+      const result = await createClient(context).networking.updateFirewallRules(firewallId, ruleData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -192,7 +192,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { firewallId, page, page_size } = params;
       // The client doesn't accept pagination for this endpoint based on the interface
-      const result = await client.networking.getFirewallDevices(firewallId);
+      const result = await createClient(context).networking.getFirewallDevices(firewallId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -203,7 +203,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createFirewallDeviceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { firewallId, ...deviceData } = params;
-      const result = await client.networking.createFirewallDevice(firewallId, deviceData);
+      const result = await createClient(context).networking.createFirewallDevice(firewallId, deviceData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -213,7 +213,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a device from a specific firewall',
     parameters: schemas.deleteFirewallDeviceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.deleteFirewallDevice(params.firewallId, params.deviceId);
+      const result = await createClient(context).networking.deleteFirewallDevice(params.firewallId, params.deviceId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -228,7 +228,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.networking.getVLANs(paginationParams);
+      const result = await createClient(context).networking.getVLANs(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -238,7 +238,7 @@ export function registerNetworkingTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a specific VLAN',
     parameters: schemas.getVLANSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.networking.getVLAN(params.regionId, params.label);
+      const result = await createClient(context).networking.getVLAN(params.regionId, params.label);
       return JSON.stringify(result, null, 2);
     })
   });

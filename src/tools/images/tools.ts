@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -14,7 +14,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.images.getImages(paginationParams);
+      const result = await createClient(context).images.getImages(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -25,7 +25,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific Image',
     parameters: schemas.getImageSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.images.getImage(params.imageId);
+      const result = await createClient(context).images.getImage(params.imageId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -36,7 +36,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new Image from an existing Disk',
     parameters: schemas.createImageSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.images.createImage({
+      const result = await createClient(context).images.createImage({
         disk_id: params.disk_id,
         label: params.label,
         description: params.description
@@ -51,7 +51,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
     description: 'Initiate an Image upload',
     parameters: schemas.uploadImageSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.images.uploadImage({
+      const result = await createClient(context).images.uploadImage({
         label: params.label,
         description: params.description,
         region: params.region
@@ -67,7 +67,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateImageSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { imageId, ...updateData } = params;
-      const result = await client.images.updateImage(imageId, updateData);
+      const result = await createClient(context).images.updateImage(imageId, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -78,7 +78,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete an Image',
     parameters: schemas.deleteImageSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.images.deleteImage(params.imageId);
+      await createClient(context).images.deleteImage(params.imageId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -90,7 +90,7 @@ export function registerImagesTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.replicateImageSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { imageId, regions } = params;
-      await client.images.replicateImage(imageId, { regions });
+      await createClient(context).images.replicateImage(imageId, { regions });
       return JSON.stringify({ success: true }, null, 2);
     })
   });

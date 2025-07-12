@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios from 'axios';
 import { 
   LinodeClient,
   createInstancesClient,
@@ -26,7 +26,9 @@ const API_ROOT = 'https://api.linode.com/v4';
 /**
  * Creates and configures a Linode API client with the provided token
  */
-export function createClient(token: string): LinodeClient {
+export function createClient(context:any): LinodeClient {
+  const token = context.session?.token || context.session?.headers?.['authorization']?.split(' ')[1] || null;
+
   // Create an axios instance with the Linode API configuration
   const axiosInstance = axios.create({
     baseURL: API_ROOT,
@@ -35,6 +37,8 @@ export function createClient(token: string): LinodeClient {
       'Content-Type': 'application/json',
     },
   });
+
+  // console.log(`Client Created for API token: ${token}`);
 
   // Create category-specific clients
   const instances = createInstancesClient(axiosInstance);

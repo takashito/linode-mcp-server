@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import {
   listTagsSchema,
   getTagSchema,
@@ -18,7 +18,7 @@ export function registerTagsTools(server: FastMCP, client: LinodeClient): void {
     description: 'Get a list of all Tags',
     parameters: listTagsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.tags.getTags(params);
+      const result = await createClient(context).tags.getTags(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -30,7 +30,7 @@ export function registerTagsTools(server: FastMCP, client: LinodeClient): void {
     parameters: getTagSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { label } = params;
-      const result = await client.tags.getTag(label);
+      const result = await createClient(context).tags.getTag(label);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -41,7 +41,7 @@ export function registerTagsTools(server: FastMCP, client: LinodeClient): void {
     description: 'Create a new Tag',
     parameters: createTagSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.tags.createTag(params);
+      const result = await createClient(context).tags.createTag(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -53,7 +53,7 @@ export function registerTagsTools(server: FastMCP, client: LinodeClient): void {
     parameters: deleteTagSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { label } = params;
-      await client.tags.deleteTag(label);
+      await createClient(context).tags.deleteTag(label);
       return JSON.stringify({ success: true }, null, 2);
     })
   });

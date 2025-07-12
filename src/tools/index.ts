@@ -17,7 +17,7 @@ import { registerSupportTools } from './support/tools';
 import { registerLongviewTools } from './longview/tools';
 import { registerProfileTools } from './profile/tools';
 import { registerAccountTools } from './account/tools';
-import { LinodeClient } from '../client';
+import { createClient, LinodeClient } from '../client';
 
 // Define all available tool categories
 export const TOOL_CATEGORIES = [
@@ -122,7 +122,6 @@ export * from './account/tools';
 // Register tools with direct client access
 export const registerAllTools = (
   server: any, 
-  client: LinodeClient, 
   enabledCategories?: ToolCategory[]
 ) => {
   // If no categories specified, enable all
@@ -153,7 +152,7 @@ export const registerAllTools = (
   // Register only the enabled categories
   for (const category of categories) {
     if (registerFunctions[category]) {
-      registerFunctions[category](server, client);
+      registerFunctions[category](server);
     }
   }
 };

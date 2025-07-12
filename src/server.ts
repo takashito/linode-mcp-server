@@ -1,8 +1,9 @@
 import { FastMCP } from 'fastmcp';
-import { createClient } from './client';
+import { IncomingHttpHeaders } from "http";
 import { registerAllTools, ToolCategory } from './tools';
+import { createClient, LinodeClient } from './client';
 
-export const VERSION = '0.2.2';
+export const VERSION = '0.2.3';
 
 export interface ServerOptions {
   token: string;
@@ -11,6 +12,12 @@ export interface ServerOptions {
   port?: number;
   host?: string;
   endpoint?: string;
+}
+
+export interface SessionData {
+  headers: IncomingHttpHeaders;
+  token: string;
+  [key: string]: unknown; // Add index signature to satisfy Record<string, unknown>
 }
 
 /**
@@ -25,18 +32,21 @@ export async function startServer(options: ServerOptions) {
     // Initialize FastMCP server
     const server = new FastMCP({
       name: 'linode-mcp-server',
-      version: VERSION
+      version: VERSION,
+      authenticate: async (request: any): Promise<SessionData> => {
+        return {
+          headers: request.headers,
+          token: options.token
+        };
+      },
     });
 
     console.error('Server initialized successfully');
 
-    // Create Linode client with the provided token
-    const client = createClient(options.token);
-
     // Register tools with direct client access (only enabled categories)
     try {
       console.error(`Registering tool categories: ${options.enabledCategories?.join(', ') || 'all'}`);
-      registerAllTools(server, client, options.enabledCategories);
+      registerAllTools(server, options.enabledCategories);
       
       // Show debugging info
       console.error(`Successfully registered tools`);

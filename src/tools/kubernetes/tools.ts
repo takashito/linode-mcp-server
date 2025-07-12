@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient, KubernetesCluster, KubernetesNodePool, KubernetesNode, KubernetesVersion, KubeConfig, APIEndpoint, KubernetesDashboard, KubernetesType } from '../../client';
+import { createClient, LinodeClient, KubernetesCluster, KubernetesNodePool, KubernetesNode, KubernetesVersion, KubeConfig, APIEndpoint, KubernetesDashboard, KubernetesType } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -152,7 +152,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'List all Kubernetes clusters',
     parameters: schemas.listKubernetesClustersSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getClusters(params);
+      const result = await createClient(context).kubernetes.getClusters(params);
       return formatKubernetesClusters(result.data);
     })
   });
@@ -161,7 +161,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific Kubernetes cluster',
     parameters: schemas.getClusterSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getCluster(params.id);
+      const result = await createClient(context).kubernetes.getCluster(params.id);
       return formatKubernetesCluster(result);
     })
   });
@@ -170,7 +170,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new Kubernetes cluster',
     parameters: schemas.createClusterSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.createCluster(params);
+      const result = await createClient(context).kubernetes.createCluster(params);
       return formatKubernetesCluster(result);
     })
   });
@@ -180,7 +180,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateClusterSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
-      const result = await client.kubernetes.updateCluster(id, data);
+      const result = await createClient(context).kubernetes.updateCluster(id, data);
       return formatKubernetesCluster(result);
     })
   });
@@ -189,7 +189,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a Kubernetes cluster',
     parameters: schemas.deleteClusterSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.deleteCluster(params.id);
+      await createClient(context).kubernetes.deleteCluster(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -200,7 +200,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'List all node pools in a Kubernetes cluster',
     parameters: schemas.getNodePoolsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getNodePools(params.clusterId);
+      const result = await createClient(context).kubernetes.getNodePools(params.clusterId);
       return formatNodePools(result);
     })
   });
@@ -209,7 +209,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific node pool in a Kubernetes cluster',
     parameters: schemas.getNodePoolSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getNodePool(params.clusterId, params.poolId);
+      const result = await createClient(context).kubernetes.getNodePool(params.clusterId, params.poolId);
       return formatNodePool(result);
     })
   });
@@ -219,7 +219,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createNodePoolSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { clusterId, ...data } = params;
-      const result = await client.kubernetes.createNodePool(clusterId, data);
+      const result = await createClient(context).kubernetes.createNodePool(clusterId, data);
       return formatNodePool(result);
     })
   });
@@ -229,7 +229,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateNodePoolSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { clusterId, poolId, ...data } = params;
-      const result = await client.kubernetes.updateNodePool(clusterId, poolId, data);
+      const result = await createClient(context).kubernetes.updateNodePool(clusterId, poolId, data);
       return formatNodePool(result);
     })
   });
@@ -238,7 +238,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a node pool from a Kubernetes cluster',
     parameters: schemas.deleteNodePoolSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.deleteNodePool(params.clusterId, params.poolId);
+      await createClient(context).kubernetes.deleteNodePool(params.clusterId, params.poolId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -248,7 +248,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.recycleNodesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { clusterId, poolId, nodes } = params;
-      await client.kubernetes.recycleNodes(clusterId, poolId, { nodes });
+      await createClient(context).kubernetes.recycleNodes(clusterId, poolId, { nodes });
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -259,7 +259,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'List all available Kubernetes versions',
     parameters: schemas.getVersionsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getVersions();
+      const result = await createClient(context).kubernetes.getVersions();
       return formatKubernetesVersions(result);
     })
   });
@@ -268,7 +268,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get the kubeconfig for a Kubernetes cluster',
     parameters: schemas.getKubeconfigSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getKubeconfig(params.id);
+      const result = await createClient(context).kubernetes.getKubeconfig(params.id);
       return result.kubeconfig;
     })
   });
@@ -277,7 +277,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get the API endpoints for a Kubernetes cluster',
     parameters: schemas.getAPIEndpointsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getAPIEndpoints(params.id);
+      const result = await createClient(context).kubernetes.getAPIEndpoints(params.id);
       return formatAPIEndpoints(result);
     })
   });
@@ -286,7 +286,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Recycle all nodes in a Kubernetes cluster',
     parameters: schemas.recycleClusterSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.recycleCluster(params.id);
+      await createClient(context).kubernetes.recycleCluster(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -295,7 +295,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Upgrade a Kubernetes cluster to the latest patch version',
     parameters: schemas.upgradeClusterSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.upgradeCluster(params.id);
+      await createClient(context).kubernetes.upgradeCluster(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -306,7 +306,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a node from a Kubernetes cluster',
     parameters: schemas.deleteNodeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.deleteNode(params.clusterId, params.nodeId);
+      await createClient(context).kubernetes.deleteNode(params.clusterId, params.nodeId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -315,7 +315,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Recycle a node in a Kubernetes cluster',
     parameters: schemas.recycleNodeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.recycleNode(params.clusterId, params.nodeId);
+      await createClient(context).kubernetes.recycleNode(params.clusterId, params.nodeId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -326,7 +326,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get the dashboard URL for a Kubernetes cluster',
     parameters: schemas.getDashboardURLSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getDashboardURL(params.id);
+      const result = await createClient(context).kubernetes.getDashboardURL(params.id);
       return formatDashboardURL(result);
     })
   });
@@ -335,7 +335,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete the service token for a Kubernetes cluster',
     parameters: schemas.deleteServiceTokenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.kubernetes.deleteServiceToken(params.id);
+      await createClient(context).kubernetes.deleteServiceToken(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -346,7 +346,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific Kubernetes version',
     parameters: schemas.getVersionSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getVersion(params.version);
+      const result = await createClient(context).kubernetes.getVersion(params.version);
       return result.id;
     })
   });
@@ -355,7 +355,7 @@ export function registerKubernetesTools(server: FastMCP, client: LinodeClient) {
     description: 'List all available Kubernetes types',
     parameters: schemas.getTypesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.kubernetes.getTypes();
+      const result = await createClient(context).kubernetes.getTypes();
       return formatKubernetesTypes(result);
     })
   });

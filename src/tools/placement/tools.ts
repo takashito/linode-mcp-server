@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient, PlacementGroup } from '../../client';
+import { createClient, LinodeClient, PlacementGroup } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -15,7 +15,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
           page: params.page,
           page_size: params.page_size
         };
-        const result = await client.placement.getPlacementGroups(paginationParams);
+        const result = await createClient(context).placement.getPlacementGroups(paginationParams);
         
         // Check if result and result.data exist before accessing properties
         if (!result || !result.data) {
@@ -55,7 +55,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
           };
         }
         
-        const result = await client.placement.getPlacementGroup(params.id);
+        const result = await createClient(context).placement.getPlacementGroup(params.id);
         
         if (!result) {
       return {
@@ -85,7 +85,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createPlacementGroupSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       try {
-        const result = await client.placement.createPlacementGroup(params);
+        const result = await createClient(context).placement.createPlacementGroup(params);
         return JSON.stringify(result, null, 2);
       } catch (error: any) {
         const errorMessage = error?.message || 'Unknown error occurred';
@@ -103,7 +103,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         const { id, ...data } = params;
-        const result = await client.placement.updatePlacementGroup(id, data);
+        const result = await createClient(context).placement.updatePlacementGroup(id, data);
         return JSON.stringify(result, null, 2);
       } catch (error: any) {
         const errorMessage = error?.message || 'Unknown error occurred';
@@ -120,7 +120,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.deletePlacementGroupSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       try {
-        await client.placement.deletePlacementGroup(params.id);
+        await createClient(context).placement.deletePlacementGroup(params.id);
         return JSON.stringify({ success: true }, null, 2);
       } catch (error: any) {
         const errorMessage = error?.message || 'Unknown error occurred';
@@ -137,7 +137,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.assignInstancesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       try {
-        const result = await client.placement.assignInstances(params.id, { linodes: params.linodes });
+        const result = await createClient(context).placement.assignInstances(params.id, { linodes: params.linodes });
         return JSON.stringify(result, null, 2);
       } catch (error: any) {
         const errorMessage = error?.message || 'Unknown error occurred';
@@ -154,7 +154,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.unassignInstancesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       try {
-        const result = await client.placement.unassignInstances(params.id, { linodes: params.linodes });
+        const result = await createClient(context).placement.unassignInstances(params.id, { linodes: params.linodes });
         return JSON.stringify(result, null, 2);
       } catch (error: any) {
         const errorMessage = error?.message || 'Unknown error occurred';

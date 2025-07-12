@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -10,7 +10,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get your user profile information',
     parameters: schemas.getProfileSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getProfile();
+      const result = await createClient(context).profile.getProfile();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -19,7 +19,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Update your user profile information',
     parameters: schemas.updateProfileSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.updateProfile(params);
+      const result = await createClient(context).profile.updateProfile(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -34,7 +34,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.profile.getSSHKeys(paginationParams);
+      const result = await createClient(context).profile.getSSHKeys(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -43,7 +43,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific SSH key',
     parameters: schemas.getSSHKeySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getSSHKey(params.id);
+      const result = await createClient(context).profile.getSSHKey(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -52,7 +52,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Add a new SSH key to your profile',
     parameters: schemas.createSSHKeySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.createSSHKey(params);
+      const result = await createClient(context).profile.createSSHKey(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -62,7 +62,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateSSHKeySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
-      const result = await client.profile.updateSSHKey(id, updateData);
+      const result = await createClient(context).profile.updateSSHKey(id, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -71,7 +71,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete an SSH key from your profile',
     parameters: schemas.deleteSSHKeySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.deleteSSHKey(params.id);
+      await createClient(context).profile.deleteSSHKey(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -86,7 +86,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.profile.getAPITokens(paginationParams);
+      const result = await createClient(context).profile.getAPITokens(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -95,7 +95,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific API token',
     parameters: schemas.getAPITokenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getAPIToken(params.id);
+      const result = await createClient(context).profile.getAPIToken(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -104,7 +104,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new personal access token',
     parameters: schemas.createPersonalAccessTokenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.createPersonalAccessToken(params);
+      const result = await createClient(context).profile.createPersonalAccessToken(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -114,7 +114,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateTokenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
-      const result = await client.profile.updateToken(id, updateData);
+      const result = await createClient(context).profile.updateToken(id, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -123,7 +123,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete an API token',
     parameters: schemas.deleteTokenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.deleteToken(params.id);
+      await createClient(context).profile.deleteToken(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -134,7 +134,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a two-factor authentication secret and QR code',
     parameters: schemas.getTwoFactorSecretSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getTwoFactorSecret();
+      const result = await createClient(context).profile.getTwoFactorSecret();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -143,7 +143,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Enable two-factor authentication for your account',
     parameters: schemas.enableTwoFactorSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.enableTwoFactor(params);
+      await createClient(context).profile.enableTwoFactor(params);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -152,7 +152,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Disable two-factor authentication for your account',
     parameters: schemas.disableTwoFactorSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.disableTwoFactor(params);
+      await createClient(context).profile.disableTwoFactor(params);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -167,7 +167,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.profile.getAuthorizedApps(paginationParams);
+      const result = await createClient(context).profile.getAuthorizedApps(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -176,7 +176,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details about a specific authorized OAuth app',
     parameters: schemas.getAuthorizedAppSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getAuthorizedApp(params.appId);
+      const result = await createClient(context).profile.getAuthorizedApp(params.appId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -185,7 +185,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Revoke access for an authorized OAuth app',
     parameters: schemas.revokeAuthorizedAppSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.revokeAuthorizedApp(params.appId);
+      await createClient(context).profile.revokeAuthorizedApp(params.appId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -200,7 +200,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.profile.getTrustedDevices(paginationParams);
+      const result = await createClient(context).profile.getTrustedDevices(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -209,7 +209,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details about a specific trusted device',
     parameters: schemas.getTrustedDeviceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getTrustedDevice(params.deviceId);
+      const result = await createClient(context).profile.getTrustedDevice(params.deviceId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -218,7 +218,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Revoke trusted status for a device',
     parameters: schemas.revokeTrustedDeviceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.revokeTrustedDevice(params.deviceId);
+      await createClient(context).profile.revokeTrustedDevice(params.deviceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -233,7 +233,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.profile.getGrants(paginationParams);
+      const result = await createClient(context).profile.getGrants(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -248,7 +248,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.profile.getLogins(paginationParams);
+      const result = await createClient(context).profile.getLogins(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -257,7 +257,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details about a specific login event',
     parameters: schemas.getLoginSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getLogin(params.loginId);
+      const result = await createClient(context).profile.getLogin(params.loginId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -268,7 +268,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete the phone number associated with your account',
     parameters: schemas.deletePhoneNumberSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.deletePhoneNumber();
+      await createClient(context).profile.deletePhoneNumber();
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -277,7 +277,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Send a verification code to a phone number',
     parameters: schemas.sendPhoneVerificationSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.sendPhoneVerification(params);
+      await createClient(context).profile.sendPhoneVerification(params);
       return JSON.stringify({ success: true, message: "Verification code sent" }, null, 2);
     })
   });
@@ -286,7 +286,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Verify a phone number with a received code',
     parameters: schemas.verifyPhoneNumberSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.verifyPhoneNumber(params);
+      await createClient(context).profile.verifyPhoneNumber(params);
       return JSON.stringify({ success: true, message: "Phone number verified" }, null, 2);
     })
   });
@@ -297,7 +297,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get user interface preferences',
     parameters: schemas.getUserPreferencesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getUserPreferences();
+      const result = await createClient(context).profile.getUserPreferences();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -306,7 +306,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Update user interface preferences',
     parameters: schemas.updateUserPreferencesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.updateUserPreferences(params);
+      const result = await createClient(context).profile.updateUserPreferences(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -317,7 +317,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Get available security questions',
     parameters: schemas.getSecurityQuestionsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.profile.getSecurityQuestions();
+      const result = await createClient(context).profile.getSecurityQuestions();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -326,7 +326,7 @@ export function registerProfileTools(server: FastMCP, client: LinodeClient) {
     description: 'Answer security questions for account recovery',
     parameters: schemas.answerSecurityQuestionsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.profile.answerSecurityQuestions(params.answers);
+      await createClient(context).profile.answerSecurityQuestions(params.answers);
       return JSON.stringify({ success: true, message: "Security questions answered" }, null, 2);
     })
   });

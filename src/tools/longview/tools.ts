@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -14,7 +14,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.longview.getLongviewClients(paginationParams);
+      const result = await createClient(context).longview.getLongviewClients(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -23,7 +23,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific Longview client',
     parameters: schemas.getLongviewClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.longview.getLongviewClient(params.id);
+      const result = await createClient(context).longview.getLongviewClient(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -32,7 +32,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new Longview client',
     parameters: schemas.createLongviewClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.longview.createLongviewClient(params);
+      const result = await createClient(context).longview.createLongviewClient(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -42,7 +42,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateLongviewClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
-      const result = await client.longview.updateLongviewClient(id, updateData);
+      const result = await createClient(context).longview.updateLongviewClient(id, updateData);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -51,7 +51,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a Longview client',
     parameters: schemas.deleteLongviewClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.longview.deleteLongviewClient(params.id);
+      await createClient(context).longview.deleteLongviewClient(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -66,7 +66,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.longview.getLongviewSubscriptions(paginationParams);
+      const result = await createClient(context).longview.getLongviewSubscriptions(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -75,7 +75,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific Longview subscription plan',
     parameters: schemas.getLongviewSubscriptionSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.longview.getLongviewSubscription(params.id);
+      const result = await createClient(context).longview.getLongviewSubscription(params.id);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -86,7 +86,7 @@ export function registerLongviewTools(server: FastMCP, client: LinodeClient) {
     description: 'Get monitoring data from a Longview client',
     parameters: schemas.getLongviewDataSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.longview.getLongviewData(params.id);
+      const result = await createClient(context).longview.getLongviewData(params.id);
       return JSON.stringify(result, null, 2);
     })
   });

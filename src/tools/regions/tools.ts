@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -9,8 +9,8 @@ export function registerRegionTools(server: FastMCP, client: LinodeClient) {
     name: 'list_regions',
     description: 'Get a list of all available regions',
     parameters: schemas.listRegionsSchema,
-    execute: async () => {
-      const result = await client.regions.getRegions();
+    execute: async (params: any, context?: any) => {
+      const result = await createClient(context).regions.getRegions();
       return JSON.stringify(result, null, 2);
     }
   });
@@ -19,7 +19,7 @@ export function registerRegionTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific region',
     parameters: schemas.getRegionSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.regions.getRegion(params.id);
+      const result = await createClient(context).regions.getRegion(params.id);
       return JSON.stringify(result, null, 2);
     })
   });

@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient } from '../../client';
+import { createClient, LinodeClient } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -10,7 +10,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get your account information',
     parameters: schemas.getAccountSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getAccount();
+      const result = await createClient(context).account.getAccount();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -19,7 +19,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Update your account information',
     parameters: schemas.updateAccountSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.updateAccount(params);
+      const result = await createClient(context).account.updateAccount(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -30,7 +30,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'List legal agreements',
     parameters: schemas.listAgreementsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getAgreements();
+      const result = await createClient(context).account.getAgreements();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -39,7 +39,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Acknowledge legal agreements',
     parameters: schemas.acknowledgeAgreementsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.acknowledgeAgreements(params);
+      await createClient(context).account.acknowledgeAgreements(params);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -50,7 +50,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'List available services by region',
     parameters: schemas.listServiceAvailabilitySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getServiceAvailability();
+      const result = await createClient(context).account.getServiceAvailability();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -59,7 +59,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get service availability for a specific region',
     parameters: schemas.getRegionServiceAvailabilitySchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getRegionServiceAvailability(params.regionId);
+      const result = await createClient(context).account.getRegionServiceAvailability(params.regionId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -70,7 +70,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Cancel your account',
     parameters: schemas.cancelAccountSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.cancelAccount(params);
+      await createClient(context).account.cancelAccount(params);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -80,12 +80,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_child_accounts',
     description: 'List child accounts',
     parameters: schemas.listChildAccountsSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getChildAccounts(paginationParams);
+      const result = await createClient(context).account.getChildAccounts(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -94,7 +94,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a child account',
     parameters: schemas.getChildAccountSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getChildAccount(params.euuid);
+      const result = await createClient(context).account.getChildAccount(params.euuid);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -104,7 +104,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createProxyTokenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { euuid, ...data } = params;
-      const result = await client.account.createProxyToken(euuid, data);
+      const result = await createClient(context).account.createProxyToken(euuid, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -114,12 +114,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_events',
     description: 'List account events',
     parameters: schemas.listEventsSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getEvents(paginationParams);
+      const result = await createClient(context).account.getEvents(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -128,7 +128,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a specific event',
     parameters: schemas.getEventSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getEvent(params.eventId);
+      const result = await createClient(context).account.getEvent(params.eventId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -137,7 +137,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Mark an event as read',
     parameters: schemas.markEventAsReadSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.markEventAsRead(params.eventId);
+      await createClient(context).account.markEventAsRead(params.eventId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -146,7 +146,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Mark an event as seen',
     parameters: schemas.markEventAsSeenSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.markEventAsSeen(params.eventId);
+      await createClient(context).account.markEventAsSeen(params.eventId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -156,12 +156,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_invoices',
     description: 'List invoices',
     parameters: schemas.listInvoicesSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getInvoices(paginationParams);
+      const result = await createClient(context).account.getInvoices(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -170,7 +170,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a specific invoice',
     parameters: schemas.getInvoiceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getInvoice(params.invoiceId);
+      const result = await createClient(context).account.getInvoice(params.invoiceId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -178,9 +178,9 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_invoice_items',
     description: 'List items for a specific invoice',
     parameters: schemas.listInvoiceItemsSchema,
-    execute: withErrorHandling(async (params: { invoiceId: number; page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { invoiceId: number; page?: number; page_size?: number }, context?: any) => {
       const { invoiceId, ...paginationParams } = params;
-      const result = await client.account.getInvoiceItems(invoiceId, paginationParams);
+      const result = await createClient(context).account.getInvoiceItems(invoiceId, paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -190,12 +190,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_account_logins',
     description: 'List account logins',
     parameters: schemas.listAccountLoginsSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getLogins(paginationParams);
+      const result = await createClient(context).account.getLogins(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -204,7 +204,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a specific account login',
     parameters: schemas.getAccountLoginSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getLogin(params.loginId);
+      const result = await createClient(context).account.getLogin(params.loginId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -214,12 +214,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_maintenances',
     description: 'List maintenance events',
     parameters: schemas.listMaintenancesSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getMaintenances(paginationParams);
+      const result = await createClient(context).account.getMaintenances(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -230,7 +230,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'List notifications',
     parameters: schemas.listNotificationsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getNotifications();
+      const result = await createClient(context).account.getNotifications();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -240,12 +240,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_oauth_clients',
     description: 'List OAuth clients',
     parameters: schemas.listOAuthClientsSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getOAuthClients(paginationParams);
+      const result = await createClient(context).account.getOAuthClients(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -254,7 +254,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Create an OAuth client',
     parameters: schemas.createOAuthClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.createOAuthClient(params);
+      const result = await createClient(context).account.createOAuthClient(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -263,7 +263,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get an OAuth client',
     parameters: schemas.getOAuthClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getOAuthClient(params.clientId);
+      const result = await createClient(context).account.getOAuthClient(params.clientId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -273,7 +273,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateOAuthClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { clientId, ...data } = params;
-      const result = await client.account.updateOAuthClient(clientId, data);
+      const result = await createClient(context).account.updateOAuthClient(clientId, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -282,7 +282,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete an OAuth client',
     parameters: schemas.deleteOAuthClientSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.deleteOAuthClient(params.clientId);
+      await createClient(context).account.deleteOAuthClient(params.clientId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -291,7 +291,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Reset an OAuth client secret',
     parameters: schemas.resetOAuthClientSecretSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.resetOAuthClientSecret(params.clientId);
+      const result = await createClient(context).account.resetOAuthClientSecret(params.clientId);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -302,7 +302,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get account settings',
     parameters: schemas.getAccountSettingsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getAccountSettings();
+      const result = await createClient(context).account.getAccountSettings();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -311,7 +311,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Update account settings',
     parameters: schemas.updateAccountSettingsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.updateAccountSettings(params);
+      const result = await createClient(context).account.updateAccountSettings(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -320,7 +320,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Enable Linode Managed service',
     parameters: schemas.enableManagedServiceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.enableManagedService();
+      await createClient(context).account.enableManagedService();
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -331,7 +331,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get network transfer information for the entire account',
     parameters: schemas.getAccountNetworkTransferSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getNetworkTransfer();
+      const result = await createClient(context).account.getNetworkTransfer();
       return JSON.stringify(result, null, 2);
     })
   });
@@ -341,12 +341,12 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     name: 'list_users',
     description: 'List users',
     parameters: schemas.listUsersSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
       };
-      const result = await client.account.getUsers(paginationParams);
+      const result = await createClient(context).account.getUsers(paginationParams);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -355,7 +355,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a user',
     parameters: schemas.createUserSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.createUser(params);
+      const result = await createClient(context).account.createUser(params);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -364,7 +364,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a user',
     parameters: schemas.getUserSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getUser(params.username);
+      const result = await createClient(context).account.getUser(params.username);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -374,7 +374,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateUserSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { username, ...data } = params;
-      const result = await client.account.updateUser(username, data);
+      const result = await createClient(context).account.updateUser(username, data);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -383,7 +383,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a user',
     parameters: schemas.deleteUserSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.account.deleteUser(params.username);
+      await createClient(context).account.deleteUser(params.username);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -393,7 +393,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a user\'s grants',
     parameters: schemas.getUserGrantsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.account.getUserGrants(params.username);
+      const result = await createClient(context).account.getUserGrants(params.username);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -405,7 +405,7 @@ export function registerAccountTools(server: FastMCP, client: LinodeClient) {
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { username, ...data } = params;
       const updateData = data as any; // Type assertion to resolve the type mismatch
-      const result = await client.account.updateUserGrants(username, updateData);
+      const result = await createClient(context).account.updateUserGrants(username, updateData);
       return JSON.stringify(result, null, 2);
     })
   });

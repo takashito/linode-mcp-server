@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient, Domain, DomainRecord } from '../../client';
+import { createClient, LinodeClient, Domain, DomainRecord } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -146,7 +146,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all domains',
     parameters: schemas.listDomainsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.getDomains(params);
+      const result = await createClient(context).domains.getDomains(params);
       return formatDomains(result.data);
     })
   });
@@ -155,7 +155,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific domain',
     parameters: schemas.getDomainSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.getDomain(params.id);
+      const result = await createClient(context).domains.getDomain(params.id);
       return formatDomain(result);
     })
   });
@@ -164,7 +164,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new domain',
     parameters: schemas.createDomainSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.createDomain(params);
+      const result = await createClient(context).domains.createDomain(params);
       return formatDomain(result);
     })
   });
@@ -174,7 +174,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateDomainSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
-      const result = await client.domains.updateDomain(id, data);
+      const result = await createClient(context).domains.updateDomain(id, data);
       return formatDomain(result);
     })
   });
@@ -183,7 +183,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a domain',
     parameters: schemas.deleteDomainSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.domains.deleteDomain(params.id);
+      await createClient(context).domains.deleteDomain(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -192,7 +192,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Get DNS zone file for a domain',
     parameters: schemas.getZoneFileSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.getZoneFile(params.id);
+      const result = await createClient(context).domains.getZoneFile(params.id);
       return result.zone_file;
     })
   });
@@ -202,7 +202,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all records for a domain',
     parameters: schemas.listDomainRecordsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.getDomainRecords(params.id, {
+      const result = await createClient(context).domains.getDomainRecords(params.id, {
         page: params.page,
         page_size: params.page_size
       });
@@ -214,7 +214,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific domain record',
     parameters: schemas.getDomainRecordSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.getDomainRecord(params.domainId, params.recordId);
+      const result = await createClient(context).domains.getDomainRecord(params.domainId, params.recordId);
       return formatDomainRecord(result);
     })
   });
@@ -224,7 +224,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.createDomainRecordSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { domainId, ...data } = params;
-      const result = await client.domains.createDomainRecord(domainId, data);
+      const result = await createClient(context).domains.createDomainRecord(domainId, data);
       return formatDomainRecord(result);
     })
   });
@@ -234,7 +234,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateDomainRecordSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { domainId, recordId, ...data } = params;
-      const result = await client.domains.updateDomainRecord(domainId, recordId, data);
+      const result = await createClient(context).domains.updateDomainRecord(domainId, recordId, data);
       return formatDomainRecord(result);
     })
   });
@@ -243,7 +243,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a domain record',
     parameters: schemas.deleteDomainRecordSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.domains.deleteDomainRecord(params.domainId, params.recordId);
+      await createClient(context).domains.deleteDomainRecord(params.domainId, params.recordId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -253,7 +253,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     description: 'Import a domain zone from a remote nameserver',
     parameters: schemas.importZoneSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.domains.importZone(params);
+      const result = await createClient(context).domains.importZone(params);
       return formatDomain(result);
     })
   });
@@ -263,7 +263,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.cloneDomainSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, domain } = params;
-      const result = await client.domains.cloneDomain(id, { domain });
+      const result = await createClient(context).domains.cloneDomain(id, { domain });
       return formatDomain(result);
     })
   });

@@ -1,5 +1,5 @@
 import { FastMCP } from 'fastmcp';
-import { LinodeClient, DatabaseEngine, DatabaseType, DatabaseInstance, MySQLDatabaseInstance, PostgreSQLDatabaseInstance, DatabaseCredentials, SSLCertificate } from '../../client';
+import { createClient, LinodeClient, DatabaseEngine, DatabaseType, DatabaseInstance, MySQLDatabaseInstance, DatabaseCredentials, SSLCertificate } from '../../client';
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -157,7 +157,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all available database engines',
     parameters: schemas.listEnginesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getEngines(params);
+      const result = await createClient(context).databases.getEngines(params);
       return formatDatabaseEngines(result.data);
     })
   });
@@ -166,7 +166,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific database engine',
     parameters: schemas.getEngineSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getEngine(params.engineId);
+      const result = await createClient(context).databases.getEngine(params.engineId);
       return formatDatabaseEngine(result);
     })
   });
@@ -177,7 +177,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all available database types',
     parameters: schemas.listTypesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getTypes(params);
+      const result = await createClient(context).databases.getTypes(params);
       return formatDatabaseTypes(result.data);
     })
   });
@@ -186,7 +186,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific database type',
     parameters: schemas.getTypeSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getType(params.typeId);
+      const result = await createClient(context).databases.getType(params.typeId);
       return formatDatabaseType(result);
     })
   });
@@ -197,7 +197,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all database instances',
     parameters: schemas.listDatabaseInstancesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getDatabaseInstances(params);
+      const result = await createClient(context).databases.getDatabaseInstances(params);
       return formatDatabaseInstances(result.data);
     })
   });
@@ -208,7 +208,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all MySQL database instances',
     parameters: schemas.listMySQLInstancesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getMySQLInstances(params);
+      const result = await createClient(context).databases.getMySQLInstances(params);
       return formatDatabaseInstances(result.data);
     })
   });
@@ -217,7 +217,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific MySQL database instance',
     parameters: schemas.getMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getMySQLInstance(params.instanceId);
+      const result = await createClient(context).databases.getMySQLInstance(params.instanceId);
       return formatDatabaseInstance(result);
     })
   });
@@ -226,7 +226,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new MySQL database instance',
     parameters: schemas.createMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.createMySQLInstance(params);
+      const result = await createClient(context).databases.createMySQLInstance(params);
       return formatDatabaseInstance(result);
     })
   });
@@ -236,7 +236,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updateMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { instanceId, ...data } = params;
-      const result = await client.databases.updateMySQLInstance(instanceId, data);
+      const result = await createClient(context).databases.updateMySQLInstance(instanceId, data);
       return formatDatabaseInstance(result);
     })
   });
@@ -245,7 +245,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a MySQL database instance',
     parameters: schemas.deleteMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.deleteMySQLInstance(params.instanceId);
+      await createClient(context).databases.deleteMySQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -254,7 +254,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get credentials for a MySQL database instance',
     parameters: schemas.getMySQLCredentialsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getMySQLCredentials(params.instanceId);
+      const result = await createClient(context).databases.getMySQLCredentials(params.instanceId);
       return formatDatabaseCredentials(result);
     })
   });
@@ -263,7 +263,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Reset credentials for a MySQL database instance',
     parameters: schemas.resetMySQLCredentialsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.resetMySQLCredentials(params.instanceId);
+      const result = await createClient(context).databases.resetMySQLCredentials(params.instanceId);
       return formatDatabaseCredentials(result);
     })
   });
@@ -272,7 +272,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get the SSL certificate for a MySQL database instance',
     parameters: schemas.getMySQLSSLCertificateSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getMySQLSSLCertificate(params.instanceId);
+      const result = await createClient(context).databases.getMySQLSSLCertificate(params.instanceId);
       return formatSSLCertificate(result);
     })
   });
@@ -281,7 +281,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Apply the latest updates to a MySQL database instance',
     parameters: schemas.patchMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.patchMySQLInstance(params.instanceId);
+      await createClient(context).databases.patchMySQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -290,7 +290,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Suspend a MySQL database instance',
     parameters: schemas.suspendMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.suspendMySQLInstance(params.instanceId);
+      await createClient(context).databases.suspendMySQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -299,7 +299,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Resume a suspended MySQL database instance',
     parameters: schemas.resumeMySQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.resumeMySQLInstance(params.instanceId);
+      await createClient(context).databases.resumeMySQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -310,7 +310,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get a list of all PostgreSQL database instances',
     parameters: schemas.listPostgreSQLInstancesSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getPostgreSQLInstances(params);
+      const result = await createClient(context).databases.getPostgreSQLInstances(params);
       return formatDatabaseInstances(result.data);
     })
   });
@@ -319,7 +319,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get details for a specific PostgreSQL database instance',
     parameters: schemas.getPostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getPostgreSQLInstance(params.instanceId);
+      const result = await createClient(context).databases.getPostgreSQLInstance(params.instanceId);
       return formatDatabaseInstance(result);
     })
   });
@@ -328,7 +328,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Create a new PostgreSQL database instance',
     parameters: schemas.createPostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.createPostgreSQLInstance(params);
+      const result = await createClient(context).databases.createPostgreSQLInstance(params);
       return formatDatabaseInstance(result);
     })
   });
@@ -338,7 +338,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     parameters: schemas.updatePostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { instanceId, ...data } = params;
-      const result = await client.databases.updatePostgreSQLInstance(instanceId, data);
+      const result = await createClient(context).databases.updatePostgreSQLInstance(instanceId, data);
       return formatDatabaseInstance(result);
     })
   });
@@ -347,7 +347,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Delete a PostgreSQL database instance',
     parameters: schemas.deletePostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.deletePostgreSQLInstance(params.instanceId);
+      await createClient(context).databases.deletePostgreSQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -356,7 +356,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get credentials for a PostgreSQL database instance',
     parameters: schemas.getPostgreSQLCredentialsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getPostgreSQLCredentials(params.instanceId);
+      const result = await createClient(context).databases.getPostgreSQLCredentials(params.instanceId);
       return formatDatabaseCredentials(result);
     })
   });
@@ -365,7 +365,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Reset credentials for a PostgreSQL database instance',
     parameters: schemas.resetPostgreSQLCredentialsSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.resetPostgreSQLCredentials(params.instanceId);
+      const result = await createClient(context).databases.resetPostgreSQLCredentials(params.instanceId);
       return formatDatabaseCredentials(result);
     })
   });
@@ -374,7 +374,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Get the SSL certificate for a PostgreSQL database instance',
     parameters: schemas.getPostgreSQLSSLCertificateSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await client.databases.getPostgreSQLSSLCertificate(params.instanceId);
+      const result = await createClient(context).databases.getPostgreSQLSSLCertificate(params.instanceId);
       return formatSSLCertificate(result);
     })
   });
@@ -383,7 +383,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Apply the latest updates to a PostgreSQL database instance',
     parameters: schemas.patchPostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.patchPostgreSQLInstance(params.instanceId);
+      await createClient(context).databases.patchPostgreSQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -392,7 +392,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Suspend a PostgreSQL database instance',
     parameters: schemas.suspendPostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.suspendPostgreSQLInstance(params.instanceId);
+      await createClient(context).databases.suspendPostgreSQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
@@ -401,7 +401,7 @@ export function registerDatabaseTools(server: FastMCP, client: LinodeClient) {
     description: 'Resume a suspended PostgreSQL database instance',
     parameters: schemas.resumePostgreSQLInstanceSchema,
     execute: withErrorHandling(async (params: any, context?: any) => {
-      await client.databases.resumePostgreSQLInstance(params.instanceId);
+      await createClient(context).databases.resumePostgreSQLInstance(params.instanceId);
       return JSON.stringify({ success: true }, null, 2);
     })
   });
