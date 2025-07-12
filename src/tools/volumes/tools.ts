@@ -9,7 +9,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'list_volumes',
     description: 'Get a list of all volumes',
     parameters: schemas.listVolumesSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.volumes.getVolumes(params);
       return JSON.stringify(result, null, 2);
     })
@@ -18,7 +18,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'get_volume',
     description: 'Get details for a specific volume',
     parameters: schemas.getVolumeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.volumes.getVolumeById(params.id);
       return JSON.stringify(result, null, 2);
     })
@@ -27,7 +27,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'create_volume',
     description: 'Create a new volume',
     parameters: schemas.createVolumeSchema,
-    execute: withErrorHandling(async (params: any) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const createData: CreateVolumeRequest = {
         region: String(params.region),
         size: Number(params.size),
@@ -45,7 +45,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'delete_volume',
     description: 'Delete a volume',
     parameters: schemas.deleteVolumeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.volumes.deleteVolume(params.id);
       return JSON.stringify(result, null, 2);
     })
@@ -54,7 +54,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'attach_volume',
     description: 'Attach a volume to a Linode instance',
     parameters: schemas.attachVolumeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.volumes.attachVolume(params.id, {
         linode_id: params.linode_id,
         config_id: params.config_id,
@@ -66,7 +66,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'detach_volume',
     description: 'Detach a volume from a Linode instance',
     parameters: schemas.detachVolumeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.volumes.detachVolume(params.id);
       return JSON.stringify(result, null, 2);
     })
@@ -75,7 +75,7 @@ export function registerVolumeTools(server: FastMCP, client: LinodeClient) {
     name: 'resize_volume',
     description: 'Resize a volume',
     parameters: schemas.resizeVolumeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.volumes.resizeVolume(params.id, { size: params.size });
       return JSON.stringify(result, null, 2);
     })

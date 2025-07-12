@@ -9,7 +9,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'list_nodebalancers',
     description: 'Get a list of all NodeBalancers',
     parameters: schemas.listNodeBalancersSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.getNodeBalancers(params);
       return JSON.stringify(result, null, 2);
     })
@@ -18,7 +18,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'get_nodebalancer',
     description: 'Get details for a specific NodeBalancer',
     parameters: schemas.getNodeBalancerSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.getNodeBalancer(params.id);
       return JSON.stringify(result, null, 2);
     })
@@ -27,7 +27,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'create_nodebalancer',
     description: 'Create a new NodeBalancer',
     parameters: schemas.createNodeBalancerSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const createParams: CreateNodeBalancerRequest = {
         region: String(params.region),
         label: params.label,
@@ -42,7 +42,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'delete_nodebalancer',
     description: 'Delete a NodeBalancer',
     parameters: schemas.deleteNodeBalancerSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.deleteNodeBalancer(params.id);
       return JSON.stringify(result, null, 2);
     })
@@ -51,7 +51,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'list_nodebalancer_configs',
     description: 'Get a list of config nodes for a NodeBalancer',
     parameters: schemas.listNodeBalancerConfigsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.getNodeBalancerConfigs(params.nodebalancer_id);
       return JSON.stringify(result, null, 2);
     })
@@ -60,7 +60,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'create_nodebalancer_config',
     description: 'Create a new config for a NodeBalancer',
     parameters: schemas.createNodeBalancerConfigSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { nodebalancer_id, ...configParams } = params;
       const result = await client.nodeBalancers.createNodeBalancerConfig(nodebalancer_id, configParams);
       return JSON.stringify(result, null, 2);
@@ -70,7 +70,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'delete_nodebalancer_config',
     description: 'Delete a NodeBalancer config',
     parameters: schemas.deleteNodeBalancerConfigSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.deleteNodeBalancerConfig(params.nodebalancer_id, params.config_id);
       return JSON.stringify(result, null, 2);
     })
@@ -79,7 +79,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'list_nodebalancer_nodes',
     description: 'Get a list of nodes for a NodeBalancer config',
     parameters: schemas.listNodeBalancerNodesSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.getNodeBalancerConfigNodes(params.nodebalancer_id, params.config_id);
       return JSON.stringify(result, null, 2);
     })
@@ -88,7 +88,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'create_nodebalancer_node',
     description: 'Create a new node for a NodeBalancer config',
     parameters: schemas.createNodeBalancerNodeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { nodebalancer_id, config_id, ...nodeParams } = params;
       const result = await client.nodeBalancers.createNodeBalancerConfigNode(nodebalancer_id, config_id, nodeParams);
       return JSON.stringify(result, null, 2);
@@ -98,7 +98,7 @@ export function registerNodeBalancerTools(server: FastMCP, client: LinodeClient)
     name: 'delete_nodebalancer_node',
     description: 'Delete a node from a NodeBalancer config',
     parameters: schemas.deleteNodeBalancerNodeSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.nodeBalancers.deleteNodeBalancerConfigNode(
         params.nodebalancer_id,
         params.config_id,

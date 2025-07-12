@@ -9,7 +9,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'list_tickets',
     description: 'List support tickets for your account',
     parameters: schemas.listTicketsSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
@@ -24,7 +24,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'get_ticket',
     description: 'Get details of a specific support ticket',
     parameters: schemas.getTicketSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.support.getTicket(params.ticket_id);
       return JSON.stringify(result, null, 2);
     })
@@ -35,7 +35,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'create_ticket',
     description: 'Open a new support ticket',
     parameters: schemas.createTicketSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.support.createTicket(params);
       return JSON.stringify(result, null, 2);
     })
@@ -46,7 +46,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'close_ticket',
     description: 'Close a support ticket',
     parameters: schemas.closeTicketSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.support.closeTicket(params.ticket_id);
       return JSON.stringify(result, null, 2);
     })
@@ -57,7 +57,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'list_replies',
     description: 'List replies to a support ticket',
     parameters: schemas.listRepliesSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
         page_size: params.page_size
@@ -72,7 +72,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'create_reply',
     description: 'Reply to a support ticket',
     parameters: schemas.createReplySchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { ticket_id, description } = params;
       const result = await client.support.createReply(ticket_id, { description });
       return JSON.stringify(result, null, 2);
@@ -84,7 +84,7 @@ export function registerSupportTools(server: FastMCP, client: LinodeClient) {
     name: 'upload_attachment',
     description: 'Upload an attachment to a support ticket',
     parameters: schemas.uploadAttachmentSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { ticket_id, file } = params;
       
       // Convert base64 string to File object

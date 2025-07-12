@@ -145,7 +145,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'list_domains',
     description: 'Get a list of all domains',
     parameters: schemas.listDomainsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.getDomains(params);
       return formatDomains(result.data);
     })
@@ -154,7 +154,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'get_domain',
     description: 'Get details for a specific domain',
     parameters: schemas.getDomainSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.getDomain(params.id);
       return formatDomain(result);
     })
@@ -163,7 +163,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'create_domain',
     description: 'Create a new domain',
     parameters: schemas.createDomainSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.createDomain(params);
       return formatDomain(result);
     })
@@ -172,7 +172,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'update_domain',
     description: 'Update an existing domain',
     parameters: schemas.updateDomainSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
       const result = await client.domains.updateDomain(id, data);
       return formatDomain(result);
@@ -182,7 +182,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'delete_domain',
     description: 'Delete a domain',
     parameters: schemas.deleteDomainSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       await client.domains.deleteDomain(params.id);
       return JSON.stringify({ success: true }, null, 2);
     })
@@ -191,7 +191,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'get_zone_file',
     description: 'Get DNS zone file for a domain',
     parameters: schemas.getZoneFileSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.getZoneFile(params.id);
       return result.zone_file;
     })
@@ -201,7 +201,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'list_domain_records',
     description: 'Get a list of all records for a domain',
     parameters: schemas.listDomainRecordsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.getDomainRecords(params.id, {
         page: params.page,
         page_size: params.page_size
@@ -213,7 +213,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'get_domain_record',
     description: 'Get details for a specific domain record',
     parameters: schemas.getDomainRecordSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.getDomainRecord(params.domainId, params.recordId);
       return formatDomainRecord(result);
     })
@@ -222,7 +222,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'create_domain_record',
     description: 'Create a new domain record',
     parameters: schemas.createDomainRecordSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { domainId, ...data } = params;
       const result = await client.domains.createDomainRecord(domainId, data);
       return formatDomainRecord(result);
@@ -232,7 +232,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'update_domain_record',
     description: 'Update an existing domain record',
     parameters: schemas.updateDomainRecordSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { domainId, recordId, ...data } = params;
       const result = await client.domains.updateDomainRecord(domainId, recordId, data);
       return formatDomainRecord(result);
@@ -242,7 +242,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'delete_domain_record',
     description: 'Delete a domain record',
     parameters: schemas.deleteDomainRecordSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       await client.domains.deleteDomainRecord(params.domainId, params.recordId);
       return JSON.stringify({ success: true }, null, 2);
     })
@@ -252,7 +252,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'import_domain_zone',
     description: 'Import a domain zone from a remote nameserver',
     parameters: schemas.importZoneSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.domains.importZone(params);
       return formatDomain(result);
     })
@@ -261,7 +261,7 @@ export function registerDomainTools(server: FastMCP, client: LinodeClient) {
     name: 'clone_domain',
     description: 'Clone an existing domain to a new domain',
     parameters: schemas.cloneDomainSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, domain } = params;
       const result = await client.domains.cloneDomain(id, { domain });
       return formatDomain(result);

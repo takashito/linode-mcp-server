@@ -15,7 +15,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'list_object_storage_clusters',
     description: 'Get a list of all Object Storage clusters',
     parameters: schemas.listClustersSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const clusters = await client.objectStorage.getClusters();
       return {
         content: [
@@ -30,7 +30,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'list_object_storage_endpoints',
     description: 'Get a list of all Object Storage endpoints with their types',
     parameters: schemas.listEndpointsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getEndpoints(params);
       return {
         content: [
@@ -45,7 +45,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'list_object_storage_buckets',
     description: 'Get a list of all Object Storage buckets',
     parameters: schemas.listBucketsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getBuckets(params);
       return {
         content: [
@@ -58,7 +58,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'get_object_storage_bucket',
     description: 'Get details for a specific Object Storage bucket',
     parameters: schemas.getBucketSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       // The client implementation expects region (cluster in client code) and bucket name
       const result = await client.objectStorage.getBucket(
         params.region, 
@@ -75,7 +75,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'create_object_storage_bucket',
     description: 'Create a new Object Storage bucket',
     parameters: schemas.createBucketSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       // Ensure parameters match the client's expectations
       // The Linode API expects 'label' for the bucket name and 'region' for the location
       const createParams = {
@@ -97,7 +97,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'delete_object_storage_bucket',
     description: 'Delete an Object Storage bucket',
     parameters: schemas.deleteBucketSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...data } = params;
       await client.objectStorage.deleteBucket(region, bucket);
       return {
@@ -111,7 +111,7 @@ export function registerObjectStorageTools(server: FastMCP, client: LinodeClient
     name: 'get_object_storage_bucket_access',
     description: 'Get access configuration for an Object Storage bucket',
     parameters: schemas.getBucketAccessSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...data } = params;
       const result = await client.objectStorage.getBucketAccess(region, bucket);
       return {
@@ -127,7 +127,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     name: 'update_object_storage_bucket_access',
     description: 'Update access configuration for an Object Storage bucket',
     parameters: schemas.updateBucketAccessSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...data } = params;
       const result = await client.objectStorage.updateBucketAccess(region, bucket, data);
       return {
@@ -145,7 +145,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     name: 'list_object_storage_objects',
     description: 'List objects in an Object Storage bucket',
     parameters: schemas.listObjectsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...paginationParams } = params;
       const result = await client.objectStorage.getObjects(region, bucket, paginationParams);
       return {
@@ -161,7 +161,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     name: 'get_object_storage_bucket_certificate',
     description: 'Get SSL/TLS certificate for an Object Storage bucket',
     parameters: schemas.getBucketCertificateSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
         const result = await client.objectStorage.getBucketCertificate(params.region, params.bucket);
         return {
           content: [
@@ -175,7 +175,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'upload_object_storage_bucket_certificate',
     description: 'Upload SSL/TLS certificate for an Object Storage bucket',
     parameters: schemas.uploadBucketCertificateSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, certificate, private_key } = params;
       const result = await client.objectStorage.uploadBucketCertificate(region, bucket, {
         certificate,
@@ -193,7 +193,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'delete_object_storage_bucket_certificate',
     description: 'Delete SSL/TLS certificate for an Object Storage bucket',
     parameters: schemas.deleteBucketCertificateSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       await client.objectStorage.deleteBucketCertificate(params.region, params.bucket);
       return {
         content: [
@@ -208,7 +208,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'list_object_storage_keys',
     description: 'Get a list of all Object Storage keys',
     parameters: schemas.listKeysSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getKeys(params);
       return {
         content: [
@@ -221,7 +221,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'get_object_storage_key',
     description: 'Get details for a specific Object Storage key',
     parameters: schemas.getKeySchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getKey(params.id);
       return {
         content: [
@@ -234,7 +234,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'create_object_storage_key',
     description: 'Create a new Object Storage key',
     parameters: schemas.createKeySchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.createKey(params);
       return {
         content: [
@@ -247,7 +247,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'update_object_storage_key',
     description: 'Update an Object Storage key',
     parameters: schemas.updateKeySchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
       const result = await client.objectStorage.updateKey(id, updateData);
       return {
@@ -261,7 +261,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'delete_object_storage_key',
     description: 'Delete an Object Storage key',
     parameters: schemas.deleteKeySchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       await client.objectStorage.deleteKey(params.id);
       return {
         content: [
@@ -276,7 +276,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     name: 'get_object_storage_default_bucket_access',
     description: 'Get default bucket access configuration',
     parameters: schemas.getDefaultBucketAccessSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getDefaultBucketAccess();
       return {
         content: [
@@ -293,7 +293,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     name: 'update_object_storage_default_bucket_access',
     description: 'Update default bucket access configuration',
     parameters: schemas.updateDefaultBucketAccessSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.updateDefaultBucketAccess(params);
       return {
         content: [
@@ -312,7 +312,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     name: 'update_object_acl',
     description: 'Update access control level (ACL) for an object in a bucket',
     parameters: schemas.updateObjectACLSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, name, acl } = params;
       await client.objectStorage.updateObjectACL(region, bucket, name, { acl });
       return {
@@ -328,7 +328,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
     name: 'generate_object_url',
     description: 'Generate a pre-signed URL for an object in a bucket',
     parameters: schemas.getObjectURLSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, name, ...urlParams } = params;
       
       // Ensure we're using the right parameter names for the API
@@ -355,7 +355,7 @@ Note: This URL is temporary and will expire after ${params.expires_in || 3600} s
     name: 'upload_object',
     description: 'Upload and create an new object to an Object Storage bucket',
     parameters: schemas.uploadObjectSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, object_path, source, content_type, acl, expires_in } = params;
       
       // Determine content type from file extension or parameter
@@ -414,7 +414,7 @@ ACL: ${acl || 'Default bucket ACL'}` },
     name: 'download_object',
     description: 'Download an object from a bucket and save it to a local file',
     parameters: schemas.downloadObjectSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, object_path, destination, expires_in } = params;
       
       // Get pre-signed URL for GET operation
@@ -463,7 +463,7 @@ Content Type: ${getContentType(object_path)}` },
     name: 'delete_object',
     description: 'Delete an object from an Object Storage bucket',
     parameters: schemas.deleteObjectSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, object_path, expires_in } = params;
       
       // Get pre-signed URL for DELETE operation
@@ -489,7 +489,7 @@ Content Type: ${getContentType(object_path)}` },
     name: 'get_object_storage_transfer',
     description: 'Get Object Storage transfer statistics',
     parameters: schemas.getTransferStatsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getTransferStats();
       return {
         content: [
@@ -504,7 +504,7 @@ Content Type: ${getContentType(object_path)}` },
     name: 'list_object_storage_types',
     description: 'Get a list of all available Object Storage types and prices, including any region-specific rates.',
     parameters: schemas.listObjectStorageTypesSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.objectStorage.getTypes();
       return {
         content: [
@@ -519,7 +519,7 @@ Content Type: ${getContentType(object_path)}` },
     name: 'cancel_object_storage',
     description: 'Cancel Object Storage service',
     parameters: schemas.cancelObjectStorageSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       await client.objectStorage.cancelObjectStorage();
       return {
         content: [

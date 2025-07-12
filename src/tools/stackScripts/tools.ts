@@ -18,7 +18,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     name: 'list_stackscripts',
     description: 'Get a list of all StackScripts',
     parameters: listStackScriptsSchema,
-    execute: withErrorHandling(async (params: any) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.stackScripts.getStackScripts(params);
       return JSON.stringify(result, null, 2);
     })
@@ -29,7 +29,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     name: 'get_stackscript',
     description: 'Get details for a specific StackScript',
     parameters: getStackScriptSchema,
-    execute: withErrorHandling(async (params: any) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { id } = params;
       const result = await client.stackScripts.getStackScript(id);
       return JSON.stringify(result, null, 2);
@@ -41,7 +41,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     name: 'create_stackscript',
     description: 'Create a new StackScript',
     parameters: createStackScriptSchema,
-    execute: withErrorHandling(async (params: any) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.stackScripts.createStackScript(params);
       return JSON.stringify(result, null, 2);
     })
@@ -52,7 +52,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     name: 'update_stackscript',
     description: 'Update an existing StackScript',
     parameters: updateStackScriptSchema,
-    execute: withErrorHandling(async (params: any) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
       const result = await client.stackScripts.updateStackScript(id, data);
       return JSON.stringify(result, null, 2);
@@ -64,7 +64,7 @@ export function registerStackScriptsTools(server: FastMCP, client: LinodeClient)
     name: 'delete_stackscript',
     description: 'Delete a StackScript',
     parameters: deleteStackScriptSchema,
-    execute: withErrorHandling(async (params: any) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const { id } = params;
       await client.stackScripts.deleteStackScript(id);
       return JSON.stringify({ success: true }, null, 2);

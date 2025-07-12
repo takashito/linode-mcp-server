@@ -18,7 +18,7 @@ export function registerRegionTools(server: FastMCP, client: LinodeClient) {
     name: 'get_region',
     description: 'Get details for a specific region',
     parameters: schemas.getRegionSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await client.regions.getRegion(params.id);
       return JSON.stringify(result, null, 2);
     })

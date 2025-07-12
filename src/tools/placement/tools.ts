@@ -9,7 +9,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'list_placement_groups',
     description: 'List all placement groups',
     parameters: schemas.listPlacementGroupsSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         const paginationParams = {
           page: params.page,
@@ -45,7 +45,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'get_placement_group',
     description: 'Get details for a specific placement group',
     parameters: schemas.getPlacementGroupSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         if (!params || params.id === undefined || params.id === null) {
       return {
@@ -83,7 +83,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'create_placement_group',
     description: 'Create a new placement group',
     parameters: schemas.createPlacementGroupSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         const result = await client.placement.createPlacementGroup(params);
         return JSON.stringify(result, null, 2);
@@ -100,7 +100,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'update_placement_group',
     description: 'Update an existing placement group',
     parameters: schemas.updatePlacementGroupSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         const { id, ...data } = params;
         const result = await client.placement.updatePlacementGroup(id, data);
@@ -118,7 +118,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'delete_placement_group',
     description: 'Delete a placement group',
     parameters: schemas.deletePlacementGroupSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         await client.placement.deletePlacementGroup(params.id);
         return JSON.stringify({ success: true }, null, 2);
@@ -135,7 +135,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'assign_instances',
     description: 'Assign Linode instances to a placement group',
     parameters: schemas.assignInstancesSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         const result = await client.placement.assignInstances(params.id, { linodes: params.linodes });
         return JSON.stringify(result, null, 2);
@@ -152,7 +152,7 @@ export function registerPlacementTools(server: FastMCP, client: LinodeClient) {
     name: 'unassign_instances',
     description: 'Unassign Linode instances from a placement group',
     parameters: schemas.unassignInstancesSchema,
-    execute: withErrorHandling(async (params) => {
+    execute: withErrorHandling(async (params: any, context?: any) => {
       try {
         const result = await client.placement.unassignInstances(params.id, { linodes: params.linodes });
         return JSON.stringify(result, null, 2);
