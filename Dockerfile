@@ -19,4 +19,4 @@ RUN npm run build
 # Expose port if needed (MCP communicates over stdio typically, so not necessary to expose ports)
 
 # Start the MCP server
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/index.js", "--transport", "http", "--categories", "instances,volumes,networking,regions,objectStorage,vpcs,domains,nodebalancers,tags,images", "--port", "80", "--endpoint", "/"]
