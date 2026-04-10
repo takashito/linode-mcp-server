@@ -3,7 +3,6 @@
 [![main version](https://img.shields.io/github/package-json/v/takashito/linode-mcp-server?color=blue)](https://github.com/takashito/linode-mcp-server)
 [![npm version](https://img.shields.io/npm/v/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
 [![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
-[![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
 
 An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Built with FastMCP framework and supports stdio, SSE, and HTTP streaming transports!
 
@@ -101,14 +100,6 @@ Add to your settings.json:
 }
 ```
 ⚠️ **Note**: For GPT-4o based clients, use `--categories` to limit tools and avoid context window errors.
-
-### Automatic Installation via Smithery to Claude Desktop
-
-For the easiest setup, use [Smithery](https://smithery.ai/server/@takashito/linode-mcp-server):
-
-```bash
-npx -y @smithery/cli install @takashito/linode-mcp-server --client claude
-```
 
 ## Tools Category Selection
 
