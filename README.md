@@ -5,7 +5,9 @@
 [![npm downloads](https://img.shields.io/npm/d18m/%40takashito%2Flinode-mcp-server)](https://www.npmjs.com/package/@takashito/linode-mcp-server)
 [![smithery badge](https://smithery.ai/badge/@takashito/linode-mcp-server)](https://smithery.ai/server/@takashito/linode-mcp-server)
 
-An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Built with FastMCP framework and supports stdio, SSE, and HTTP streaming transports!
+An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Built with FastMCP framework and supports stdio and HTTP streaming transports!
+
+> **FastMCP3 Branch**: This branch (`feature/fastmcp3-upgrade`) upgrades from FastMCP v1 to FastMCP v3, which brings typed sessions, cleaner token handling, and resolves all known security vulnerabilities. Pinned to `fastmcp ~3.29.0` due to an upstream bug in `mcp-proxy` 6.x that breaks httpStream transport ([punkpeye/mcp-proxy#61](https://github.com/punkpeye/mcp-proxy/issues/61), [punkpeye/fastmcp#260](https://github.com/punkpeye/fastmcp/issues/260)). This branch will be merged to main once the upstream fix is released.
 
 ## What Can You Do With This?
 
@@ -154,26 +156,20 @@ npx @takashito/linode-mcp-server --list-categories
    npx @takashito/linode-mcp-server --token YOUR_TOKEN
    ```
 
-2. **SSE transport** - Server-Sent Events transport for web clients
-   ```bash
-   # Start with SSE transport on port 3000 /sse
-   npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport sse --port 3000 --endpoint /sse
-   ```
-
-3. **httpStream transport** - HTTP streaming transport for web clients
+2. **httpStream transport** - HTTP streaming transport for web clients (also serves SSE on `/sse`)
    ```bash
    # Start with HTTP streaming transport on port 8080 /mcp
    npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http --port 8080 --endpoint /mcp
    ```
 
-You can customize port and host for both SSE and HTTP streaming transport:
-- `--port` : Server port (default: http: 8080, sse: 3000)
-- `--endpoint` : Server Path (default: http: /mcp, sse: /sse)
+You can customize port and host for HTTP streaming transport:
+- `--port` : Server port (default: 8080)
+- `--endpoint` : Server Path (default: /mcp)
 - `--host` : Server host (default: 127.0.0.1)
 
 ## Pass Linode API Key via Authorization Header
 
-For http / sse transport, you can run mcp server without --token parameter. 
+For http transport, you can run mcp server without --token parameter. 
 
    ```bash
    # Start with HTTP streaming transport on port 8080 /mcp at localhost

@@ -1,22 +1,21 @@
 import { FastMCP } from 'fastmcp';
-import { IncomingHttpHeaders } from "http";
+import { IncomingMessage } from "http";
 import { registerAllTools, ToolCategory } from './tools';
-import { createClient, LinodeClient } from './client';
 
 export const VERSION = '0.2.4';
 
 export interface ServerOptions {
   token: string;
   enabledCategories?: ToolCategory[];
-  transport?: 'stdio' | 'sse' | 'http';
+  transport?: 'stdio' | 'http';
   port?: number;
   host?: string;
   endpoint?: string;
 }
 
-export interface SessionData {
-  headers: IncomingHttpHeaders;
-  [key: string]: unknown; // Add index signature to satisfy Record<string, unknown>
+export interface LinodeSession {
+  token: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -26,21 +25,22 @@ export interface SessionData {
  */
 export async function startServer(options: ServerOptions) {
   console.error('Starting Linode MCP server...');
-  
+
   try {
-    // Initialize FastMCP server
-    const server = new FastMCP({
+    // Initialize FastMCP server with typed session
+    const server = new FastMCP<LinodeSession>({
       name: 'linode-mcp-server',
       version: VERSION,
-      authenticate: async (request: any): Promise<SessionData> => {
+      authenticate: async (request: IncomingMessage): Promise<LinodeSession> => {
+        // For HTTP transports: try to extract token from headers
+        // For stdio transport: request is undefined, fall back to CLI token
+        const headerToken = request?.headers?.['authorization']?.split(' ')[1]
+          || request?.headers?.['x-be-api-token'] as string | undefined;
         return {
-          headers: request.headers
+          token: headerToken || options.token,
         };
       }
     });
-
-    // Save token in server options
-    (server.options as any).token = options.token;
 
     console.error('Server initialized successfully');
 
@@ -48,7 +48,7 @@ export async function startServer(options: ServerOptions) {
     try {
       console.error(`Registering tool categories: ${options.enabledCategories?.join(', ') || 'all'}`);
       registerAllTools(server, options.enabledCategories);
-      
+
       // Show debugging info
       console.error(`Successfully registered tools`);
     } catch (error) {
@@ -59,26 +59,15 @@ export async function startServer(options: ServerOptions) {
     // Start the server with the specified transport
     const transport = options.transport || 'stdio';
     console.error(`Starting server with transport: ${transport}`);
-    
+
     if (transport === 'http') {
       const port = options.port || 8080;
-      const host = options.host || '127.0.0.1';
       const endpoint = (options.endpoint || '/mcp') as `/${string}`;
-      console.error(`Starting HTTP server on ${host}:${port}${endpoint}`);
-      
+      console.error(`Starting HTTP server on ${options.host || '127.0.0.1'}:${port}${endpoint}`);
+
       server.start({
         transportType: 'httpStream',
         httpStream: { port, endpoint }
-      });
-    } else if (transport === 'sse') {
-      const port = options.port || 3000;
-      const host = options.host || '127.0.0.1';
-      const endpoint = (options.endpoint || '/sse') as `/${string}`;
-      console.error(`Starting SSE server on ${host}:${port}${endpoint}`);
-      
-      server.start({
-        transportType: 'sse',
-        sse: { port, endpoint }
       });
     } else {
       // Default to stdio
