@@ -192,6 +192,62 @@ Configure your mcp client to add Authorization Header. linode-mcp-server forward
 }
 ```
 
+## Docker
+
+Run the MCP server as a container with httpStream transport.
+
+### Build
+
+```bash
+docker build -t takashito/linode-mcp-server .
+```
+
+### Run
+
+```bash
+# Basic usage (port 8080, all tool categories)
+docker run -e LINODE_API_TOKEN=your_token -p 8080:8080 takashito/linode-mcp-server
+
+# Custom port
+docker run -e LINODE_API_TOKEN=your_token -e PORT=3000 -p 3000:3000 takashito/linode-mcp-server
+
+# Limit tool categories
+docker run -e LINODE_API_TOKEN=your_token -e CATEGORIES=instances,volumes,regions -p 8080:8080 takashito/linode-mcp-server
+
+# Custom endpoint
+docker run -e LINODE_API_TOKEN=your_token -e ENDPOINT=/api -p 8080:8080 takashito/linode-mcp-server
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LINODE_API_TOKEN` | *(required)* | Linode API token. Can also be passed via Authorization header. |
+| `PORT` | `8080` | Server port |
+| `ENDPOINT` | `/mcp` | Server endpoint path |
+| `CATEGORIES` | *(all)* | Comma-separated list of tool categories to enable |
+
+### Connect with MCP Client
+
+```json
+{
+  "mcpServers": {
+    "linode": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:8080/mcp",
+        "--header",
+        "Authorization: Bearer ${LINODE_API_TOKEN}"
+      ],
+      "env": {
+        "LINODE_API_TOKEN": "your_token"
+      }
+    }
+  }
+}
+```
+
 ## Available Tools
 
 This MCP server provides the following tools for interacting with Linode API services:

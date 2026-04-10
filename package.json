@@ -17,8 +17,8 @@
     "dev": "ts-node src/index.ts",
     "lint": "eslint .",
     "inspect": "tsc && npx @modelcontextprotocol/inspector node dist/index.js",
-    "build-image": "docker buildx build -t taito/linode-mcp-server:latest .",
-    "start-docker": "docker run --rm -p 8080:80 --name linode-mcp-server taito/linode-mcp-server:latest"
+    "build-image": "docker build -t takashito/linode-mcp-server:latest .",
+    "start-docker": "docker run --rm -p 8080:8080 --name linode-mcp-server takashito/linode-mcp-server:latest"
   },
   "keywords": [
     "linode",

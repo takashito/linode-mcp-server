@@ -1,21 +1,30 @@
-FROM node:lts-alpine
+# Build stage
+FROM node:lts-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files to install dependencies
 COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
 
-# Install dependencies without running scripts
-RUN npm install --ignore-scripts
-
-# Copy rest of the source code
 COPY . .
-
-# Build the project (TypeScript compilation)
 RUN npm run build
 
-# Expose port if needed (MCP communicates over stdio typically, so not necessary to expose ports)
+# Runtime stage
+FROM node:lts-alpine
 
-# Start the MCP server
-CMD ["node", "dist/index.js", "--transport", "http", "--categories", "instances,volumes,networking,regions,objectStorage,vpcs,domains,nodebalancers,tags,images", "--port", "80", "--endpoint", "/"]
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts --omit=dev
+
+COPY --from=build /app/dist ./dist
+
+# Environment variables (override at runtime with -e)
+ENV PORT=8080
+ENV ENDPOINT=/mcp
+ENV CATEGORIES=""
+ENV LINODE_API_TOKEN=""
+
+EXPOSE 8080
+
+ENTRYPOINT ["sh", "-c", "node dist/index.js --transport http --port $PORT --endpoint $ENDPOINT ${LINODE_API_TOKEN:+--token $LINODE_API_TOKEN} ${CATEGORIES:+--categories $CATEGORIES}"]
