@@ -34,7 +34,7 @@
     "axios": "^1.9.0",
     "commander": "^11.1.0",
     "dotenv": "^16.3.1",
-    "fastmcp": "~3.29.0",
+    "fastmcp": "^3.35.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
