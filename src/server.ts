@@ -2,7 +2,7 @@ import { FastMCP } from 'fastmcp';
 import { IncomingMessage } from "http";
 import { registerAllTools, ToolCategory } from './tools';
 
-export const VERSION = '0.2.4';
+export const VERSION = '0.3.0';
 
 export interface ServerOptions {
   token: string;
