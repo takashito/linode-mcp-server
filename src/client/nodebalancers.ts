@@ -17,6 +17,8 @@ export interface NodeBalancer {
     in: number;
   };
   tags: string[];
+  type?: NodeBalancerType;
+  configs?: NodeBalancerConfig[];
 }
 
 export interface NodeBalancerConfig {
@@ -39,6 +41,7 @@ export interface NodeBalancerConfig {
     up: number;
     down: number;
   };
+  nodes?: NodeBalancerNode[];
 }
 
 export interface NodeBalancerNode {

@@ -24,10 +24,10 @@ program
     (val) => val.split(',').map(c => c.trim())
   )
   .option('--list-categories', 'List all available tool categories')
-  .option('--transport <type>', 'Transport type: stdio (default), sse, http', 'stdio')
-  .option('--port <port>', 'Server port (default: 3000 for sse, 8080 for http)', undefined)
+  .option('--transport <type>', 'Transport type: stdio (default), http', 'stdio')
+  .option('--port <port>', 'Server port (default: 8080 for http)', undefined)
   .option('--host <host>', 'Server host (default: 127.0.0.1)', '127.0.0.1')
-  .option('-e, --endpoint <endpoint>', 'Server endpoint path (default: /mcp for http, /sse for sse)')
+  .option('-e, --endpoint <endpoint>', 'Server endpoint path (default: /mcp for http)')
   .action(async (options) => {
     // If --list-categories was specified, show available categories and exit
     if (options.listCategories) {
@@ -58,18 +58,16 @@ program
     }
 
     // Validate transport type
-    const validTransports = ['stdio', 'sse', 'http'];
+    const validTransports = ['stdio', 'http'];
     if (!validTransports.includes(options.transport.toLowerCase())) {
       console.error(`Error: Invalid transport type: ${options.transport}`);
       console.error(`Available transport types: ${validTransports.join(', ')}`);
       process.exit(1);
     }
-    
+
     // Set default ports based on transport type
     let defaultPort: number;
-    if (options.transport.toLowerCase() === 'sse') {
-      defaultPort = 3000;
-    } else if (options.transport.toLowerCase() === 'http') {
+    if (options.transport.toLowerCase() === 'http') {
       defaultPort = 8080;
     } else {
       defaultPort = 8000; // stdio (not used, but for consistency)
@@ -86,7 +84,7 @@ program
     const serverOptions: ServerOptions = {
       token,
       enabledCategories,
-      transport: options.transport.toLowerCase() as 'stdio' | 'sse' | 'http',
+      transport: options.transport.toLowerCase() as 'stdio' | 'http',
       port: options.port ? parseInt(options.port, 10) : defaultPort,
       host: options.host,
       endpoint: options.endpoint

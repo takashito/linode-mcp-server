@@ -45,17 +45,17 @@ export const createNodeBalancerConfigSchema = z.object({
 
 export const deleteNodeBalancerConfigSchema = z.object({
   nodebalancer_id: z.number().describe('The ID of the NodeBalancer'),
-  config_id: z.number().describe('The ID of the config'),
+  config_id: z.number().describe('The ID of the NodeBalancer port config'),
 });
 
 export const listNodeBalancerNodesSchema = z.object({
   nodebalancer_id: z.number().describe('The ID of the NodeBalancer'),
-  config_id: z.number().describe('The ID of the config'),
+  config_id: z.number().describe('The ID of the NodeBalancer port config'),
 });
 
 export const createNodeBalancerNodeSchema = z.object({
   nodebalancer_id: z.number().describe('The ID of the NodeBalancer'),
-  config_id: z.number().describe('The ID of the config'),
+  config_id: z.number().describe('The ID of the NodeBalancer port config'),
   address: z.string().describe('The IP:port combination of the node'),
   label: z.string().describe('The label for the node'),
   weight: z.number().optional().describe('The weight for the node'),
@@ -64,6 +64,6 @@ export const createNodeBalancerNodeSchema = z.object({
 
 export const deleteNodeBalancerNodeSchema = z.object({
   nodebalancer_id: z.number().describe('The ID of the NodeBalancer'),
-  config_id: z.number().describe('The ID of the config'),
+  config_id: z.number().describe('The ID of the NodeBalancer port config'),
   node_id: z.number().describe('The ID of the node'),
 });

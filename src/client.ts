@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { 
+import {
   LinodeClient,
   createInstancesClient,
   createVolumesClient,
@@ -20,14 +20,15 @@ import {
   createProfileClient,
   createAccountClient
 } from './client/index';
+import { LinodeSession } from './server';
 
 const API_ROOT = 'https://api.linode.com/v4';
 
 /**
  * Creates and configures a Linode API client with the provided token
  */
-export function createClient(context:any, server:any): LinodeClient {
-  const token = context.session?.headers?.['authorization']?.split(' ')[1] || context.session?.headers?.['X-BE-API-TOKEN'] || server?.options?.token || null;
+export function createClient(context: { session?: LinodeSession }): LinodeClient {
+  const token = context.session?.token || null;
 
   // Create an axios instance with the Linode API configuration
   const axiosInstance = axios.create({
@@ -37,9 +38,6 @@ export function createClient(context:any, server:any): LinodeClient {
       'Content-Type': 'application/json',
     },
   });
-
-  //console.error(`Context: ${JSON.stringify(context)}`);
-  //console.error(`Client Created for API token: ${token}`);
 
   // Create category-specific clients
   const instances = createInstancesClient(axiosInstance);
