@@ -6,7 +6,7 @@
 
 An MCP (Model Context Protocol) server that connects your AI Assistant or Agent to your Linode cloud infrastructure allowing you to manage your cloud resources through natural conversation. Built with FastMCP framework and supports stdio and HTTP streaming transports!
 
-> **FastMCP3 Branch**: This branch (`feature/fastmcp3-upgrade`) upgrades from FastMCP v1 to FastMCP v3, which brings typed sessions, cleaner token handling, and resolves all known security vulnerabilities. Pinned to `fastmcp ~3.29.0` due to an upstream bug in `mcp-proxy` 6.x that breaks httpStream transport ([punkpeye/mcp-proxy#61](https://github.com/punkpeye/mcp-proxy/issues/61), [punkpeye/fastmcp#260](https://github.com/punkpeye/fastmcp/issues/260)). This branch will be merged to main once the upstream fix is released.
+> **FastMCP v3**: This project uses [FastMCP v3](https://github.com/punkpeye/fastmcp) for typed sessions, cleaner token handling, and improved security. Supports stdio and HTTP streaming (StreamableHTTP) transports.
 
 ## What Can You Do With This?
 
@@ -147,7 +147,7 @@ npx @takashito/linode-mcp-server --list-categories
    npx @takashito/linode-mcp-server --token YOUR_TOKEN
    ```
 
-2. **httpStream transport** - HTTP streaming transport for web clients (also serves SSE on `/sse`)
+2. **httpStream transport** - HTTP streaming transport (StreamableHTTP) for web clients
    ```bash
    # Start with HTTP streaming transport on port 8080 /mcp
    npx @takashito/linode-mcp-server --token YOUR_TOKEN --transport http --port 8080 --endpoint /mcp
