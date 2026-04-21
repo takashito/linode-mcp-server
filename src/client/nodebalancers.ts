@@ -129,6 +129,10 @@ export interface UpdateNodeBalancerNodeRequest {
   mode?: string;
 }
 
+export interface UpdateNodeBalancerFirewallsRequest {
+  ids: number[];
+}
+
 export interface LinodeNodeBalancersClient {
   // NodeBalancer operations
   getNodeBalancers: (params?: PaginationParams) => Promise<PaginatedResponse<NodeBalancer>>;
@@ -157,6 +161,10 @@ export interface LinodeNodeBalancersClient {
   
   // NodeBalancer Types operations
   getNodeBalancerTypes: () => Promise<PaginatedResponse<NodeBalancerType>>;
+
+  // NodeBalancer Firewall operations
+  getNodeBalancerFirewalls: (nodeBalancerId: number, params?: PaginationParams) => Promise<PaginatedResponse<any>>;
+  updateNodeBalancerFirewalls: (nodeBalancerId: number, data: UpdateNodeBalancerFirewallsRequest) => Promise<any>;
 }
 
 export function createNodeBalancersClient(axios: AxiosInstance): LinodeNodeBalancersClient {
@@ -240,6 +248,16 @@ export function createNodeBalancersClient(axios: AxiosInstance): LinodeNodeBalan
     // NodeBalancer Types operations
     getNodeBalancerTypes: async () => {
       const response = await axios.get('/nodebalancers/types');
+      return response.data;
+    },
+
+    // NodeBalancer Firewall operations
+    getNodeBalancerFirewalls: async (nodeBalancerId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/nodebalancers/${nodeBalancerId}/firewalls`, { params });
+      return response.data;
+    },
+    updateNodeBalancerFirewalls: async (nodeBalancerId: number, data: UpdateNodeBalancerFirewallsRequest) => {
+      const response = await axios.put(`/nodebalancers/${nodeBalancerId}/firewalls`, data);
       return response.data;
     }
   };

@@ -1,6 +1,6 @@
 import { FastMCP } from 'fastmcp';
-import { createClient, VPC, VPCSubnet } from '../../client';
-import { VPCIP } from '../../client/vpcs';
+import { createClient } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -8,25 +8,25 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'list_vpcs',
     description: 'List all VPCs',
-    parameters: schemas.listVPCsSchema,
+    parameters: mcpInput(schemas.listVPCsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).vpcs.getVPCs();
-      return formatVPCs(result.data);
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'get_vpc',
     description: 'Get details for a specific VPC',
-    parameters: schemas.getVPCSchema,
+    parameters: mcpInput(schemas.getVPCSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).vpcs.getVPC(params.id);
-      return formatVPC(result);
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'create_vpc',
     description: 'Create a new VPC',
-    parameters: schemas.createVPCSchema,
+    parameters: mcpInput(schemas.createVPCSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).vpcs.createVPC(params);
       return JSON.stringify(result, null, 2);
@@ -35,7 +35,7 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'update_vpc',
     description: 'Update an existing VPC',
-    parameters: schemas.updateVPCSchema,
+    parameters: mcpInput(schemas.updateVPCSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
       const result = await createClient(context).vpcs.updateVPC(id, data);
@@ -45,7 +45,7 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'delete_vpc',
     description: 'Delete a VPC',
-    parameters: schemas.deleteVPCSchema,
+    parameters: mcpInput(schemas.deleteVPCSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).vpcs.deleteVPC(params.id);
       return JSON.stringify({ success: true }, null, 2);
@@ -55,25 +55,25 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'list_vpc_subnets',
     description: 'List all subnets in a VPC',
-    parameters: schemas.listSubnetsSchema,
+    parameters: mcpInput(schemas.listSubnetsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).vpcs.getSubnets(params.id);
-      return formatVPCSubnets(result.data);
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'get_vpc_subnet',
     description: 'Get details for a specific subnet in a VPC',
-    parameters: schemas.getSubnetSchema,
+    parameters: mcpInput(schemas.getSubnetSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).vpcs.getSubnet(params.id, params.subnet_id);
-      return formatVPCSubnet(result);
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'create_vpc_subnet',
     description: 'Create a new subnet in a VPC',
-    parameters: schemas.createSubnetSchema,
+    parameters: mcpInput(schemas.createSubnetSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
       const result = await createClient(context).vpcs.createSubnet(id, data);
@@ -83,7 +83,7 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'update_vpc_subnet',
     description: 'Update an existing subnet in a VPC',
-    parameters: schemas.updateSubnetSchema,
+    parameters: mcpInput(schemas.updateSubnetSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, subnet_id, ...data } = params;
       const result = await createClient(context).vpcs.updateSubnet(id, subnet_id, data);
@@ -93,7 +93,7 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'delete_vpc_subnet',
     description: 'Delete a subnet in a VPC',
-    parameters: schemas.deleteSubnetSchema,
+    parameters: mcpInput(schemas.deleteSubnetSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).vpcs.deleteSubnet(params.id, params.subnet_id);
       return JSON.stringify({ success: true }, null, 2);
@@ -103,124 +103,44 @@ export function registerVPCTools(server: FastMCP) {
   server.addTool({
     name: 'list_vpc_ips',
     description: 'List all IP addresses in a VPC',
-    parameters: schemas.listVPCIPsSchema,
+    parameters: mcpInput(schemas.listVPCIPsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).vpcs.getVPCIPs(params.id);
-      return formatVPCIPs(result.data);
+      return JSON.stringify(result, null, 2);
     })
   });
-}
+  server.addTool({
+    name: 'list_all_vpc_ips',
+    description: 'List all VPC IP addresses across all VPCs',
+    parameters: mcpInput(schemas.listAllVPCIPsSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const paginationParams = {
+        page: params.page,
+        page_size: params.page_size
+      };
+      const result = await createClient(context).vpcs.getAllVPCIPs(paginationParams);
+      return JSON.stringify(result, null, 2);
+    })
+  });
 
-/**
- * Formats a VPC for display
- */
-function formatVPC(vpc: VPC): string {
-  const details = [
-    `ID: ${vpc.id}`,
-    `Label: ${vpc.label}`,
-    `Region: ${vpc.region}`,
-    `Created: ${new Date(vpc.created).toLocaleString()}`,
-    `Updated: ${new Date(vpc.updated).toLocaleString()}`,
-  ];
-
-  if (vpc.description) {
-    details.push(`Description: ${vpc.description}`);
-  }
-
-  if (vpc.tags && vpc.tags.length > 0) {
-    details.push(`Tags: ${vpc.tags.join(', ')}`);
-  }
-
-  if (vpc.subnets && vpc.subnets.length > 0) {
-    details.push(`Subnets: ${vpc.subnets.length}`);
-    vpc.subnets.forEach((subnet, index) => {
-      details.push(`\n  Subnet ${index + 1}:`);
-      details.push(`    ID: ${subnet.id}`);
-      details.push(`    Label: ${subnet.label}`);
-      details.push(`    CIDR: ${subnet.ipv4}`);
-      details.push(`    Created: ${new Date(subnet.created).toLocaleString()}`);
-      if (subnet.tags && subnet.tags.length > 0) {
-        details.push(`    Tags: ${subnet.tags.join(', ')}`);
-      }
-    });
-  } else {
-    details.push('Subnets: None');
-  }
-
-  return details.join('\n');
-}
-
-/**
- * Formats a VPC subnet for display
- */
-function formatVPCSubnet(subnet: VPCSubnet): string {
-  const details = [
-    `ID: ${subnet.id}`,
-    `Label: ${subnet.label}`,
-    `CIDR: ${subnet.ipv4}`,
-    `Created: ${new Date(subnet.created).toLocaleString()}`,
-    `Updated: ${new Date(subnet.updated).toLocaleString()}`,
-  ];
-
-  if (subnet.tags && subnet.tags.length > 0) {
-    details.push(`Tags: ${subnet.tags.join(', ')}`);
-  }
-
-  return details.join('\n');
-}
-
-/**
- * Formats VPCs for display
- */
-function formatVPCs(vpcs: VPC[]): string {
-  if (vpcs.length === 0) {
-      return 'No VPCs found.';
-  }
-
-  const formattedVPCs = vpcs.map((vpc) => {
-      return `${vpc.label} (ID: ${vpc.id}, Region: ${vpc.region}, Subnets: ${vpc.subnets.length})`;
-    });
-
-  return formattedVPCs.join('\n');
-}
-
-/**
- * Formats VPC subnets for display
- */
-function formatVPCSubnets(subnets: VPCSubnet[]): string {
-  if (subnets.length === 0) {
-      return 'No subnets found.';
-  }
-
-  const formattedSubnets = subnets.map((subnet) => {
-      return `${subnet.label} (ID: ${subnet.id}, CIDR: ${subnet.ipv4})`;
-    });
-
-  return formattedSubnets.join('\n');
-}
-
-/**
- * Formats VPC IPs for display
- */
-function formatVPCIPs(ips: VPCIP[]): string {
-  if (ips.length === 0) {
-      return 'No IP addresses found in this VPC.';
-  }
-
-  const formattedIPs = ips.map((ip) => {
-    let ipInfo = `${ip.address} (Subnet ID: ${ip.subnet_id}, Type: ${ip.type}`;
-    
-    if (ip.linode_id) {
-      ipInfo += `, Linode ID: ${ip.linode_id}`;
-    }
-    
-    if (ip.gateway) {
-      ipInfo += ', Gateway: Yes';
-    }
-    
-    ipInfo += ')';
-    return ipInfo;
-    });
-
-  return formattedIPs.join('\n');
+  // NodeBalancer VPC tools
+  server.addTool({
+    name: 'list_nodebalancer_vpcs',
+    description: 'List VPC configurations for a NodeBalancer',
+    parameters: mcpInput(schemas.listNodeBalancerVPCsSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { nodeBalancerId, page, page_size } = params;
+      const result = await createClient(context).vpcs.getNodeBalancerVPCs(nodeBalancerId, { page, page_size });
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_nodebalancer_vpc',
+    description: 'Get a specific VPC configuration for a NodeBalancer',
+    parameters: mcpInput(schemas.getNodeBalancerVPCSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).vpcs.getNodeBalancerVPC(params.nodeBalancerId, params.nodeBalancerVpcConfigId);
+      return JSON.stringify(result, null, 2);
+    })
+  });
 }

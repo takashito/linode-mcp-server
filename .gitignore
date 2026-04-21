@@ -37,3 +37,10 @@ coverage.md
 claude-mcp.js
 test.txt
 credentials.json
+
+# Local MCP client config (may contain API tokens)
+.mcp.json
+
+# Tool caches / scratch
+.playwright-mcp/
+enterx03

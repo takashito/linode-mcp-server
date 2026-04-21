@@ -340,6 +340,97 @@ export interface UpdateUserGrantsRequest {
   volume?: Record<string, { permissions: string }>;
 }
 
+// Entity interface
+export interface Entity {
+  id: number;
+  type: string;
+  label: string;
+  url: string;
+}
+
+// IAM Role Permission interfaces
+export interface IamRole {
+  name: string;
+  description: string;
+  permissions: string[];
+}
+
+export interface UserRolePermissions {
+  username: string;
+  roles: string[];
+}
+
+export interface UpdateUserRolePermissionsRequest {
+  roles: string[];
+}
+
+// Delegation interfaces
+export interface DelegationChildAccount {
+  euuid: string;
+  company: string;
+  email: string;
+  is_active: boolean;
+}
+
+export interface DelegationChildAccountUsers {
+  euuid: string;
+  users: string[];
+}
+
+export interface UpdateDelegationChildAccountUsersRequest {
+  users: string[];
+}
+
+export interface DelegationDefaultRoles {
+  roles: string[];
+}
+
+export interface UpdateDelegationDefaultRolesRequest {
+  roles: string[];
+}
+
+export interface DelegationProfileAccount {
+  euuid: string;
+  company: string;
+  email: string;
+  is_active: boolean;
+}
+
+export interface DelegationToken {
+  token: string;
+  scopes: string[];
+  expiry: string;
+}
+
+export interface UserDelegations {
+  username: string;
+  child_accounts: string[];
+}
+
+// Maintenance Policy interfaces
+export interface MaintenancePolicy {
+  id: number;
+  type: string;
+  frequency: string;
+  day_of_week: number;
+  pending: boolean;
+}
+
+// Resource Lock interfaces
+export interface ResourceLock {
+  id: number;
+  resource_id: number;
+  resource_type: string;
+  reason?: string;
+  created: string;
+}
+
+export interface CreateResourceLockRequest {
+  resource_id: number;
+  resource_type: string;
+  reason?: string;
+}
+
 export interface AccountClientInterface {
   // Account operations
   getAccount(): Promise<Account>;
@@ -356,15 +447,9 @@ export interface AccountClientInterface {
   // Account cancellation
   cancelAccount(data: CancelAccountRequest): Promise<{}>;
   
-  // Child account operations
-  getChildAccounts(params?: PaginationParams): Promise<PaginatedResponse<ChildAccount>>;
-  getChildAccount(euuid: string): Promise<ChildAccount>;
-  createProxyToken(euuid: string, data: ProxyTokenRequest): Promise<ProxyToken>;
-  
   // Event operations
   getEvents(params?: PaginationParams): Promise<PaginatedResponse<AccountEvent>>;
   getEvent(eventId: number): Promise<AccountEvent>;
-  markEventAsRead(eventId: number): Promise<{}>;
   markEventAsSeen(eventId: number): Promise<{}>;
   
   // Invoice operations
@@ -408,6 +493,40 @@ export interface AccountClientInterface {
   updateUser(username: string, data: UpdateUserRequest): Promise<User>;
   getUserGrants(username: string): Promise<UserGrants>;
   updateUserGrants(username: string, data: UpdateUserGrantsRequest): Promise<UserGrants>;
+
+  // Entity operations
+  getEntities(params?: PaginationParams): Promise<PaginatedResponse<Entity>>;
+
+  // IAM Role Permission operations
+  getIamRoles(): Promise<IamRole[]>;
+  getUserRolePermissions(username: string): Promise<UserRolePermissions>;
+  updateUserRolePermissions(username: string, data: UpdateUserRolePermissionsRequest): Promise<UserRolePermissions>;
+
+  // Delegation Child Account operations
+  getDelegationChildAccounts(params?: PaginationParams): Promise<PaginatedResponse<DelegationChildAccount>>;
+  getDelegationChildAccountUsers(euuid: string): Promise<DelegationChildAccountUsers>;
+  updateDelegationChildAccountUsers(euuid: string, data: UpdateDelegationChildAccountUsersRequest): Promise<DelegationChildAccountUsers>;
+
+  // Delegation Default Roles operations
+  getDelegationDefaultRoles(): Promise<DelegationDefaultRoles>;
+  updateDelegationDefaultRoles(data: UpdateDelegationDefaultRolesRequest): Promise<DelegationDefaultRoles>;
+
+  // Delegation Profile operations
+  getDelegationProfileAccounts(params?: PaginationParams): Promise<PaginatedResponse<DelegationProfileAccount>>;
+  getDelegationProfileAccount(euuid: string): Promise<DelegationProfileAccount>;
+  createDelegationToken(euuid: string): Promise<DelegationToken>;
+
+  // User Delegations operations
+  getUserDelegations(username: string): Promise<UserDelegations>;
+
+  // Maintenance Policy operations
+  getMaintenancePolicies(params?: PaginationParams): Promise<PaginatedResponse<MaintenancePolicy>>;
+
+  // Resource Lock operations
+  getResourceLocks(params?: PaginationParams): Promise<PaginatedResponse<ResourceLock>>;
+  getResourceLock(resourceLockId: number): Promise<ResourceLock>;
+  createResourceLock(data: CreateResourceLockRequest): Promise<ResourceLock>;
+  deleteResourceLock(resourceLockId: number): Promise<void>;
 }
 
 export function createAccountClient(axiosInstance: AxiosInstance): AccountClientInterface {
@@ -451,22 +570,6 @@ export function createAccountClient(axiosInstance: AxiosInstance): AccountClient
       return response.data;
     },
 
-    // Child account operations
-    getChildAccounts: async (params) => {
-      const response = await axiosInstance.get('/account/child-accounts', { params });
-      return response.data;
-    },
-
-    getChildAccount: async (euuid) => {
-      const response = await axiosInstance.get(`/account/child-accounts/${euuid}`);
-      return response.data;
-    },
-
-    createProxyToken: async (euuid, data) => {
-      const response = await axiosInstance.post(`/account/child-accounts/${euuid}/token`, data);
-      return response.data;
-    },
-
     // Event operations
     getEvents: async (params) => {
       const response = await axiosInstance.get('/account/events', { params });
@@ -475,11 +578,6 @@ export function createAccountClient(axiosInstance: AxiosInstance): AccountClient
 
     getEvent: async (eventId) => {
       const response = await axiosInstance.get(`/account/events/${eventId}`);
-      return response.data;
-    },
-
-    markEventAsRead: async (eventId) => {
-      const response = await axiosInstance.post(`/account/events/${eventId}/read`);
       return response.data;
     },
 
@@ -628,6 +726,103 @@ export function createAccountClient(axiosInstance: AxiosInstance): AccountClient
     updateUserGrants: async (username, data) => {
       const response = await axiosInstance.put(`/account/users/${username}/grants`, data);
       return response.data;
+    },
+
+    // Entity operations
+    getEntities: async (params) => {
+      const response = await axiosInstance.get('/entities', { params });
+      return response.data;
+    },
+
+    // IAM Role Permission operations
+    getIamRoles: async () => {
+      const response = await axiosInstance.get('/iam/role-permissions');
+      return response.data;
+    },
+
+    getUserRolePermissions: async (username) => {
+      const response = await axiosInstance.get(`/iam/users/${username}/role-permissions`);
+      return response.data;
+    },
+
+    updateUserRolePermissions: async (username, data) => {
+      const response = await axiosInstance.put(`/iam/users/${username}/role-permissions`, data);
+      return response.data;
+    },
+
+    // Delegation Child Account operations
+    getDelegationChildAccounts: async (params) => {
+      const response = await axiosInstance.get('/iam/delegation/child-accounts', { params });
+      return response.data;
+    },
+
+    getDelegationChildAccountUsers: async (euuid) => {
+      const response = await axiosInstance.get(`/iam/delegation/child-accounts/${euuid}/users`);
+      return response.data;
+    },
+
+    updateDelegationChildAccountUsers: async (euuid, data) => {
+      const response = await axiosInstance.put(`/iam/delegation/child-accounts/${euuid}/users`, data);
+      return response.data;
+    },
+
+    // Delegation Default Roles operations
+    getDelegationDefaultRoles: async () => {
+      const response = await axiosInstance.get('/iam/delegation/default-role-permissions');
+      return response.data;
+    },
+
+    updateDelegationDefaultRoles: async (data) => {
+      const response = await axiosInstance.put('/iam/delegation/default-role-permissions', data);
+      return response.data;
+    },
+
+    // Delegation Profile operations
+    getDelegationProfileAccounts: async (params) => {
+      const response = await axiosInstance.get('/iam/delegation/profile/child-accounts', { params });
+      return response.data;
+    },
+
+    getDelegationProfileAccount: async (euuid) => {
+      const response = await axiosInstance.get(`/iam/delegation/profile/child-accounts/${euuid}`);
+      return response.data;
+    },
+
+    createDelegationToken: async (euuid) => {
+      const response = await axiosInstance.post(`/iam/delegation/profile/child-accounts/${euuid}/token`);
+      return response.data;
+    },
+
+    // User Delegations operations
+    getUserDelegations: async (username) => {
+      const response = await axiosInstance.get(`/iam/delegation/users/${username}/child-accounts`);
+      return response.data;
+    },
+
+    // Maintenance Policy operations
+    getMaintenancePolicies: async (params) => {
+      const response = await axiosInstance.get('/maintenance/policies', { params });
+      return response.data;
+    },
+
+    // Resource Lock operations
+    getResourceLocks: async (params) => {
+      const response = await axiosInstance.get('https://api.linode.com/v4beta/locks', { params });
+      return response.data;
+    },
+
+    getResourceLock: async (resourceLockId) => {
+      const response = await axiosInstance.get(`https://api.linode.com/v4beta/locks/${resourceLockId}`);
+      return response.data;
+    },
+
+    createResourceLock: async (data) => {
+      const response = await axiosInstance.post('https://api.linode.com/v4beta/locks', data);
+      return response.data;
+    },
+
+    deleteResourceLock: async (resourceLockId) => {
+      await axiosInstance.delete(`https://api.linode.com/v4beta/locks/${resourceLockId}`);
     }
   };
 }

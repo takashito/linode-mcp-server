@@ -1,3 +1,4 @@
+import { mcpInput } from "../common/schemas";
 import { FastMCP } from 'fastmcp';
 import { createClient } from '../../client';
 import {
@@ -16,7 +17,7 @@ export function registerTagsTools(server: FastMCP): void {
   server.addTool({
     name: 'list_tags',
     description: 'Get a list of all Tags',
-    parameters: listTagsSchema,
+    parameters: mcpInput(listTagsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).tags.getTags(params);
       return JSON.stringify(result, null, 2);
@@ -27,7 +28,7 @@ export function registerTagsTools(server: FastMCP): void {
     server.addTool({
     name: 'get_tag',
     description: 'Get details for a specific Tag',
-    parameters: getTagSchema,
+    parameters: mcpInput(getTagSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { label } = params;
       const result = await createClient(context).tags.getTag(label);
@@ -39,7 +40,7 @@ export function registerTagsTools(server: FastMCP): void {
     server.addTool({
     name: 'create_tag',
     description: 'Create a new Tag',
-    parameters: createTagSchema,
+    parameters: mcpInput(createTagSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).tags.createTag(params);
       return JSON.stringify(result, null, 2);
@@ -50,7 +51,7 @@ export function registerTagsTools(server: FastMCP): void {
     server.addTool({
     name: 'delete_tag',
     description: 'Delete a Tag',
-    parameters: deleteTagSchema,
+    parameters: mcpInput(deleteTagSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { label } = params;
       await createClient(context).tags.deleteTag(label);

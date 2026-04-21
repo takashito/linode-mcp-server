@@ -1,18 +1,19 @@
 import { z } from 'zod';
+import { jsonArray, coerceBoolean } from '../common/schemas';
 
 // Profile schemas
 export const UserProfileSchema = z.object({
   username: z.string(),
   email: z.string().email(),
   timezone: z.string(),
-  email_notifications: z.boolean(),
-  restricted: z.boolean(),
-  two_factor_auth: z.boolean(),
+  email_notifications: coerceBoolean(),
+  restricted: coerceBoolean(),
+  two_factor_auth: coerceBoolean(),
   referrals: z.object({
-    total: z.number(),
-    completed: z.number(),
-    pending: z.number(),
-    credit: z.number(),
+    total: z.coerce.number(),
+    completed: z.coerce.number(),
+    pending: z.coerce.number(),
+    credit: z.coerce.number(),
     code: z.string(),
     url: z.string()
   }),
@@ -26,13 +27,13 @@ export const getProfileSchema = z.object({});
 export const updateProfileSchema = z.object({
   email: z.string().email().optional().describe('Your email address'),
   timezone: z.string().optional().describe('Your timezone in IANA format (e.g. America/New_York)'),
-  email_notifications: z.boolean().optional().describe('Whether you want to receive email notifications'),
-  restricted: z.boolean().optional().describe('Whether your account has restricted access')
+  email_notifications: coerceBoolean().optional().describe('Whether you want to receive email notifications'),
+  restricted: coerceBoolean().optional().describe('Whether your account has restricted access')
 });
 
 // SSH Key schemas
 export const SSHKeySchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   label: z.string(),
   ssh_key: z.string(),
   created: z.string()
@@ -40,13 +41,13 @@ export const SSHKeySchema = z.object({
 
 // List SSH Keys schema
 export const listSSHKeysSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get SSH Key schema
 export const getSSHKeySchema = z.object({
-  id: z.number().describe('ID of the SSH key')
+  id: z.coerce.number().describe('ID of the SSH key')
 });
 
 // Create SSH Key schema
@@ -57,18 +58,18 @@ export const createSSHKeySchema = z.object({
 
 // Update SSH Key schema
 export const updateSSHKeySchema = z.object({
-  id: z.number().describe('ID of the SSH key to update'),
+  id: z.coerce.number().describe('ID of the SSH key to update'),
   label: z.string().describe('A new label for the SSH key')
 });
 
 // Delete SSH Key schema
 export const deleteSSHKeySchema = z.object({
-  id: z.number().describe('ID of the SSH key to delete')
+  id: z.coerce.number().describe('ID of the SSH key to delete')
 });
 
 // API Token schemas
 export const APITokenSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   label: z.string(),
   created: z.string(),
   expiry: z.string().nullable(),
@@ -80,25 +81,25 @@ export const APITokenSchema = z.object({
 
 // List API Tokens schema
 export const listAPITokensSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get API Token schema
 export const getAPITokenSchema = z.object({
-  id: z.number().describe('ID of the API token')
+  id: z.coerce.number().describe('ID of the API token')
 });
 
 // Create Personal Access Token schema
 export const createPersonalAccessTokenSchema = z.object({
   label: z.string().describe('A label for the API token'),
   expiry: z.string().optional().describe('The expiry date for the token in ISO 8601 format (e.g. 2022-12-31T23:59:59)'),
-  scopes: z.array(z.string()).describe('The permissions this token has')
+  scopes: jsonArray(z.array(z.string())).describe('The permissions this token has')
 });
 
 // Update Token schema
 export const updateTokenSchema = z.object({
-  id: z.number().describe('ID of the API token to update'),
+  id: z.coerce.number().describe('ID of the API token to update'),
   label: z.string().optional().describe('A new label for the API token'),
   expiry: z.string().optional().describe('A new expiry date for the token in ISO 8601 format'),
   scopes: z.array(z.string()).optional().describe('The new permissions for this token')
@@ -106,7 +107,7 @@ export const updateTokenSchema = z.object({
 
 // Delete Token schema
 export const deleteTokenSchema = z.object({
-  id: z.number().describe('ID of the API token to delete')
+  id: z.coerce.number().describe('ID of the API token to delete')
 });
 
 // Two-Factor Authentication schemas
@@ -310,7 +311,7 @@ export const ScopeListResponseSchema = z.object({
 
 // Authorized App schemas
 export const AuthorizedAppSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   label: z.string(),
   thumbnail_url: z.string(),
   access: z.string(),
@@ -322,23 +323,23 @@ export const AuthorizedAppSchema = z.object({
 
 // List Authorized Apps schema
 export const listAuthorizedAppsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get Authorized App schema
 export const getAuthorizedAppSchema = z.object({
-  appId: z.number().describe('ID of the authorized app')
+  appId: z.coerce.number().describe('ID of the authorized app')
 });
 
 // Revoke Authorized App schema
 export const revokeAuthorizedAppSchema = z.object({
-  appId: z.number().describe('ID of the authorized app to revoke')
+  appId: z.coerce.number().describe('ID of the authorized app to revoke')
 });
 
 // Trusted Device schemas
 export const TrustedDeviceSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   user_agent: z.string(),
   last_remote_addr: z.string(),
   last_authenticated: z.string(),
@@ -348,27 +349,27 @@ export const TrustedDeviceSchema = z.object({
 
 // List Trusted Devices schema
 export const listTrustedDevicesSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get Trusted Device schema
 export const getTrustedDeviceSchema = z.object({
-  deviceId: z.number().describe('ID of the trusted device')
+  deviceId: z.coerce.number().describe('ID of the trusted device')
 });
 
 // Revoke Trusted Device schema
 export const revokeTrustedDeviceSchema = z.object({
-  deviceId: z.number().describe('ID of the trusted device to revoke')
+  deviceId: z.coerce.number().describe('ID of the trusted device to revoke')
 });
 
 // Grant schemas
 export const GrantSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   permissions: z.string(),
   label: z.string(),
   entity: z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     type: z.string(),
     label: z.string()
   })
@@ -376,13 +377,13 @@ export const GrantSchema = z.object({
 
 // List Grants schema
 export const listGrantsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Login schemas
 export const LoginSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   ip: z.string(),
   datetime: z.string(),
   username: z.string(),
@@ -391,13 +392,13 @@ export const LoginSchema = z.object({
 
 // List Logins schema
 export const listLoginsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get Login schema
 export const getLoginSchema = z.object({
-  loginId: z.number().describe('ID of the login')
+  loginId: z.coerce.number().describe('ID of the login')
 });
 
 // Phone Number schemas
@@ -415,7 +416,7 @@ export const verifyPhoneNumberSchema = z.object({
 export const UserPreferencesSchema = z.object({
   sortKeys: z.record(z.string()).optional(),
   timezone: z.string().optional(),
-  email_notifications: z.boolean().optional(),
+  email_notifications: coerceBoolean().optional(),
   default_from_email: z.string().optional(),
   authorized_keys: z.array(z.string()).optional(),
   theme: z.string().optional(),
@@ -429,7 +430,7 @@ export const getUserPreferencesSchema = z.object({});
 export const updateUserPreferencesSchema = z.object({
   sortKeys: z.record(z.string()).optional().describe('Sort keys for different views'),
   timezone: z.string().optional().describe('Your timezone in IANA format (e.g. America/New_York)'),
-  email_notifications: z.boolean().optional().describe('Whether you want to receive email notifications'),
+  email_notifications: coerceBoolean().optional().describe('Whether you want to receive email notifications'),
   default_from_email: z.string().optional().describe('Default email to use as from address'),
   authorized_keys: z.array(z.string()).optional().describe('Authorized SSH keys'),
   theme: z.string().optional().describe('UI theme preference'),
@@ -438,7 +439,7 @@ export const updateUserPreferencesSchema = z.object({
 
 // Security Question schemas
 export const SecurityQuestionSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   question: z.string()
 });
 
@@ -449,7 +450,7 @@ export const getSecurityQuestionsSchema = z.object({});
 export const answerSecurityQuestionsSchema = z.object({
   answers: z.array(
     z.object({
-      question_id: z.number().describe('ID of the security question'),
+      question_id: z.coerce.number().describe('ID of the security question'),
       answer: z.string().describe('Answer to the security question')
     })
   ).describe('Answers to security questions')

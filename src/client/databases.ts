@@ -127,6 +127,33 @@ export interface CreatePostgreSQLDatabaseRequest {
   };
 }
 
+export interface PostgreSQLConnectionPool {
+  name: string;
+  database: string;
+  user: string;
+  mode: string;
+  size: number;
+}
+
+export interface CreatePostgreSQLConnectionPoolRequest {
+  name: string;
+  database: string;
+  user: string;
+  mode: string;
+  size: number;
+}
+
+export interface UpdatePostgreSQLConnectionPoolRequest {
+  database?: string;
+  user?: string;
+  mode?: string;
+  size?: number;
+}
+
+export interface DatabaseConfig {
+  [key: string]: any;
+}
+
 export interface UpdatePostgreSQLDatabaseRequest {
   label?: string;
   allow_list?: string[];
@@ -178,6 +205,17 @@ export interface DatabasesClient {
   patchPostgreSQLInstance: (instanceId: number) => Promise<void>;
   suspendPostgreSQLInstance: (instanceId: number) => Promise<void>;
   resumePostgreSQLInstance: (instanceId: number) => Promise<void>;
+
+  // PostgreSQL Connection Pool endpoints
+  getPostgreSQLConnectionPools: (instanceId: number, params?: PaginationParams) => Promise<PaginatedResponse<PostgreSQLConnectionPool>>;
+  getPostgreSQLConnectionPool: (instanceId: number, poolName: string) => Promise<PostgreSQLConnectionPool>;
+  createPostgreSQLConnectionPool: (instanceId: number, data: CreatePostgreSQLConnectionPoolRequest) => Promise<PostgreSQLConnectionPool>;
+  updatePostgreSQLConnectionPool: (instanceId: number, poolName: string, data: UpdatePostgreSQLConnectionPoolRequest) => Promise<PostgreSQLConnectionPool>;
+  deletePostgreSQLConnectionPool: (instanceId: number, poolName: string) => Promise<void>;
+
+  // Database Config endpoints
+  getMySQLConfig: () => Promise<DatabaseConfig>;
+  getPostgreSQLConfig: () => Promise<DatabaseConfig>;
 }
 
 /**
@@ -293,6 +331,37 @@ export function createDatabasesClient(axios: AxiosInstance): DatabasesClient {
     },
     resumePostgreSQLInstance: async (instanceId: number) => {
       await axios.post(`/databases/postgresql/instances/${instanceId}/resume`);
+    },
+
+    // PostgreSQL Connection Pool endpoints
+    getPostgreSQLConnectionPools: async (instanceId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/databases/postgresql/instances/${instanceId}/connection-pools`, { params });
+      return response.data;
+    },
+    getPostgreSQLConnectionPool: async (instanceId: number, poolName: string) => {
+      const response = await axios.get(`/databases/postgresql/instances/${instanceId}/connection-pools/${poolName}`);
+      return response.data;
+    },
+    createPostgreSQLConnectionPool: async (instanceId: number, data: CreatePostgreSQLConnectionPoolRequest) => {
+      const response = await axios.post(`/databases/postgresql/instances/${instanceId}/connection-pools`, data);
+      return response.data;
+    },
+    updatePostgreSQLConnectionPool: async (instanceId: number, poolName: string, data: UpdatePostgreSQLConnectionPoolRequest) => {
+      const response = await axios.put(`/databases/postgresql/instances/${instanceId}/connection-pools/${poolName}`, data);
+      return response.data;
+    },
+    deletePostgreSQLConnectionPool: async (instanceId: number, poolName: string) => {
+      await axios.delete(`/databases/postgresql/instances/${instanceId}/connection-pools/${poolName}`);
+    },
+
+    // Database Config endpoints
+    getMySQLConfig: async () => {
+      const response = await axios.get('/databases/mysql/config');
+      return response.data;
+    },
+    getPostgreSQLConfig: async () => {
+      const response = await axios.get('/databases/postgresql/config');
+      return response.data;
     }
   };
 }

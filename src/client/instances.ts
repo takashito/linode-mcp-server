@@ -291,6 +291,10 @@ export interface Kernel {
   built: string;
 }
 
+export interface UpdateLinodeFirewallsRequest {
+  ids: number[];
+}
+
 export interface LinodeInstancesClient {
   // Instance operations
   getLinodes: (params?: PaginationParams) => Promise<PaginatedResponse<LinodeInstance>>;
@@ -352,6 +356,7 @@ export interface LinodeInstancesClient {
   // Firewall operations
   getLinodeFirewalls: (linodeId: number, params?: PaginationParams) => Promise<PaginatedResponse<any>>; // Define Firewall type if needed
   applyFirewalls: (linodeId: number) => Promise<{}>;
+  updateLinodeFirewalls: (linodeId: number, data: UpdateLinodeFirewallsRequest) => Promise<{}>;
   
   // Transfer and stats operations
   getLinodeStats: (id: number) => Promise<any>; // Define stats type if needed
@@ -571,6 +576,10 @@ export function createInstancesClient(axios: AxiosInstance): LinodeInstancesClie
     },
     applyFirewalls: async (linodeId: number) => {
       const response = await axios.post(`/linode/instances/${linodeId}/firewalls/apply`);
+      return response.data;
+    },
+    updateLinodeFirewalls: async (linodeId: number, data: UpdateLinodeFirewallsRequest) => {
+      const response = await axios.put(`/linode/instances/${linodeId}/firewalls`, data);
       return response.data;
     },
     

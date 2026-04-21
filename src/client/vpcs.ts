@@ -45,6 +45,14 @@ export interface UpdateSubnetRequest {
   tags?: string[];
 }
 
+export interface NodeBalancerVPCConfig {
+  id: number;
+  nodebalancer_id: number;
+  vpc_id: number;
+  subnet_id: number;
+  ipv4_range: string;
+}
+
 export interface VPCIP {
   address: string;
   region: string;
@@ -69,6 +77,9 @@ export interface VPCsClient {
   updateSubnet: (vpcId: number, subnetId: number, data: UpdateSubnetRequest) => Promise<VPCSubnet>;
   deleteSubnet: (vpcId: number, subnetId: number) => Promise<void>;
   getVPCIPs: (vpcId: number, params?: PaginationParams) => Promise<PaginatedResponse<VPCIP>>;
+  getAllVPCIPs: (params?: PaginationParams) => Promise<PaginatedResponse<VPCIP>>;
+  getNodeBalancerVPCs: (nodeBalancerId: number, params?: PaginationParams) => Promise<PaginatedResponse<NodeBalancerVPCConfig>>;
+  getNodeBalancerVPC: (nodeBalancerId: number, nodeBalancerVpcConfigId: number) => Promise<NodeBalancerVPCConfig>;
 }
 
 export function createVPCsClient(axios: AxiosInstance): VPCsClient {
@@ -113,6 +124,18 @@ export function createVPCsClient(axios: AxiosInstance): VPCsClient {
     },
     getVPCIPs: async (vpcId: number, params?: PaginationParams) => {
       const response = await axios.get(`/vpcs/${vpcId}/ips`, { params });
+      return response.data;
+    },
+    getAllVPCIPs: async (params?: PaginationParams) => {
+      const response = await axios.get('/vpcs/ips', { params });
+      return response.data;
+    },
+    getNodeBalancerVPCs: async (nodeBalancerId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/nodebalancers/${nodeBalancerId}/vpcs`, { params });
+      return response.data;
+    },
+    getNodeBalancerVPC: async (nodeBalancerId: number, nodeBalancerVpcConfigId: number) => {
+      const response = await axios.get(`/nodebalancers/${nodeBalancerId}/vpcs/${nodeBalancerVpcConfigId}`);
       return response.data;
     }
   };

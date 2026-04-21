@@ -16,6 +16,7 @@ import { SupportClient } from './support';
 import { LongviewClientInterface } from './longview';
 import { ProfileClientInterface } from './profile';
 import { AccountClientInterface } from './account';
+import { MonitorClient } from './monitor';
 
 export * from './instances';
 export * from './volumes';
@@ -35,6 +36,7 @@ export * from './support';
 export * from './longview';
 export * from './profile';
 export * from './account';
+export * from './monitor';
 
 export interface LinodeClient {
   instances: LinodeInstancesClient;
@@ -55,4 +57,5 @@ export interface LinodeClient {
   longview: LongviewClientInterface;
   profile: ProfileClientInterface;
   account: AccountClientInterface;
+  monitor: MonitorClient;
 }

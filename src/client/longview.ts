@@ -84,6 +84,30 @@ export interface UpdateLongviewClientRequest {
   label: string;
 }
 
+export interface LongviewPlan {
+  id: string;
+  label: string;
+  clients_included: number;
+  price: {
+    hourly: number;
+    monthly: number;
+  };
+}
+
+export interface UpdateLongviewPlanRequest {
+  longview_subscription: string;
+}
+
+export interface LongviewType {
+  id: string;
+  label: string;
+  clients_included: number;
+  price: {
+    hourly: number;
+    monthly: number;
+  };
+}
+
 export interface LongviewClientInterface {
   getLongviewClients(params?: PaginationParams): Promise<PaginatedResponse<LongviewClient>>;
   getLongviewClient(id: number): Promise<LongviewClient>;
@@ -93,6 +117,9 @@ export interface LongviewClientInterface {
   getLongviewSubscriptions(params?: PaginationParams): Promise<PaginatedResponse<LongviewSubscription>>;
   getLongviewSubscription(id: string): Promise<LongviewSubscription>;
   getLongviewData(id: number): Promise<LongviewData>;
+  getLongviewPlan(): Promise<LongviewPlan>;
+  updateLongviewPlan(data: UpdateLongviewPlanRequest): Promise<LongviewPlan>;
+  getLongviewTypes(params?: PaginationParams): Promise<PaginatedResponse<LongviewType>>;
 }
 
 export function createLongviewClient(axiosInstance: AxiosInstance): LongviewClientInterface {
@@ -136,6 +163,23 @@ export function createLongviewClient(axiosInstance: AxiosInstance): LongviewClie
     // Longview Data operations
     getLongviewData: async (id) => {
       const response = await axiosInstance.get(`/longview/clients/${id}/data`);
+      return response.data;
+    },
+
+    // Longview Plan operations
+    getLongviewPlan: async () => {
+      const response = await axiosInstance.get('/longview/plan');
+      return response.data;
+    },
+
+    updateLongviewPlan: async (data) => {
+      const response = await axiosInstance.put('/longview/plan', data);
+      return response.data;
+    },
+
+    // Longview Types operations
+    getLongviewTypes: async (params) => {
+      const response = await axiosInstance.get('/longview/types', { params });
       return response.data;
     }
   };

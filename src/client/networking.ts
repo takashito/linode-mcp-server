@@ -159,9 +159,51 @@ export interface LinodeNetworkingClient {
     outbound: FirewallRule[];
   }>;
   
+  // Get a specific firewall device
+  getFirewallDevice: (firewallId: number, deviceId: number) => Promise<FirewallDevice>;
+
+  // Firewall history operations
+  getFirewallHistory: (firewallId: number, params?: PaginationParams) => Promise<PaginatedResponse<any>>;
+  getFirewallRuleVersion: (firewallId: number, version: number) => Promise<any>;
+
+  // Firewall settings operations
+  getFirewallSettings: () => Promise<any>;
+  updateFirewallSettings: (data: any) => Promise<any>;
+
+  // Firewall template operations
+  getFirewallTemplates: () => Promise<any>;
+  getFirewallTemplate: (slug: string) => Promise<any>;
+
+  // IP assignment operations
+  assignIPs: (data: { assignments: Array<{ address: string; linode_id: number; region: string }> }) => Promise<{}>;
+
+  // IPv4 operations
+  assignIPv4Addresses: (data: { assignments: Array<{ address: string; linode_id: number; region: string }> }) => Promise<{}>;
+  shareIPv4Addresses: (data: { ips: string[]; linode_id: number }) => Promise<{}>;
+
+  // IPv6 range operations
+  createIPv6Range: (data: { linode_id: number; prefix_length: number }) => Promise<any>;
+  deleteIPv6Range: (range: string) => Promise<{}>;
+
   // VLAN operations
   getVLANs: (params?: PaginationParams) => Promise<PaginatedResponse<VLAN>>;
   getVLAN: (regionId: string, label: string) => Promise<VLAN>;
+  deleteVLAN: (regionId: string, label: string) => Promise<{}>;
+
+  // Network Transfer Prices operations
+  getNetworkTransferPrices: () => Promise<any>;
+
+  // Linode Interface operations
+  getLinodeInterfaces: (linodeId: number) => Promise<any>;
+  getLinodeInterface: (linodeId: number, interfaceId: number) => Promise<any>;
+  createLinodeInterface: (linodeId: number, data: any) => Promise<any>;
+  updateLinodeInterface: (linodeId: number, interfaceId: number, data: any) => Promise<any>;
+  deleteLinodeInterface: (linodeId: number, interfaceId: number) => Promise<{}>;
+  getLinodeInterfaceHistory: (linodeId: number, params?: PaginationParams) => Promise<any>;
+  getLinodeInterfaceSettings: (linodeId: number) => Promise<any>;
+  updateLinodeInterfaceSettings: (linodeId: number, data: any) => Promise<any>;
+  getLinodeInterfaceFirewalls: (linodeId: number, interfaceId: number) => Promise<any>;
+  upgradeLinodeInterfaces: (linodeId: number) => Promise<any>;
 }
 
 export function createNetworkingClient(axios: AxiosInstance): LinodeNetworkingClient {
@@ -258,6 +300,120 @@ export function createNetworkingClient(axios: AxiosInstance): LinodeNetworkingCl
     },
     getVLAN: async (regionId: string, label: string) => {
       const response = await axios.get(`/networking/vlans/${regionId}/${label}`);
+      return response.data;
+    },
+    deleteVLAN: async (regionId: string, label: string) => {
+      const response = await axios.delete(`/networking/vlans/${regionId}/${label}`);
+      return response.data;
+    },
+
+    // Get a specific firewall device
+    getFirewallDevice: async (firewallId: number, deviceId: number) => {
+      const response = await axios.get(`/networking/firewalls/${firewallId}/devices/${deviceId}`);
+      return response.data;
+    },
+
+    // Firewall history operations
+    getFirewallHistory: async (firewallId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/networking/firewalls/${firewallId}/history`, { params });
+      return response.data;
+    },
+    getFirewallRuleVersion: async (firewallId: number, version: number) => {
+      const response = await axios.get(`/networking/firewalls/${firewallId}/history/rules/${version}`);
+      return response.data;
+    },
+
+    // Firewall settings operations
+    getFirewallSettings: async () => {
+      const response = await axios.get('/networking/firewalls/settings');
+      return response.data;
+    },
+    updateFirewallSettings: async (data: any) => {
+      const response = await axios.put('/networking/firewalls/settings', data);
+      return response.data;
+    },
+
+    // Firewall template operations
+    getFirewallTemplates: async () => {
+      const response = await axios.get('/networking/firewalls/templates');
+      return response.data;
+    },
+    getFirewallTemplate: async (slug: string) => {
+      const response = await axios.get(`/networking/firewalls/templates/${slug}`);
+      return response.data;
+    },
+
+    // IP assignment operations
+    assignIPs: async (data: { assignments: Array<{ address: string; linode_id: number; region: string }> }) => {
+      const response = await axios.post('/networking/ips/assign', data);
+      return response.data;
+    },
+
+    // IPv4 operations
+    assignIPv4Addresses: async (data: { assignments: Array<{ address: string; linode_id: number; region: string }> }) => {
+      const response = await axios.post('/networking/ipv4/assign', data);
+      return response.data;
+    },
+    shareIPv4Addresses: async (data: { ips: string[]; linode_id: number }) => {
+      const response = await axios.post('/networking/ipv4/share', data);
+      return response.data;
+    },
+
+    // IPv6 range operations
+    createIPv6Range: async (data: { linode_id: number; prefix_length: number }) => {
+      const response = await axios.post('/networking/ipv6/ranges', data);
+      return response.data;
+    },
+    deleteIPv6Range: async (range: string) => {
+      const response = await axios.delete(`/networking/ipv6/ranges/${range}`);
+      return response.data;
+    },
+
+    // Network Transfer Prices operations
+    getNetworkTransferPrices: async () => {
+      const response = await axios.get('/network-transfer/prices');
+      return response.data;
+    },
+
+    // Linode Interface operations
+    getLinodeInterfaces: async (linodeId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/interfaces`);
+      return response.data;
+    },
+    getLinodeInterface: async (linodeId: number, interfaceId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/interfaces/${interfaceId}`);
+      return response.data;
+    },
+    createLinodeInterface: async (linodeId: number, data: any) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/interfaces`, data);
+      return response.data;
+    },
+    updateLinodeInterface: async (linodeId: number, interfaceId: number, data: any) => {
+      const response = await axios.put(`/linode/instances/${linodeId}/interfaces/${interfaceId}`, data);
+      return response.data;
+    },
+    deleteLinodeInterface: async (linodeId: number, interfaceId: number) => {
+      const response = await axios.delete(`/linode/instances/${linodeId}/interfaces/${interfaceId}`);
+      return response.data;
+    },
+    getLinodeInterfaceHistory: async (linodeId: number, params?: PaginationParams) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/interfaces/history`, { params });
+      return response.data;
+    },
+    getLinodeInterfaceSettings: async (linodeId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/interfaces/settings`);
+      return response.data;
+    },
+    updateLinodeInterfaceSettings: async (linodeId: number, data: any) => {
+      const response = await axios.put(`/linode/instances/${linodeId}/interfaces/settings`, data);
+      return response.data;
+    },
+    getLinodeInterfaceFirewalls: async (linodeId: number, interfaceId: number) => {
+      const response = await axios.get(`/linode/instances/${linodeId}/interfaces/${interfaceId}/firewalls`);
+      return response.data;
+    },
+    upgradeLinodeInterfaces: async (linodeId: number) => {
+      const response = await axios.post(`/linode/instances/${linodeId}/upgrade-interfaces`);
       return response.data;
     }
   };

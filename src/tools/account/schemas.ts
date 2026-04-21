@@ -1,14 +1,15 @@
-import { z } from 'zod';
+import { z } from "zod";
+import { coerceBoolean } from "../common/schemas";
 
 // Account schemas
 export const AccountSchema = z.object({
   active_since: z.string(),
   address_1: z.string(),
   address_2: z.string().optional(),
-  balance: z.number(),
+  balance: z.coerce.number(),
   balances: z.object({
-    uninvoiced: z.number(),
-    past_due: z.boolean()
+    uninvoiced: z.coerce.number(),
+    past_due: coerceBoolean()
   }),
   billing_source: z.string(),
   capabilities: z.array(z.string()),
@@ -71,7 +72,7 @@ export const acknowledgeAgreementsSchema = z.object({
 // Service Availability schemas
 export const ServiceAvailabilitySchema = z.object({
   region: z.string(),
-  services: z.record(z.string(), z.boolean())
+  services: z.record(z.string(), coerceBoolean())
 });
 
 // List Service Availability schema
@@ -92,55 +93,37 @@ export const ChildAccountSchema = z.object({
   euuid: z.string(),
   company: z.string(),
   email: z.string().email(),
-  is_active: z.boolean(),
+  is_active: coerceBoolean(),
   billing_cycle: z.string(),
   state: z.string(),
-  has_credit_card: z.boolean(),
+  has_credit_card: coerceBoolean(),
   enterprise_data: z.object({
-    credit_limit: z.number(),
+    credit_limit: z.coerce.number(),
     acl: z.record(z.string(), z.string())
   }).optional()
 });
 
-// List Child Accounts schema
-export const listChildAccountsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
-});
-
-// Get Child Account schema
-export const getChildAccountSchema = z.object({
-  euuid: z.string().describe('Unique identifier for the child account')
-});
-
-// Create Proxy Token schema
-export const createProxyTokenSchema = z.object({
-  euuid: z.string().describe('Unique identifier for the child account'),
-  expiry: z.string().optional().describe('Token expiration date in ISO 8601 format'),
-  scopes: z.array(z.string()).optional().describe('List of API scopes to grant to the token')
-});
-
 // Event schemas
 export const AccountEventSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   action: z.string(),
   created: z.string(),
   entity: z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     label: z.string(),
     type: z.string(),
     url: z.string()
   }),
-  percent_complete: z.number().optional(),
+  percent_complete: z.coerce.number().optional(),
   rate: z.string().optional(),
-  read: z.boolean(),
-  seen: z.boolean(),
+  read: coerceBoolean(),
+  seen: coerceBoolean(),
   status: z.string(),
-  time_remaining: z.number().optional(),
+  time_remaining: z.coerce.number().optional(),
   username: z.string(),
   message: z.string().optional(),
   secondary_entity: z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     label: z.string(),
     type: z.string(),
     url: z.string()
@@ -149,85 +132,80 @@ export const AccountEventSchema = z.object({
 
 // List Events schema
 export const listEventsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get Event schema
 export const getEventSchema = z.object({
-  eventId: z.number().describe('ID of the event')
-});
-
-// Mark Event as Read schema
-export const markEventAsReadSchema = z.object({
-  eventId: z.number().describe('ID of the event')
+  eventId: z.coerce.number().describe('ID of the event')
 });
 
 // Mark Event as Seen schema
 export const markEventAsSeenSchema = z.object({
-  eventId: z.number().describe('ID of the event')
+  eventId: z.coerce.number().describe('ID of the event')
 });
 
 // Invoice schemas
 export const InvoiceSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   date: z.string(),
   label: z.string(),
-  subtotal: z.number(),
-  tax: z.number(),
-  total: z.number()
+  subtotal: z.coerce.number(),
+  tax: z.coerce.number(),
+  total: z.coerce.number()
 });
 
 // List Invoices schema
 export const listInvoicesSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get Invoice schema
 export const getInvoiceSchema = z.object({
-  invoiceId: z.number().describe('ID of the invoice')
+  invoiceId: z.coerce.number().describe('ID of the invoice')
 });
 
 // Invoice Item schema
 export const InvoiceItemSchema = z.object({
-  amount: z.number(),
+  amount: z.coerce.number(),
   from: z.string(),
   to: z.string(),
   label: z.string(),
-  quantity: z.number(),
+  quantity: z.coerce.number(),
   type: z.string(),
   unit_price: z.string(),
-  tax: z.number(),
-  total: z.number()
+  tax: z.coerce.number(),
+  total: z.coerce.number()
 });
 
 // List Invoice Items schema
 export const listInvoiceItemsSchema = z.object({
-  invoiceId: z.number().describe('ID of the invoice'),
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  invoiceId: z.coerce.number().describe('ID of the invoice'),
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Login schemas
 export const AccountLoginSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   datetime: z.string(),
   ip: z.string(),
-  restricted: z.boolean(),
+  restricted: coerceBoolean(),
   status: z.string(),
   username: z.string()
 });
 
 // List Account Logins schema
 export const listAccountLoginsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Get Account Login schema
 export const getAccountLoginSchema = z.object({
-  loginId: z.number().describe('ID of the login')
+  loginId: z.coerce.number().describe('ID of the login')
 });
 
 // Maintenance schemas
@@ -239,7 +217,7 @@ export const MaintenanceSchema = z.object({
     type: z.string(),
     url: z.string()
   }),
-  duration: z.number(),
+  duration: z.coerce.number(),
   status: z.string(),
   type: z.string(),
   reason: z.string(),
@@ -250,15 +228,15 @@ export const MaintenanceSchema = z.object({
 
 // List Maintenances schema
 export const listMaintenancesSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Notification schemas
 export const NotificationSchema = z.object({
   body: z.string(),
   entity: z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     label: z.string(),
     type: z.string(),
     url: z.string()
@@ -280,22 +258,22 @@ export const OAuthClientSchema = z.object({
   label: z.string(),
   redirect_uri: z.string(),
   secret: z.string(),
-  public: z.boolean(),
+  public: coerceBoolean(),
   status: z.string(),
   thumbnail_url: z.string().optional()
 });
 
 // List OAuth Clients schema
 export const listOAuthClientsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Create OAuth Client schema
 export const createOAuthClientSchema = z.object({
   label: z.string().describe('A name for the OAuth client'),
   redirect_uri: z.string().describe('The OAuth client callback URL'),
-  public: z.boolean().optional().describe('Whether this client is public or not')
+  public: coerceBoolean().optional().describe('Whether this client is public or not')
 });
 
 // Get OAuth Client schema
@@ -308,7 +286,7 @@ export const updateOAuthClientSchema = z.object({
   clientId: z.string().describe('ID of the OAuth client'),
   label: z.string().optional().describe('A name for the OAuth client'),
   redirect_uri: z.string().optional().describe('The OAuth client callback URL'),
-  public: z.boolean().optional().describe('Whether this client is public or not')
+  public: coerceBoolean().optional().describe('Whether this client is public or not')
 });
 
 // Delete OAuth Client schema
@@ -334,10 +312,10 @@ export const updateOAuthClientThumbnailSchema = z.object({
 
 // Account Settings schemas
 export const AccountSettingsSchema = z.object({
-  managed: z.boolean(),
+  managed: coerceBoolean(),
   longview_subscription: z.string().nullable(),
-  network_helper: z.boolean(),
-  backups_enabled: z.boolean(),
+  network_helper: coerceBoolean(),
+  backups_enabled: coerceBoolean(),
   object_storage: z.enum(['active', 'disabled', 'suspended'])
 });
 
@@ -346,8 +324,8 @@ export const getAccountSettingsSchema = z.object({});
 
 // Update Account Settings schema
 export const updateAccountSettingsSchema = z.object({
-  network_helper: z.boolean().optional().describe('Enables automatic IP assignment for newly created Linodes'),
-  backups_enabled: z.boolean().optional().describe('Enables automatic backups for all created Linodes')
+  network_helper: coerceBoolean().optional().describe('Enables automatic IP assignment for newly created Linodes'),
+  backups_enabled: coerceBoolean().optional().describe('Enables automatic backups for all created Linodes')
 });
 
 // Enable Managed Service schema
@@ -355,9 +333,9 @@ export const enableManagedServiceSchema = z.object({});
 
 // Account Network Transfer schemas
 export const AccountNetworkTransferSchema = z.object({
-  billable: z.number(),
-  used: z.number(),
-  quota: z.number()
+  billable: z.coerce.number(),
+  used: z.coerce.number(),
+  quota: z.coerce.number()
 });
 
 // Get Account Network Transfer schema
@@ -367,22 +345,22 @@ export const getAccountNetworkTransferSchema = z.object({});
 export const UserSchema = z.object({
   username: z.string(),
   email: z.string().email(),
-  restricted: z.boolean(),
+  restricted: coerceBoolean(),
   ssh_keys: z.array(z.string()),
-  two_factor_auth: z.boolean()
+  two_factor_auth: coerceBoolean()
 });
 
 // List Users schema
 export const listUsersSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return'),
-  page_size: z.number().optional().describe('Number of results to return per page')
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
 });
 
 // Create User schema
 export const createUserSchema = z.object({
   username: z.string().describe('The username for the user'),
   email: z.string().email().describe('The email address for the user'),
-  restricted: z.boolean().describe('If true, the user has limited access to account features')
+  restricted: coerceBoolean().describe('If true, the user has limited access to account features')
 });
 
 // Get User schema
@@ -394,7 +372,7 @@ export const getUserSchema = z.object({
 export const updateUserSchema = z.object({
   username: z.string().describe('The username of the user'),
   email: z.string().email().optional().describe('The email address for the user'),
-  restricted: z.boolean().optional().describe('If true, the user has limited access to account features')
+  restricted: coerceBoolean().optional().describe('If true, the user has limited access to account features')
 });
 
 // Delete User schema
@@ -406,60 +384,60 @@ export const deleteUserSchema = z.object({
 export const UserGrantsSchema = z.object({
   global: z.object({
     account_access: z.string(),
-    add_domains: z.boolean().optional(),
-    add_databases: z.boolean().optional(),
-    add_firewalls: z.boolean().optional(),
-    add_images: z.boolean().optional(),
-    add_linodes: z.boolean().optional(),
-    add_longview: z.boolean().optional(),
-    add_nodebalancers: z.boolean().optional(),
-    add_stackscripts: z.boolean().optional(),
-    add_volumes: z.boolean().optional(),
-    cancel_account: z.boolean().optional(),
-    longview_subscription: z.boolean().optional()
+    add_domains: coerceBoolean().optional(),
+    add_databases: coerceBoolean().optional(),
+    add_firewalls: coerceBoolean().optional(),
+    add_images: coerceBoolean().optional(),
+    add_linodes: coerceBoolean().optional(),
+    add_longview: coerceBoolean().optional(),
+    add_nodebalancers: coerceBoolean().optional(),
+    add_stackscripts: coerceBoolean().optional(),
+    add_volumes: coerceBoolean().optional(),
+    cancel_account: coerceBoolean().optional(),
+    longview_subscription: coerceBoolean().optional()
   }),
   database: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   domain: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   firewall: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   image: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   linode: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   longview: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   nodebalancer: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   stackscript: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   })),
   volume: z.record(z.string(), z.object({
-    id: z.number(),
+    id: z.coerce.number(),
     permissions: z.string(),
     label: z.string()
   }))
@@ -470,22 +448,107 @@ export const getUserGrantsSchema = z.object({
   username: z.string().describe('The username of the user')
 });
 
+// Entity schemas
+export const listEntitiesSchema = z.object({
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
+});
+
+// IAM Role Permission schemas
+export const listIamRolesSchema = z.object({});
+
+export const getUserRolePermissionsSchema = z.object({
+  username: z.string().describe('The username of the user')
+});
+
+export const updateUserRolePermissionsSchema = z.object({
+  username: z.string().describe('The username of the user'),
+  roles: z.array(z.string()).describe('List of role names to assign to the user')
+});
+
+// Delegation Child Account schemas
+export const listDelegationChildAccountsSchema = z.object({
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
+});
+
+export const getDelegationChildAccountUsersSchema = z.object({
+  euuid: z.string().describe('Unique identifier for the child account')
+});
+
+export const updateDelegationChildAccountUsersSchema = z.object({
+  euuid: z.string().describe('Unique identifier for the child account'),
+  users: z.array(z.string()).describe('List of usernames to delegate to the child account')
+});
+
+// Delegation Default Roles schemas
+export const getDelegationDefaultRolesSchema = z.object({});
+
+export const updateDelegationDefaultRolesSchema = z.object({
+  roles: z.array(z.string()).describe('List of default role names for delegate users')
+});
+
+// Delegation Profile schemas
+export const listDelegationProfileAccountsSchema = z.object({
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
+});
+
+export const getDelegationProfileAccountSchema = z.object({
+  euuid: z.string().describe('Unique identifier for the child account')
+});
+
+export const createDelegationTokenSchema = z.object({
+  euuid: z.string().describe('Unique identifier for the child account')
+});
+
+// User Delegations schema
+export const getUserDelegationsSchema = z.object({
+  username: z.string().describe('The username of the user')
+});
+
+// Maintenance Policy schemas
+export const listMaintenancePoliciesSchema = z.object({
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
+});
+
+// Resource Lock schemas
+export const listResourceLocksSchema = z.object({
+  page: z.coerce.number().optional().describe('Page number of results to return'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page')
+});
+
+export const getResourceLockSchema = z.object({
+  resourceLockId: z.coerce.number().describe('ID of the resource lock')
+});
+
+export const createResourceLockSchema = z.object({
+  resource_id: z.coerce.number().describe('ID of the resource to lock'),
+  resource_type: z.string().describe('Type of the resource to lock'),
+  reason: z.string().optional().describe('Reason for locking the resource')
+});
+
+export const deleteResourceLockSchema = z.object({
+  resourceLockId: z.coerce.number().describe('ID of the resource lock')
+});
+
 // Update User Grants schema
 export const updateUserGrantsSchema = z.object({
   username: z.string().describe('The username of the user'),
   global: z.object({
     account_access: z.string().optional().describe('The level of access ("read_only" or "read_write")'),
-    add_domains: z.boolean().optional().describe('Whether the user can add domains'),
-    add_databases: z.boolean().optional().describe('Whether the user can add databases'),
-    add_firewalls: z.boolean().optional().describe('Whether the user can add firewalls'),
-    add_images: z.boolean().optional().describe('Whether the user can add images'),
-    add_linodes: z.boolean().optional().describe('Whether the user can add Linodes'),
-    add_longview: z.boolean().optional().describe('Whether the user can add Longview clients'),
-    add_nodebalancers: z.boolean().optional().describe('Whether the user can add NodeBalancers'),
-    add_stackscripts: z.boolean().optional().describe('Whether the user can add StackScripts'),
-    add_volumes: z.boolean().optional().describe('Whether the user can add volumes'),
-    cancel_account: z.boolean().optional().describe('Whether the user can cancel the account'),
-    longview_subscription: z.boolean().optional().describe('Whether the user can manage the Longview subscription')
+    add_domains: coerceBoolean().optional().describe('Whether the user can add domains'),
+    add_databases: coerceBoolean().optional().describe('Whether the user can add databases'),
+    add_firewalls: coerceBoolean().optional().describe('Whether the user can add firewalls'),
+    add_images: coerceBoolean().optional().describe('Whether the user can add images'),
+    add_linodes: coerceBoolean().optional().describe('Whether the user can add Linodes'),
+    add_longview: coerceBoolean().optional().describe('Whether the user can add Longview clients'),
+    add_nodebalancers: coerceBoolean().optional().describe('Whether the user can add NodeBalancers'),
+    add_stackscripts: coerceBoolean().optional().describe('Whether the user can add StackScripts'),
+    add_volumes: coerceBoolean().optional().describe('Whether the user can add volumes'),
+    cancel_account: coerceBoolean().optional().describe('Whether the user can cancel the account'),
+    longview_subscription: coerceBoolean().optional().describe('Whether the user can manage the Longview subscription')
   }).optional(),
   database: z.record(z.string(), z.object({
     permissions: z.string().describe('The level of access ("read_only" or "read_write")')

@@ -102,7 +102,7 @@ export interface CloneDomainRequest {
 
 // Zone File response interface
 export interface ZoneFileResponse {
-  zone_file: string;
+  zone_file: string[];
 }
 
 // Client interface

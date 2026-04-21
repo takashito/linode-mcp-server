@@ -1,5 +1,6 @@
 import { FastMCP } from 'fastmcp';
 import { createClient } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -8,7 +9,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'list_tickets',
     description: 'List support tickets for your account',
-    parameters: schemas.listTicketsSchema,
+    parameters: mcpInput(schemas.listTicketsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -23,7 +24,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'get_ticket',
     description: 'Get details of a specific support ticket',
-    parameters: schemas.getTicketSchema,
+    parameters: mcpInput(schemas.getTicketSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).support.getTicket(params.ticket_id);
       return JSON.stringify(result, null, 2);
@@ -34,7 +35,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'create_ticket',
     description: 'Open a new support ticket',
-    parameters: schemas.createTicketSchema,
+    parameters: mcpInput(schemas.createTicketSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).support.createTicket(params);
       return JSON.stringify(result, null, 2);
@@ -45,7 +46,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'close_ticket',
     description: 'Close a support ticket',
-    parameters: schemas.closeTicketSchema,
+    parameters: mcpInput(schemas.closeTicketSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).support.closeTicket(params.ticket_id);
       return JSON.stringify(result, null, 2);
@@ -56,7 +57,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'list_replies',
     description: 'List replies to a support ticket',
-    parameters: schemas.listRepliesSchema,
+    parameters: mcpInput(schemas.listRepliesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -71,7 +72,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'create_reply',
     description: 'Reply to a support ticket',
-    parameters: schemas.createReplySchema,
+    parameters: mcpInput(schemas.createReplySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { ticket_id, description } = params;
       const result = await createClient(context).support.createReply(ticket_id, { description });
@@ -83,7 +84,7 @@ export function registerSupportTools(server: FastMCP) {
   server.addTool({
     name: 'upload_attachment',
     description: 'Upload an attachment to a support ticket',
-    parameters: schemas.uploadAttachmentSchema,
+    parameters: mcpInput(schemas.uploadAttachmentSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { ticket_id, file } = params;
       

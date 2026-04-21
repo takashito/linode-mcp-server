@@ -202,11 +202,6 @@ export interface ProfileClientInterface {
   getLogins(params?: PaginationParams): Promise<PaginatedResponse<Login>>;
   getLogin(loginId: number): Promise<Login>;
   
-  // Phone Number operations
-  deletePhoneNumber(): Promise<void>;
-  sendPhoneVerification(data: PhoneVerificationPayload): Promise<{}>;
-  verifyPhoneNumber(data: PhoneVerificationConfirmPayload): Promise<{}>;
-  
   // User Preferences operations
   getUserPreferences(): Promise<UserPreferences>;
   updateUserPreferences(data: UserPreferences): Promise<UserPreferences>;
@@ -214,6 +209,7 @@ export interface ProfileClientInterface {
   // Security Questions operations
   getSecurityQuestions(): Promise<SecurityQuestion[]>;
   answerSecurityQuestions(data: SecurityQuestionAnswer[]): Promise<{}>;
+
 }
 
 export function createProfileClient(axiosInstance: AxiosInstance): ProfileClientInterface {
@@ -266,12 +262,22 @@ export function createProfileClient(axiosInstance: AxiosInstance): ProfileClient
     },
 
     createPersonalAccessToken: async (data) => {
-      const response = await axiosInstance.post('/profile/tokens', data);
+      // Linode API expects scopes as a space-separated string, not an array
+      const payload = {
+        ...data,
+        scopes: Array.isArray(data.scopes) ? data.scopes.join(' ') : data.scopes,
+      };
+      const response = await axiosInstance.post('/profile/tokens', payload);
       return response.data;
     },
 
     updateToken: async (id, data) => {
-      const response = await axiosInstance.put(`/profile/tokens/${id}`, data);
+      // Linode API expects scopes as a space-separated string, not an array
+      const payload: any = { ...data };
+      if (payload.scopes !== undefined && Array.isArray(payload.scopes)) {
+        payload.scopes = payload.scopes.join(' ');
+      }
+      const response = await axiosInstance.put(`/profile/tokens/${id}`, payload);
       return response.data;
     },
 
@@ -342,21 +348,6 @@ export function createProfileClient(axiosInstance: AxiosInstance): ProfileClient
       return response.data;
     },
 
-    // Phone Number operations
-    deletePhoneNumber: async () => {
-      await axiosInstance.delete('/profile/phone');
-    },
-
-    sendPhoneVerification: async (data) => {
-      const response = await axiosInstance.post('/profile/phone', data);
-      return response.data;
-    },
-
-    verifyPhoneNumber: async (data) => {
-      const response = await axiosInstance.post('/profile/phone/verify', data);
-      return response.data;
-    },
-
     // User Preferences operations
     getUserPreferences: async () => {
       const response = await axiosInstance.get('/profile/preferences');
@@ -378,5 +369,6 @@ export function createProfileClient(axiosInstance: AxiosInstance): ProfileClient
       const response = await axiosInstance.post('/profile/security-questions', data);
       return response.data;
     },
+
   };
 }

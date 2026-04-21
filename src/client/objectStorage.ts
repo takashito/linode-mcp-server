@@ -123,10 +123,27 @@ export interface ObjectStorageType {
   transfer_price: number;
 }
 
+export interface ObjectStorageQuota {
+  quota_id: string;
+  quota_name: string;
+  endpoint_type: string;
+  s3_endpoint: string | null;
+  description: string;
+  quota_limit: number;
+  resource_metric: string;
+}
+
+export interface ObjectStorageQuotaUsage {
+  quota_limit: number;
+  usage: number;
+}
+
+export interface ObjectACLResponse {
+  acl: string;
+  acl_xml: string;
+}
+
 export interface ObjectStorageClient {
-  // Clusters
-  getClusters: () => Promise<ObjectStorageCluster[]>;
-  
   // Endpoints
   getEndpoints: (params?: PaginationParams) => Promise<PaginatedResponse<{
     region: string;
@@ -159,10 +176,20 @@ export interface ObjectStorageClient {
   updateKey: (id: number, data: UpdateObjectStorageKeyRequest) => Promise<ObjectStorageKey>;
   deleteKey: (id: number) => Promise<void>;
   
-  // Default bucket access
-  getDefaultBucketAccess: () => Promise<DefaultBucketAccess>;
-  updateDefaultBucketAccess: (data: UpdateBucketAccessRequest) => Promise<DefaultBucketAccess>;
-  
+  // Per-region bucket listing
+  getBucketsInRegion: (regionId: string, params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageBucket>>;
+
+  // Object ACL Get
+  getObjectACL: (region: string, bucket: string, name: string) => Promise<ObjectACLResponse>;
+
+  // Bucket Access Update (PUT)
+  putBucketAccess: (region: string, label: string, data: UpdateBucketAccessRequest) => Promise<void>;
+
+  // Quotas
+  getQuotas: (params?: PaginationParams) => Promise<PaginatedResponse<ObjectStorageQuota>>;
+  getQuota: (quotaId: string) => Promise<ObjectStorageQuota>;
+  getQuotaUsage: (quotaId: string) => Promise<ObjectStorageQuotaUsage>;
+
   // Transfer statistics
   getTransferStats: () => Promise<TransferStats>;
   
@@ -175,12 +202,6 @@ export interface ObjectStorageClient {
 
 export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageClient {
   return {
-    // Clusters
-    getClusters: async () => {
-      const response = await axios.get('/object-storage/clusters');
-      return response.data.data;
-    },
-    
     // Endpoints
     getEndpoints: async (params?: PaginationParams) => {
       const response = await axios.get('/object-storage/endpoints', { params });
@@ -286,18 +307,43 @@ export function createObjectStorageClient(axios: AxiosInstance): ObjectStorageCl
       return response.data;
     },
     
-    // Default bucket access
-    getDefaultBucketAccess: async () => {
-      const response = await axios.get('/object-storage/bucket-access');
+    // Per-region bucket listing
+    getBucketsInRegion: async (regionId: string, params?: PaginationParams) => {
+      const response = await axios.get(`/object-storage/buckets/${regionId}`, { params });
       return response.data;
     },
-    
-    updateDefaultBucketAccess: async (data: UpdateBucketAccessRequest) => {
-      const response = await axios.put('/object-storage/bucket-access', data);
+
+    // Object ACL Get
+    getObjectACL: async (region: string, bucket: string, name: string) => {
+      const response = await axios.get(`/object-storage/buckets/${region}/${bucket}/object-acl`, {
+        params: { name }
+      });
       return response.data;
     },
-    
-    // New Transfer statistics method
+
+    // Bucket Access Update (PUT)
+    putBucketAccess: async (region: string, label: string, data: UpdateBucketAccessRequest) => {
+      const response = await axios.put(`/object-storage/buckets/${region}/${label}/access`, data);
+      return response.data;
+    },
+
+    // Quotas
+    getQuotas: async (params?: PaginationParams) => {
+      const response = await axios.get('/object-storage/quotas', { params });
+      return response.data;
+    },
+
+    getQuota: async (quotaId: string) => {
+      const response = await axios.get(`/object-storage/quotas/${quotaId}`);
+      return response.data;
+    },
+
+    getQuotaUsage: async (quotaId: string) => {
+      const response = await axios.get(`/object-storage/quotas/${quotaId}/usage`);
+      return response.data;
+    },
+
+    // Transfer statistics
     getTransferStats: async () => {
       const response = await axios.get('/object-storage/transfer');
       return response.data;

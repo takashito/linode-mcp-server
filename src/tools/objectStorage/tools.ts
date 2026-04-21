@@ -1,5 +1,6 @@
 import { FastMCP } from 'fastmcp';
-import { createClient, ObjectStorageBucket, ObjectStorageCluster, ObjectStorageKey, ObjectStorageObject } from '../../client';
+import { createClient } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 import * as fs from 'fs';
@@ -10,33 +11,14 @@ import { URL } from 'url';
 import * as mime from 'mime-types';
 
 export function registerObjectStorageTools(server: FastMCP) {
-  // Clusters
-  server.addTool({
-    name: 'list_object_storage_clusters',
-    description: 'Get a list of all Object Storage clusters',
-    parameters: schemas.listClustersSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      const clusters = await createClient(context).objectStorage.getClusters();
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageClusters(clusters) },
-        ],
-      };
-    })
-  });
-  
   // Endpoints
   server.addTool({
     name: 'list_object_storage_endpoints',
     description: 'Get a list of all Object Storage endpoints with their types',
-    parameters: schemas.listEndpointsSchema,
+    parameters: mcpInput(schemas.listEndpointsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.getEndpoints(params);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageEndpoints(result.data) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
 
@@ -44,37 +26,29 @@ export function registerObjectStorageTools(server: FastMCP) {
   server.addTool({
     name: 'list_object_storage_buckets',
     description: 'Get a list of all Object Storage buckets',
-    parameters: schemas.listBucketsSchema,
+    parameters: mcpInput(schemas.listBucketsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.getBuckets(params);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageBuckets(result.data) },
-        ],
-      };
+      return JSON.stringify(result.data, null, 2);
     })
   });
   server.addTool({
     name: 'get_object_storage_bucket',
     description: 'Get details for a specific Object Storage bucket',
-    parameters: schemas.getBucketSchema,
+    parameters: mcpInput(schemas.getBucketSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       // The client implementation expects region (cluster in client code) and bucket name
       const result = await createClient(context).objectStorage.getBucket(
         params.region, 
         params.bucket  // Use bucket parameter from the schema for lookup
       );
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageBucket(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'create_object_storage_bucket',
     description: 'Create a new Object Storage bucket',
-    parameters: schemas.createBucketSchema,
+    parameters: mcpInput(schemas.createBucketSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       // Ensure parameters match the client's expectations
       // The Linode API expects 'label' for the bucket name and 'region' for the location
@@ -86,17 +60,13 @@ export function registerObjectStorageTools(server: FastMCP) {
         cors_enabled: params.cors_enabled
       };
       const result = await createClient(context).objectStorage.createBucket(createParams);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageBucket(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'delete_object_storage_bucket',
     description: 'Delete an Object Storage bucket',
-    parameters: schemas.deleteBucketSchema,
+    parameters: mcpInput(schemas.deleteBucketSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...data } = params;
       await createClient(context).objectStorage.deleteBucket(region, bucket);
@@ -110,49 +80,22 @@ export function registerObjectStorageTools(server: FastMCP) {
   server.addTool({
     name: 'get_object_storage_bucket_access',
     description: 'Get access configuration for an Object Storage bucket',
-    parameters: schemas.getBucketAccessSchema,
+    parameters: mcpInput(schemas.getBucketAccessSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...data } = params;
       const result = await createClient(context).objectStorage.getBucketAccess(region, bucket);
-      return {
-        content: [
-          { type: 'text', text: `Bucket Access for '${bucket}':
-ACL: ${result.acl}
-CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
-  server.addTool({
-    name: 'update_object_storage_bucket_access',
-    description: 'Update access configuration for an Object Storage bucket',
-    parameters: schemas.updateBucketAccessSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      const { region, bucket, ...data } = params;
-      const result = await createClient(context).objectStorage.updateBucketAccess(region, bucket, data);
-      return {
-        content: [
-          { type: 'text', text: `Updated Bucket Access for '${bucket}':
-ACL: ${result.acl}
-CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
-        ],
-      };
-    })
-  });
-
   // Objects
   server.addTool({
     name: 'list_object_storage_objects',
     description: 'List objects in an Object Storage bucket',
-    parameters: schemas.listObjectsSchema,
+    parameters: mcpInput(schemas.listObjectsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, ...paginationParams } = params;
       const result = await createClient(context).objectStorage.getObjects(region, bucket, paginationParams);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageObjects(result.data) },
-        ],
-      };
+      return JSON.stringify(result.data, null, 2);
     })
   });
 
@@ -160,21 +103,16 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
   server.addTool({
     name: 'get_object_storage_bucket_certificate',
     description: 'Get SSL/TLS certificate for an Object Storage bucket',
-    parameters: schemas.getBucketCertificateSchema,
+    parameters: mcpInput(schemas.getBucketCertificateSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
         const result = await createClient(context).objectStorage.getBucketCertificate(params.region, params.bucket);
-        return {
-          content: [
-            { type: 'text', text: `Certificate for '${params.bucket}':
-Expires: ${new Date(result.expiry).toLocaleString()}` },
-          ],
-        };
+        return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'upload_object_storage_bucket_certificate',
     description: 'Upload SSL/TLS certificate for an Object Storage bucket',
-    parameters: schemas.uploadBucketCertificateSchema,
+    parameters: mcpInput(schemas.uploadBucketCertificateSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, certificate, private_key } = params;
       const result = await createClient(context).objectStorage.uploadBucketCertificate(region, bucket, {
@@ -192,7 +130,7 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
   server.addTool({
     name: 'delete_object_storage_bucket_certificate',
     description: 'Delete SSL/TLS certificate for an Object Storage bucket',
-    parameters: schemas.deleteBucketCertificateSchema,
+    parameters: mcpInput(schemas.deleteBucketCertificateSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).objectStorage.deleteBucketCertificate(params.region, params.bucket);
       return {
@@ -207,60 +145,44 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
   server.addTool({
     name: 'list_object_storage_keys',
     description: 'Get a list of all Object Storage keys',
-    parameters: schemas.listKeysSchema,
+    parameters: mcpInput(schemas.listKeysSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.getKeys(params);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageKeys(result.data) },
-        ],
-      };
+      return JSON.stringify(result.data, null, 2);
     })
   });
   server.addTool({
     name: 'get_object_storage_key',
     description: 'Get details for a specific Object Storage key',
-    parameters: schemas.getKeySchema,
+    parameters: mcpInput(schemas.getKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.getKey(params.id);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageKey(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'create_object_storage_key',
     description: 'Create a new Object Storage key',
-    parameters: schemas.createKeySchema,
+    parameters: mcpInput(schemas.createKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.createKey(params);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageKey(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'update_object_storage_key',
     description: 'Update an Object Storage key',
-    parameters: schemas.updateKeySchema,
+    parameters: mcpInput(schemas.updateKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
       const result = await createClient(context).objectStorage.updateKey(id, updateData);
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageKey(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
     name: 'delete_object_storage_key',
     description: 'Delete an Object Storage key',
-    parameters: schemas.deleteKeySchema,
+    parameters: mcpInput(schemas.deleteKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).objectStorage.deleteKey(params.id);
       return {
@@ -271,47 +193,11 @@ Expires: ${new Date(result.expiry).toLocaleString()}` },
     })
   });
 
-  // Default access
-  server.addTool({
-    name: 'get_object_storage_default_bucket_access',
-    description: 'Get default bucket access configuration',
-    parameters: schemas.getDefaultBucketAccessSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).objectStorage.getDefaultBucketAccess();
-      return {
-        content: [
-          { type: 'text', text: `Default Bucket Access:
-Region: ${result.region}
-Bucket: ${result.bucket_name}
-ACL: ${result.acl}
-CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
-        ],
-      };
-    })
-  });
-  server.addTool({
-    name: 'update_object_storage_default_bucket_access',
-    description: 'Update default bucket access configuration',
-    parameters: schemas.updateDefaultBucketAccessSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).objectStorage.updateDefaultBucketAccess(params);
-      return {
-        content: [
-          { type: 'text', text: `Updated Default Bucket Access:
-Region: ${result.region}
-Bucket: ${result.bucket_name}
-ACL: ${result.acl}
-CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
-        ],
-      };
-    })
-  });
-
   // Object ACL Management
   server.addTool({
     name: 'update_object_acl',
     description: 'Update access control level (ACL) for an object in a bucket',
-    parameters: schemas.updateObjectACLSchema,
+    parameters: mcpInput(schemas.updateObjectACLSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, name, acl } = params;
       await createClient(context).objectStorage.updateObjectACL(region, bucket, name, { acl });
@@ -327,7 +213,7 @@ CORS Enabled: ${result.cors_enabled ? 'Yes' : 'No'}` },
   server.addTool({
     name: 'generate_object_url',
     description: 'Generate a pre-signed URL for an object in a bucket',
-    parameters: schemas.getObjectURLSchema,
+    parameters: mcpInput(schemas.getObjectURLSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, name, ...urlParams } = params;
       
@@ -354,7 +240,7 @@ Note: This URL is temporary and will expire after ${params.expires_in || 3600} s
   server.addTool({
     name: 'upload_object',
     description: 'Upload and create an new object to an Object Storage bucket',
-    parameters: schemas.uploadObjectSchema,
+    parameters: mcpInput(schemas.uploadObjectSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, object_path, source, content_type, acl, expires_in } = params;
       
@@ -413,7 +299,7 @@ ACL: ${acl || 'Default bucket ACL'}` },
   server.addTool({
     name: 'download_object',
     description: 'Download an object from a bucket and save it to a local file',
-    parameters: schemas.downloadObjectSchema,
+    parameters: mcpInput(schemas.downloadObjectSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, object_path, destination, expires_in } = params;
       
@@ -462,7 +348,7 @@ Content Type: ${getContentType(object_path)}` },
   server.addTool({
     name: 'delete_object',
     description: 'Delete an object from an Object Storage bucket',
-    parameters: schemas.deleteObjectSchema,
+    parameters: mcpInput(schemas.deleteObjectSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { region, bucket, object_path, expires_in } = params;
       
@@ -484,18 +370,105 @@ Content Type: ${getContentType(object_path)}` },
     })
   });
 
+  // Per-region bucket listing
+  server.addTool({
+    name: 'list_object_storage_buckets_in_region',
+    description: 'List Object Storage buckets in a specific region',
+    parameters: mcpInput(schemas.listBucketsInRegionSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { regionId, ...paginationParams } = params;
+      const result = await createClient(context).objectStorage.getBucketsInRegion(regionId, paginationParams);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    })
+  });
+
+  // Object ACL Get
+  server.addTool({
+    name: 'get_object_acl',
+    description: 'Get an Object Storage object ACL configuration',
+    parameters: mcpInput(schemas.getObjectACLSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { regionId, bucket, name } = params;
+      const result = await createClient(context).objectStorage.getObjectACL(regionId, bucket, name);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    })
+  });
+
+  // Bucket Access Update (PUT)
+  server.addTool({
+    name: 'update_object_storage_bucket_access',
+    description: 'Update access to an Object Storage bucket',
+    parameters: mcpInput(schemas.putBucketAccessSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { regionId, bucket, ...data } = params;
+      await createClient(context).objectStorage.putBucketAccess(regionId, bucket, data);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify({ status: 'success', message: `Bucket access updated for '${bucket}' in region '${regionId}'.` }, null, 2) },
+        ],
+      };
+    })
+  });
+
+  // Object Storage Quotas
+  server.addTool({
+    name: 'list_object_storage_quotas',
+    description: 'List Object Storage quotas',
+    parameters: mcpInput(schemas.listObjectStorageQuotasSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).objectStorage.getQuotas(params);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    })
+  });
+
+  server.addTool({
+    name: 'get_object_storage_quota',
+    description: 'Get an Object Storage quota',
+    parameters: mcpInput(schemas.getObjectStorageQuotaSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).objectStorage.getQuota(params.objQuotaId);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    })
+  });
+
+  server.addTool({
+    name: 'get_object_storage_quota_usage',
+    description: 'Get Object Storage quota usage data',
+    parameters: mcpInput(schemas.getObjectStorageQuotaUsageSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).objectStorage.getQuotaUsage(params.objQuotaId);
+      return {
+        content: [
+          { type: 'text', text: JSON.stringify(result, null, 2) },
+        ],
+      };
+    })
+  });
+
   // Transfer Statistics
   server.addTool({
     name: 'get_object_storage_transfer',
     description: 'Get Object Storage transfer statistics',
-    parameters: schemas.getTransferStatsSchema,
+    parameters: mcpInput(schemas.getTransferStatsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.getTransferStats();
-      return {
-        content: [
-          { type: 'text', text: formatTransferStats(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
 
@@ -503,14 +476,10 @@ Content Type: ${getContentType(object_path)}` },
   server.addTool({
     name: 'list_object_storage_types',
     description: 'Get a list of all available Object Storage types and prices, including any region-specific rates.',
-    parameters: schemas.listObjectStorageTypesSchema,
+    parameters: mcpInput(schemas.listObjectStorageTypesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).objectStorage.getTypes();
-      return {
-        content: [
-          { type: 'text', text: formatObjectStorageTypes(result) },
-        ],
-      };
+      return JSON.stringify(result, null, 2);
     })
   });
   
@@ -518,7 +487,7 @@ Content Type: ${getContentType(object_path)}` },
   server.addTool({
     name: 'cancel_object_storage',
     description: 'Cancel Object Storage service',
-    parameters: schemas.cancelObjectStorageSchema,
+    parameters: mcpInput(schemas.cancelObjectStorageSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).objectStorage.cancelObjectStorage();
       return {
@@ -531,198 +500,8 @@ Content Type: ${getContentType(object_path)}` },
 }
 
 /**
- * Formats transfer statistics for display
- */
-function formatTransferStats(stats: {
-  used: number;
-  billable: number;
-  quota: number;
-  regions: {
-    region: string;
-    used: number;
-    billable: number;
-    quota: number;
-  }[];
-    }): string {
-  const overall = [
-    'Overall Transfer Statistics:',
-    `Used: ${formatBytes(stats.used)}`,
-    `Billable: ${formatBytes(stats.billable)}`,
-    `Quota: ${formatBytes(stats.quota)}`,
-    `Utilization: ${((stats.used / stats.quota) * 100).toFixed(2)}%`,
-    '',
-    'Transfer by Region:'
-  ];
-
-  if (stats.regions && stats.regions.length > 0) {
-    stats.regions.forEach(region => {
-      overall.push(`  Region: ${region.region}`);
-      overall.push(`    Used: ${formatBytes(region.used)}`);
-      overall.push(`    Billable: ${formatBytes(region.billable)}`);
-      overall.push(`    Quota: ${formatBytes(region.quota)}`);
-      overall.push(`    Utilization: ${((region.used / region.quota) * 100).toFixed(2)}%`);
-    });
-  } else {
-    overall.push('  No region-specific data available.');
-  }
-
-  return overall.join('\n');
-}
-
-/**
- * Formats Object Storage types for display
- */
-function formatObjectStorageTypes(types: {
-  id: string;
-  label: string;
-  storage_price: number;
-  transfer_price: number;
-}[]): string {
-  if (types.length === 0) {
-      return 'No Object Storage types found.';
-  }
-
-  const headers = [
-    'ID | Label | Storage Price | Transfer Price',
-    '----|-------|--------------|---------------'
-  ];
-
-  const rows = types.map(type => {
-      return `${type.id} | ${type.label} | $${type.storage_price.toFixed(4)}/GB | $${type.transfer_price.toFixed(4)}/GB`;
-    });
-
-  return headers.concat(rows).join('\n');
-}
-
-/**
  * Formats an Object Storage cluster for display
  */
-function formatObjectStorageCluster(cluster: ObjectStorageCluster): string {
-      return `${cluster.id} (${cluster.region}, Status: ${cluster.status})`;
-}
-
-/**
- * Formats a list of Object Storage clusters for display
- */
-function formatObjectStorageClusters(clusters: ObjectStorageCluster[]): string {
-  if (clusters.length === 0) {
-      return 'No Object Storage clusters found.';
-  }
-
-  return clusters.map(formatObjectStorageCluster).join('\n');
-}
-
-/**
- * Formats an Object Storage bucket for display
- */
-function formatObjectStorageBucket(bucket: ObjectStorageBucket): string {
-  const details = [
-    `Bucket: ${bucket.label}`,
-    `Region: ${bucket.region}`,
-    `Created: ${new Date(bucket.created).toLocaleString()}`,
-    `Size: ${formatBytes(bucket.size)}`,
-    `Objects: ${bucket.objects}`,
-    `Access Control: ${bucket.acl}`,
-    `CORS Enabled: ${bucket.cors_enabled ? 'Yes' : 'No'}`,
-    `Hostname: ${bucket.hostname}`
-  ];
-
-  return details.join('\n');
-}
-
-/**
- * Formats a list of Object Storage buckets for display
- */
-function formatObjectStorageBuckets(buckets: ObjectStorageBucket[]): string {
-  if (buckets.length === 0) {
-      return 'No Object Storage buckets found.';
-  }
-
-  const rows = buckets.map(bucket => {
-      return `${bucket.label} (Region: ${bucket.region}, Objects: ${bucket.objects}, Size: ${formatBytes(bucket.size)})`;
-    });
-
-  return rows.join('\n');
-}
-
-/**
- * Formats an Object Storage key for display
- */
-function formatObjectStorageKey(key: ObjectStorageKey): string {
-  const details = [
-    `ID: ${key.id}`,
-    `Label: ${key.label}`,
-    `Access Key: ${key.access_key}`,
-    `Secret Key: ${key.secret_key}`,
-    `Limited: ${key.limited ? 'Yes' : 'No'}`,
-    `Created: ${new Date(key.created).toLocaleString()}`
-  ];
-
-  if (key.bucket_access && key.bucket_access.length > 0) {
-    details.push('Bucket Access:');
-    key.bucket_access.forEach(access => {
-      details.push(`  - ${access.region}/${access.bucket_name} (${access.permissions})`);
-    });
-  } else {
-    details.push('Bucket Access: Full access to all buckets');
-  }
-
-  return details.join('\n');
-}
-
-/**
- * Formats a list of Object Storage keys for display
- */
-function formatObjectStorageKeys(keys: ObjectStorageKey[]): string {
-  if (keys.length === 0) {
-      return 'No Object Storage keys found.';
-  }
-
-  const rows = keys.map(key => {
-    const accessType = key.limited ? 'Limited' : 'Full';
-    return `${key.label} (ID: ${key.id}, Access: ${key.access_key}, Type: ${accessType})`;
-    });
-
-  return rows.join('\n');
-}
-
-/**
- * Formats an Object Storage object for display
- */
-function formatObjectStorageObject(obj: ObjectStorageObject): string {
-      return `${obj.name} (Size: ${formatBytes(obj.size)}, Modified: ${new Date(obj.last_modified).toLocaleString()})`;
-}
-
-/**
- * Formats a list of Object Storage objects for display
- */
-function formatObjectStorageObjects(objects: ObjectStorageObject[]): string {
-  if (objects.length === 0) {
-      return 'No objects found in bucket.';
-  }
-
-  return objects.map(formatObjectStorageObject).join('\n');
-}
-
-/**
- * Formats an endpoint for display
- */
-function formatEndpoint(endpoint: { region: string; endpoint_type: string; s3_endpoint: string | null }): string {
-  const s3Endpoint = endpoint.s3_endpoint || 'Not available';
-  return `Region: ${endpoint.region}, Type: ${endpoint.endpoint_type}, Endpoint: ${s3Endpoint}`;
-}
-
-/**
- * Formats a list of Object Storage endpoints for display
- */
-function formatObjectStorageEndpoints(endpoints: { region: string; endpoint_type: string; s3_endpoint: string | null }[]): string {
-  if (endpoints.length === 0) {
-      return 'No Object Storage endpoints found.';
-  }
-
-  return endpoints.map(formatEndpoint).join('\n');
-}
-
 /**
  * Formats bytes into a human-readable string
  */

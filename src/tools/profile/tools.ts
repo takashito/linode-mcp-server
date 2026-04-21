@@ -1,5 +1,6 @@
 import { FastMCP } from 'fastmcp';
 import { createClient } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -8,7 +9,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_profile',
     description: 'Get your user profile information',
-    parameters: schemas.getProfileSchema,
+    parameters: mcpInput(schemas.getProfileSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getProfile();
       return JSON.stringify(result, null, 2);
@@ -17,7 +18,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'update_profile',
     description: 'Update your user profile information',
-    parameters: schemas.updateProfileSchema,
+    parameters: mcpInput(schemas.updateProfileSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.updateProfile(params);
       return JSON.stringify(result, null, 2);
@@ -28,7 +29,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_ssh_keys',
     description: 'List SSH keys associated with your profile',
-    parameters: schemas.listSSHKeysSchema,
+    parameters: mcpInput(schemas.listSSHKeysSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -41,7 +42,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_ssh_key',
     description: 'Get details for a specific SSH key',
-    parameters: schemas.getSSHKeySchema,
+    parameters: mcpInput(schemas.getSSHKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getSSHKey(params.id);
       return JSON.stringify(result, null, 2);
@@ -50,7 +51,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'create_ssh_key',
     description: 'Add a new SSH key to your profile',
-    parameters: schemas.createSSHKeySchema,
+    parameters: mcpInput(schemas.createSSHKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.createSSHKey(params);
       return JSON.stringify(result, null, 2);
@@ -59,7 +60,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'update_ssh_key',
     description: 'Update an existing SSH key',
-    parameters: schemas.updateSSHKeySchema,
+    parameters: mcpInput(schemas.updateSSHKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
       const result = await createClient(context).profile.updateSSHKey(id, updateData);
@@ -69,7 +70,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'delete_ssh_key',
     description: 'Delete an SSH key from your profile',
-    parameters: schemas.deleteSSHKeySchema,
+    parameters: mcpInput(schemas.deleteSSHKeySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.deleteSSHKey(params.id);
       return JSON.stringify({ success: true }, null, 2);
@@ -80,7 +81,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_api_tokens',
     description: 'List API tokens associated with your profile',
-    parameters: schemas.listAPITokensSchema,
+    parameters: mcpInput(schemas.listAPITokensSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -93,7 +94,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_api_token',
     description: 'Get details for a specific API token',
-    parameters: schemas.getAPITokenSchema,
+    parameters: mcpInput(schemas.getAPITokenSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getAPIToken(params.id);
       return JSON.stringify(result, null, 2);
@@ -102,7 +103,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'create_personal_access_token',
     description: 'Create a new personal access token',
-    parameters: schemas.createPersonalAccessTokenSchema,
+    parameters: mcpInput(schemas.createPersonalAccessTokenSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.createPersonalAccessToken(params);
       return JSON.stringify(result, null, 2);
@@ -111,7 +112,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'update_api_token',
     description: 'Update an existing API token',
-    parameters: schemas.updateTokenSchema,
+    parameters: mcpInput(schemas.updateTokenSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateData } = params;
       const result = await createClient(context).profile.updateToken(id, updateData);
@@ -121,7 +122,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'delete_api_token',
     description: 'Delete an API token',
-    parameters: schemas.deleteTokenSchema,
+    parameters: mcpInput(schemas.deleteTokenSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.deleteToken(params.id);
       return JSON.stringify({ success: true }, null, 2);
@@ -132,7 +133,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_two_factor_secret',
     description: 'Get a two-factor authentication secret and QR code',
-    parameters: schemas.getTwoFactorSecretSchema,
+    parameters: mcpInput(schemas.getTwoFactorSecretSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getTwoFactorSecret();
       return JSON.stringify(result, null, 2);
@@ -141,7 +142,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'enable_two_factor',
     description: 'Enable two-factor authentication for your account',
-    parameters: schemas.enableTwoFactorSchema,
+    parameters: mcpInput(schemas.enableTwoFactorSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.enableTwoFactor(params);
       return JSON.stringify({ success: true }, null, 2);
@@ -150,7 +151,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'disable_two_factor',
     description: 'Disable two-factor authentication for your account',
-    parameters: schemas.disableTwoFactorSchema,
+    parameters: mcpInput(schemas.disableTwoFactorSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.disableTwoFactor(params);
       return JSON.stringify({ success: true }, null, 2);
@@ -161,7 +162,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_authorized_apps',
     description: 'List OAuth apps authorized to access your account',
-    parameters: schemas.listAuthorizedAppsSchema,
+    parameters: mcpInput(schemas.listAuthorizedAppsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -174,7 +175,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_authorized_app',
     description: 'Get details about a specific authorized OAuth app',
-    parameters: schemas.getAuthorizedAppSchema,
+    parameters: mcpInput(schemas.getAuthorizedAppSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getAuthorizedApp(params.appId);
       return JSON.stringify(result, null, 2);
@@ -183,7 +184,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'revoke_authorized_app',
     description: 'Revoke access for an authorized OAuth app',
-    parameters: schemas.revokeAuthorizedAppSchema,
+    parameters: mcpInput(schemas.revokeAuthorizedAppSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.revokeAuthorizedApp(params.appId);
       return JSON.stringify({ success: true }, null, 2);
@@ -194,7 +195,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_trusted_devices',
     description: 'List devices trusted for two-factor authentication',
-    parameters: schemas.listTrustedDevicesSchema,
+    parameters: mcpInput(schemas.listTrustedDevicesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -207,7 +208,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_trusted_device',
     description: 'Get details about a specific trusted device',
-    parameters: schemas.getTrustedDeviceSchema,
+    parameters: mcpInput(schemas.getTrustedDeviceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getTrustedDevice(params.deviceId);
       return JSON.stringify(result, null, 2);
@@ -216,7 +217,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'revoke_trusted_device',
     description: 'Revoke trusted status for a device',
-    parameters: schemas.revokeTrustedDeviceSchema,
+    parameters: mcpInput(schemas.revokeTrustedDeviceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.revokeTrustedDevice(params.deviceId);
       return JSON.stringify({ success: true }, null, 2);
@@ -227,7 +228,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_grants',
     description: 'List grants for a restricted user',
-    parameters: schemas.listGrantsSchema,
+    parameters: mcpInput(schemas.listGrantsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -242,7 +243,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_logins',
     description: 'List login history for your account',
-    parameters: schemas.listLoginsSchema,
+    parameters: mcpInput(schemas.listLoginsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -255,39 +256,10 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_login',
     description: 'Get details about a specific login event',
-    parameters: schemas.getLoginSchema,
+    parameters: mcpInput(schemas.getLoginSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getLogin(params.loginId);
       return JSON.stringify(result, null, 2);
-    })
-  });
-  
-  // Phone Number operations
-  server.addTool({
-    name: 'delete_phone_number',
-    description: 'Delete the phone number associated with your account',
-    parameters: schemas.deletePhoneNumberSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).profile.deletePhoneNumber();
-      return JSON.stringify({ success: true }, null, 2);
-    })
-  });
-  server.addTool({
-    name: 'send_phone_verification',
-    description: 'Send a verification code to a phone number',
-    parameters: schemas.sendPhoneVerificationSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).profile.sendPhoneVerification(params);
-      return JSON.stringify({ success: true, message: "Verification code sent" }, null, 2);
-    })
-  });
-  server.addTool({
-    name: 'verify_phone_number',
-    description: 'Verify a phone number with a received code',
-    parameters: schemas.verifyPhoneNumberSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).profile.verifyPhoneNumber(params);
-      return JSON.stringify({ success: true, message: "Phone number verified" }, null, 2);
     })
   });
   
@@ -295,7 +267,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_user_preferences',
     description: 'Get user interface preferences',
-    parameters: schemas.getUserPreferencesSchema,
+    parameters: mcpInput(schemas.getUserPreferencesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getUserPreferences();
       return JSON.stringify(result, null, 2);
@@ -304,7 +276,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'update_user_preferences',
     description: 'Update user interface preferences',
-    parameters: schemas.updateUserPreferencesSchema,
+    parameters: mcpInput(schemas.updateUserPreferencesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.updateUserPreferences(params);
       return JSON.stringify(result, null, 2);
@@ -315,7 +287,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'get_security_questions',
     description: 'Get available security questions',
-    parameters: schemas.getSecurityQuestionsSchema,
+    parameters: mcpInput(schemas.getSecurityQuestionsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).profile.getSecurityQuestions();
       return JSON.stringify(result, null, 2);
@@ -324,7 +296,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'answer_security_questions',
     description: 'Answer security questions for account recovery',
-    parameters: schemas.answerSecurityQuestionsSchema,
+    parameters: mcpInput(schemas.answerSecurityQuestionsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).profile.answerSecurityQuestions(params.answers);
       return JSON.stringify({ success: true, message: "Security questions answered" }, null, 2);
@@ -335,7 +307,7 @@ export function registerProfileTools(server: FastMCP) {
   server.addTool({
     name: 'list_api_scopes',
     description: 'List all available API scopes for tokens and OAuth clients',
-    parameters: schemas.listAPIScopesSchema,
+    parameters: mcpInput(schemas.listAPIScopesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       
       // Group by category if no specific category is requested

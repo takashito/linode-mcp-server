@@ -1,3 +1,4 @@
+import { mcpInput } from "../common/schemas";
 import { FastMCP } from 'fastmcp';
 import { createClient } from '../../client';
 import {
@@ -17,7 +18,7 @@ export function registerStackScriptsTools(server: FastMCP): void {
     server.addTool({
     name: 'list_stackscripts',
     description: 'Get a list of all StackScripts',
-    parameters: listStackScriptsSchema,
+    parameters: mcpInput(listStackScriptsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).stackScripts.getStackScripts(params);
       return JSON.stringify(result, null, 2);
@@ -28,7 +29,7 @@ export function registerStackScriptsTools(server: FastMCP): void {
     server.addTool({
     name: 'get_stackscript',
     description: 'Get details for a specific StackScript',
-    parameters: getStackScriptSchema,
+    parameters: mcpInput(getStackScriptSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id } = params;
       const result = await createClient(context).stackScripts.getStackScript(id);
@@ -40,7 +41,7 @@ export function registerStackScriptsTools(server: FastMCP): void {
     server.addTool({
     name: 'create_stackscript',
     description: 'Create a new StackScript',
-    parameters: createStackScriptSchema,
+    parameters: mcpInput(createStackScriptSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).stackScripts.createStackScript(params);
       return JSON.stringify(result, null, 2);
@@ -51,7 +52,7 @@ export function registerStackScriptsTools(server: FastMCP): void {
     server.addTool({
     name: 'update_stackscript',
     description: 'Update an existing StackScript',
-    parameters: updateStackScriptSchema,
+    parameters: mcpInput(updateStackScriptSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
       const result = await createClient(context).stackScripts.updateStackScript(id, data);
@@ -63,7 +64,7 @@ export function registerStackScriptsTools(server: FastMCP): void {
     server.addTool({
     name: 'delete_stackscript',
     description: 'Delete a StackScript',
-    parameters: deleteStackScriptSchema,
+    parameters: mcpInput(deleteStackScriptSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id } = params;
       await createClient(context).stackScripts.deleteStackScript(id);

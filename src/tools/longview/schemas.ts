@@ -1,15 +1,16 @@
-import { z } from 'zod';
+import { z } from "zod";
+import { coerceBoolean } from "../common/schemas";
 
 // Longview Client schemas
 export const LongviewClientSchema = z.object({
-  id: z.number(),
+  id: z.coerce.number(),
   label: z.string(),
   api_key: z.string(),
   install_code: z.string(),
   apps: z.object({
-    apache: z.boolean(),
-    nginx: z.boolean(),
-    mysql: z.boolean()
+    apache: coerceBoolean(),
+    nginx: coerceBoolean(),
+    mysql: coerceBoolean()
   }),
   created: z.string(),
   updated: z.string()
@@ -17,13 +18,13 @@ export const LongviewClientSchema = z.object({
 
 // List clients schema
 export const listLongviewClientsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return.'),
-  page_size: z.number().optional().describe('Number of results to return per page.')
+  page: z.coerce.number().optional().describe('Page number of results to return.'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page.')
 });
 
 // Get client schema
 export const getLongviewClientSchema = z.object({
-  id: z.number().describe('ID of the Longview client to retrieve')
+  id: z.coerce.number().describe('ID of the Longview client to retrieve')
 });
 
 // Create client schema
@@ -33,30 +34,30 @@ export const createLongviewClientSchema = z.object({
 
 // Update client schema
 export const updateLongviewClientSchema = z.object({
-  id: z.number().describe('ID of the Longview client to update'),
+  id: z.coerce.number().describe('ID of the Longview client to update'),
   label: z.string().describe('New label for the Longview client')
 });
 
 // Delete client schema
 export const deleteLongviewClientSchema = z.object({
-  id: z.number().describe('ID of the Longview client to delete')
+  id: z.coerce.number().describe('ID of the Longview client to delete')
 });
 
 // Longview Subscription schemas
 export const LongviewSubscriptionSchema = z.object({
   id: z.string(),
   label: z.string(),
-  clients_included: z.number(),
+  clients_included: z.coerce.number(),
   price: z.object({
-    hourly: z.number(),
-    monthly: z.number()
+    hourly: z.coerce.number(),
+    monthly: z.coerce.number()
   })
 });
 
 // List subscriptions schema
 export const listLongviewSubscriptionsSchema = z.object({
-  page: z.number().optional().describe('Page number of results to return.'),
-  page_size: z.number().optional().describe('Number of results to return per page.')
+  page: z.coerce.number().optional().describe('Page number of results to return.'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page.')
 });
 
 // Get subscription schema
@@ -66,51 +67,64 @@ export const getLongviewSubscriptionSchema = z.object({
 
 // Longview Data schemas
 export const LongviewDataSchema = z.object({
-  timestamp: z.number(),
-  uptime: z.number(),
+  timestamp: z.coerce.number(),
+  uptime: z.coerce.number(),
   packages: z.object({
-    updates: z.number()
+    updates: z.coerce.number()
   }),
-  load: z.tuple([z.number(), z.number(), z.number()]),
+  load: z.tuple([z.coerce.number(), z.coerce.number(), z.coerce.number()]),
   cpu: z.object({
-    user: z.number(),
-    nice: z.number(),
-    system: z.number(),
-    wait: z.number(),
-    idle: z.number()
+    user: z.coerce.number(),
+    nice: z.coerce.number(),
+    system: z.coerce.number(),
+    wait: z.coerce.number(),
+    idle: z.coerce.number()
   }),
   memory: z.object({
-    total: z.number(),
-    used: z.number(),
-    free: z.number(),
-    buffers: z.number(),
-    cached: z.number(),
-    swap_total: z.number(),
-    swap_used: z.number(),
-    swap_free: z.number()
+    total: z.coerce.number(),
+    used: z.coerce.number(),
+    free: z.coerce.number(),
+    buffers: z.coerce.number(),
+    cached: z.coerce.number(),
+    swap_total: z.coerce.number(),
+    swap_used: z.coerce.number(),
+    swap_free: z.coerce.number()
   }),
   network: z.record(z.object({
-    rx_bytes: z.number(),
-    tx_bytes: z.number(),
-    rx_packets: z.number(),
-    tx_packets: z.number()
+    rx_bytes: z.coerce.number(),
+    tx_bytes: z.coerce.number(),
+    rx_packets: z.coerce.number(),
+    tx_packets: z.coerce.number()
   })),
   disk: z.record(z.object({
     fs: z.string(),
     mount_point: z.string(),
-    total: z.number(),
-    used: z.number(),
-    free: z.number()
+    total: z.coerce.number(),
+    used: z.coerce.number(),
+    free: z.coerce.number()
   })),
   processes: z.record(z.object({
     user: z.string(),
-    count: z.number(),
-    cpu: z.number(),
-    mem: z.number()
+    count: z.coerce.number(),
+    cpu: z.coerce.number(),
+    mem: z.coerce.number()
   }))
 });
 
 // Get data schema
 export const getLongviewDataSchema = z.object({
-  id: z.number().describe('ID of the Longview client to get data from')
+  id: z.coerce.number().describe('ID of the Longview client to get data from')
+});
+
+// Longview Plan schemas
+export const getLongviewPlanSchema = z.object({});
+
+export const updateLongviewPlanSchema = z.object({
+  longview_subscription: z.string().describe('The subscription ID for the Longview plan (e.g., longview-3, longview-10, longview-40, longview-100)')
+});
+
+// Longview Types schema
+export const listLongviewTypesSchema = z.object({
+  page: z.coerce.number().optional().describe('Page number of results to return.'),
+  page_size: z.coerce.number().optional().describe('Number of results to return per page.')
 });

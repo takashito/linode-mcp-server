@@ -1,5 +1,6 @@
 import { FastMCP } from 'fastmcp';
 import { createClient, CreateLinodeRequest, UpdateLinodeRequest } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -8,7 +9,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_instances',
     description: 'Get a list of all Linode instances',
-    parameters: schemas.listInstancesSchema,
+    parameters: mcpInput(schemas.listInstancesSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -23,7 +24,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance',
     description: 'Get details for a specific Linode instance',
-    parameters: schemas.getInstanceSchema,
+    parameters: mcpInput(schemas.getInstanceSchema),
     execute: withErrorHandling(async (params: { id: number }, context?: any) => {
       const result = await createClient(context).instances.getLinodeById(params.id);
       return JSON.stringify(result, null, 2);
@@ -33,7 +34,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'create_instance',
     description: 'Create a new Linode instance',
-    parameters: schemas.createInstanceSchema,
+    parameters: mcpInput(schemas.createInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const createParams: CreateLinodeRequest = {
         region: String(params.region),
@@ -58,7 +59,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'update_instance',
     description: 'Update a Linode instance',
-    parameters: schemas.updateInstanceSchema,
+    parameters: mcpInput(schemas.updateInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...updateParams } = params;
       const updateData: UpdateLinodeRequest = { 
@@ -75,7 +76,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'reboot_instance',
     description: 'Reboot a Linode instance',
-    parameters: schemas.rebootInstanceSchema,
+    parameters: mcpInput(schemas.rebootInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.rebootLinode(params.id, params.config_id);
       return JSON.stringify(result, null, 2);
@@ -85,7 +86,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'boot_instance',
     description: 'Power on a Linode instance',
-    parameters: schemas.bootInstanceSchema,
+    parameters: mcpInput(schemas.bootInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.bootLinode(params.id, params.config_id);
       return JSON.stringify(result, null, 2);
@@ -95,7 +96,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'shutdown_instance',
     description: 'Power off a Linode instance',
-    parameters: schemas.shutdownInstanceSchema,
+    parameters: mcpInput(schemas.shutdownInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.shutdownLinode(params.id);
       return JSON.stringify(result, null, 2);
@@ -105,7 +106,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'delete_instance',
     description: 'Delete a Linode instance',
-    parameters: schemas.deleteInstanceSchema,
+    parameters: mcpInput(schemas.deleteInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.deleteLinode(params.id);
       return JSON.stringify(result, null, 2);
@@ -115,7 +116,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'resize_instance',
     description: 'Resize a Linode instance',
-    parameters: schemas.resizeInstanceSchema,
+    parameters: mcpInput(schemas.resizeInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...resizeData } = params;
       const result = await createClient(context).instances.resizeLinode(id, resizeData);
@@ -126,7 +127,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'clone_instance',
     description: 'Clone a Linode instance',
-    parameters: schemas.cloneInstanceSchema,
+    parameters: mcpInput(schemas.cloneInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...cloneData } = params;
       const result = await createClient(context).instances.cloneLinode(Number(id), cloneData);
@@ -137,7 +138,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'rebuild_instance',
     description: 'Rebuild a Linode instance',
-    parameters: schemas.rebuildInstanceSchema,
+    parameters: mcpInput(schemas.rebuildInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...rebuildData } = params;
       const result = await createClient(context).instances.rebuildLinode(id, rebuildData);
@@ -148,7 +149,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'rescue_instance',
     description: 'Boot a Linode instance into rescue mode',
-    parameters: schemas.rescueInstanceSchema,
+    parameters: mcpInput(schemas.rescueInstanceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, devices } = params;
       const result = await createClient(context).instances.rescueLinode(id, devices);
@@ -160,7 +161,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_instance_configs',
     description: 'Get all configuration profiles for a Linode instance',
-    parameters: schemas.getLinodeConfigsSchema,
+    parameters: mcpInput(schemas.getLinodeConfigsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
@@ -175,7 +176,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance_config',
     description: 'Get a specific configuration profile for a Linode instance',
-    parameters: schemas.getLinodeConfigSchema,
+    parameters: mcpInput(schemas.getLinodeConfigSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getLinodeConfig(params.linodeId, params.configId);
       return JSON.stringify(result, null, 2);
@@ -185,7 +186,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'create_instance_config',
     description: 'Create a new configuration profile for a Linode instance',
-    parameters: schemas.createLinodeConfigSchema,
+    parameters: mcpInput(schemas.createLinodeConfigSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...configData } = params;
       const result = await createClient(context).instances.createLinodeConfig(linodeId, configData);
@@ -196,7 +197,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'update_instance_config',
     description: 'Update a configuration profile for a Linode instance',
-    parameters: schemas.updateLinodeConfigSchema,
+    parameters: mcpInput(schemas.updateLinodeConfigSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, ...updateData } = params;
       const result = await createClient(context).instances.updateLinodeConfig(linodeId, configId, updateData);
@@ -207,7 +208,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'delete_instance_config',
     description: 'Delete a configuration profile for a Linode instance',
-    parameters: schemas.deleteLinodeConfigSchema,
+    parameters: mcpInput(schemas.deleteLinodeConfigSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.deleteLinodeConfig(params.linodeId, params.configId);
       return JSON.stringify(result, null, 2);
@@ -218,7 +219,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_instance_disks',
     description: 'Get all disks for a Linode instance',
-    parameters: schemas.getLinodeDisksSchema,
+    parameters: mcpInput(schemas.getLinodeDisksSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
@@ -233,7 +234,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance_disk',
     description: 'Get a specific disk for a Linode instance',
-    parameters: schemas.getLinodeDiskSchema,
+    parameters: mcpInput(schemas.getLinodeDiskSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getLinodeDisk(params.linodeId, params.diskId);
       return JSON.stringify(result, null, 2);
@@ -243,7 +244,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'create_instance_disk',
     description: 'Create a new disk for a Linode instance',
-    parameters: schemas.createLinodeDiskSchema,
+    parameters: mcpInput(schemas.createLinodeDiskSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...diskData } = params;
       const result = await createClient(context).instances.createLinodeDisk(linodeId, diskData);
@@ -254,7 +255,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'update_instance_disk',
     description: 'Update a disk for a Linode instance',
-    parameters: schemas.updateLinodeDiskSchema,
+    parameters: mcpInput(schemas.updateLinodeDiskSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, diskId, ...updateData } = params;
       const result = await createClient(context).instances.updateLinodeDisk(linodeId, diskId, updateData);
@@ -265,7 +266,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'delete_instance_disk',
     description: 'Delete a disk for a Linode instance',
-    parameters: schemas.deleteLinodeDiskSchema,
+    parameters: mcpInput(schemas.deleteLinodeDiskSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.deleteLinodeDisk(params.linodeId, params.diskId);
       return JSON.stringify(result, null, 2);
@@ -275,7 +276,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'resize_instance_disk',
     description: 'Resize a disk for a Linode instance',
-    parameters: schemas.resizeLinodeDiskSchema,
+    parameters: mcpInput(schemas.resizeLinodeDiskSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.resizeLinodeDisk(params.linodeId, params.diskId, params.size);
       return JSON.stringify(result, null, 2);
@@ -286,7 +287,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance_stats',
     description: 'Get current statistics for a Linode instance',
-    parameters: schemas.getLinodeStatsSchema,
+    parameters: mcpInput(schemas.getLinodeStatsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getLinodeStats(params.id);
       return JSON.stringify(result, null, 2);
@@ -296,7 +297,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance_stats_by_date',
     description: 'Get statistics for a Linode instance for a specific month',
-    parameters: schemas.getLinodeStatsByDateSchema,
+    parameters: mcpInput(schemas.getLinodeStatsByDateSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getLinodeStatsByDate(params.id, params.year, params.month);
       return JSON.stringify(result, null, 2);
@@ -307,7 +308,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_backups',
     description: 'Get a list of all backups for a Linode instance',
-    parameters: schemas.getBackupsSchema,
+    parameters: mcpInput(schemas.getBackupsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getBackups(params.linodeId);
       return JSON.stringify(result, null, 2);
@@ -317,7 +318,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_backup',
     description: 'Get details for a specific backup',
-    parameters: schemas.getBackupSchema,
+    parameters: mcpInput(schemas.getBackupSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getBackup(params.linodeId, params.backupId);
       return JSON.stringify(result, null, 2);
@@ -327,7 +328,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'create_snapshot',
     description: 'Create a snapshot for a Linode instance',
-    parameters: schemas.createSnapshotSchema,
+    parameters: mcpInput(schemas.createSnapshotSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...data } = params;
       const result = await createClient(context).instances.createSnapshot(linodeId, data);
@@ -338,7 +339,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'cancel_backups',
     description: 'Cancel backups for a Linode instance',
-    parameters: schemas.cancelBackupsSchema,
+    parameters: mcpInput(schemas.cancelBackupsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.cancelBackups(params.linodeId);
       return JSON.stringify({ success: true }, null, 2);
@@ -348,7 +349,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'enable_backups',
     description: 'Enable backups for a Linode instance',
-    parameters: schemas.enableBackupsSchema,
+    parameters: mcpInput(schemas.enableBackupsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.enableBackups(params.linodeId);
       return JSON.stringify({ success: true }, null, 2);
@@ -358,7 +359,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'restore_backup',
     description: 'Restore a backup to a Linode instance',
-    parameters: schemas.restoreBackupSchema,
+    parameters: mcpInput(schemas.restoreBackupSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, backupId, ...data } = params;
       await createClient(context).instances.restoreBackup(linodeId, backupId, data);
@@ -370,7 +371,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_networking_information',
     description: 'Get networking information for a Linode instance',
-    parameters: schemas.getLinodeIPsSchema,
+    parameters: mcpInput(schemas.getLinodeIPsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getLinodeIPs(params.linodeId);
       return JSON.stringify(result, null, 2);
@@ -380,7 +381,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'allocate_ipv4_address',
     description: 'Allocate an IPv4 address for a Linode instance',
-    parameters: schemas.linodeAllocateIPSchema,
+    parameters: mcpInput(schemas.linodeAllocateIPSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, ...data } = params;
       const result = await createClient(context).instances.allocateIP(linodeId, data as any);
@@ -391,7 +392,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance_ip_address',
     description: 'Get details for a specific IP address for a Linode instance',
-    parameters: schemas.getLinodeIPSchema,
+    parameters: mcpInput(schemas.getLinodeIPSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getLinodeIP(params.linodeId, params.address);
       return JSON.stringify(result, null, 2);
@@ -401,7 +402,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'update_ip_address_rdns',
     description: 'Update the RDNS for an IP address of a Linode instance',
-    parameters: schemas.updateLinodeIPSchema,
+    parameters: mcpInput(schemas.updateLinodeIPSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, address, ...data } = params;
       const result = await createClient(context).instances.updateLinodeIP(linodeId, address, data as any);
@@ -412,7 +413,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'delete_ipv4_address',
     description: 'Delete an IPv4 address from a Linode instance',
-    parameters: schemas.deleteLinodeIPSchema,
+    parameters: mcpInput(schemas.deleteLinodeIPSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.deleteLinodeIP(params.linodeId, params.address);
       return JSON.stringify({ success: true }, null, 2);
@@ -423,7 +424,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_linode_firewalls',
     description: 'List firewalls for a Linode instance',
-    parameters: schemas.getLinodeFirewallsSchema,
+    parameters: mcpInput(schemas.getLinodeFirewallsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = { page, page_size };
@@ -435,10 +436,21 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'apply_linode_firewalls',
     description: 'Apply firewalls to a Linode instance',
-    parameters: schemas.applyFirewallsSchema,
+    parameters: mcpInput(schemas.applyFirewallsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.applyFirewalls(params.linodeId);
       return JSON.stringify({ success: true }, null, 2);
+    })
+  });
+
+  server.addTool({
+    name: 'update_linode_firewalls',
+    description: 'Update the firewalls assigned to a Linode instance',
+    parameters: mcpInput(schemas.updateLinodeFirewallsSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { linodeId, ids } = params;
+      const result = await createClient(context).instances.updateLinodeFirewalls(linodeId, { ids });
+      return JSON.stringify(result, null, 2);
     })
   });
 
@@ -446,7 +458,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'clone_disk',
     description: 'Clone a disk for a Linode instance',
-    parameters: schemas.cloneDiskSchema,
+    parameters: mcpInput(schemas.cloneDiskSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, diskId, label } = params;
       const result = await createClient(context).instances.cloneDisk(linodeId, diskId, label ? { label } : undefined);
@@ -457,7 +469,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'reset_disk_root_password',
     description: 'Reset the root password for a disk',
-    parameters: schemas.resetDiskPasswordSchema,
+    parameters: mcpInput(schemas.resetDiskPasswordSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.resetDiskPassword(params.linodeId, params.diskId, params.password);
       return JSON.stringify({ success: true }, null, 2);
@@ -468,7 +480,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'initiate_migration',
     description: 'Initiate a migration for a Linode instance',
-    parameters: schemas.migrateLinodeSchema,
+    parameters: mcpInput(schemas.migrateLinodeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, region } = params;
       await createClient(context).instances.migrateLinode(id, region ? { region } : undefined);
@@ -479,7 +491,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'upgrade_linode',
     description: 'Upgrade a Linode instance',
-    parameters: schemas.mutateLinodeSchema,
+    parameters: mcpInput(schemas.mutateLinodeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.mutateLinode(params.id);
       return JSON.stringify({ success: true }, null, 2);
@@ -490,7 +502,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'reset_root_password',
     description: 'Reset the root password for a Linode instance. Your Linode must be shut down for a password reset to complete.',
-    parameters: schemas.resetRootPasswordSchema,
+    parameters: mcpInput(schemas.resetRootPasswordSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { id, ...data } = params;
       await createClient(context).instances.resetRootPassword(id, data);
@@ -502,7 +514,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_network_transfer',
     description: 'Get network transfer information for a Linode instance',
-    parameters: schemas.getNetworkTransferSchema,
+    parameters: mcpInput(schemas.getNetworkTransferSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getNetworkTransfer(params.id);
       return JSON.stringify(result, null, 2);
@@ -512,7 +524,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_monthly_network_transfer',
     description: 'Get monthly network transfer stats for a Linode instance',
-    parameters: schemas.getMonthlyTransferSchema,
+    parameters: mcpInput(schemas.getMonthlyTransferSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getMonthlyTransfer(params.id, params.year, params.month);
       return JSON.stringify(result, null, 2);
@@ -523,7 +535,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_kernels',
     description: 'Get a list of all available kernels',
-    parameters: schemas.listKernelsSchema,
+    parameters: mcpInput(schemas.listKernelsSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -537,7 +549,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_kernel',
     description: 'Get details for a specific kernel',
-    parameters: schemas.getKernelSchema,
+    parameters: mcpInput(schemas.getKernelSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getKernelById(params.id);
       return JSON.stringify(result, null, 2);
@@ -548,7 +560,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_instance_types',
     description: 'Get a list of all available Linode types, including pricing and specifications',
-    parameters: schemas.listInstanceTypesSchema,
+    parameters: mcpInput(schemas.listInstanceTypesSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -562,7 +574,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_instance_type',
     description: 'Get details for a specific Linode type, including pricing and specifications',
-    parameters: schemas.getInstanceTypeSchema,
+    parameters: mcpInput(schemas.getInstanceTypeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getType(params.id);
       return JSON.stringify(result, null, 2);
@@ -573,7 +585,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_config_interfaces',
     description: 'List all interfaces for a configuration profile',
-    parameters: schemas.getConfigInterfacesSchema,
+    parameters: mcpInput(schemas.getConfigInterfacesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getConfigInterfaces(params.linodeId, params.configId);
       return JSON.stringify(result, null, 2);
@@ -583,7 +595,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'get_config_interface',
     description: 'Get details for a specific configuration profile interface',
-    parameters: schemas.getConfigInterfaceSchema,
+    parameters: mcpInput(schemas.getConfigInterfaceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).instances.getConfigInterface(params.linodeId, params.configId, params.interfaceId);
       return JSON.stringify(result, null, 2);
@@ -593,7 +605,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'create_config_interface',
     description: 'Create a new interface for a configuration profile',
-    parameters: schemas.createConfigInterfaceSchema,
+    parameters: mcpInput(schemas.createConfigInterfaceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, ...data } = params;
       const result = await createClient(context).instances.createConfigInterface(linodeId, configId, data);
@@ -604,7 +616,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'update_config_interface',
     description: 'Update an interface for a configuration profile',
-    parameters: schemas.updateConfigInterfaceSchema,
+    parameters: mcpInput(schemas.updateConfigInterfaceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, interfaceId, ...data } = params;
       const result = await createClient(context).instances.updateConfigInterface(linodeId, configId, interfaceId, data);
@@ -615,7 +627,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'delete_config_interface',
     description: 'Delete an interface from a configuration profile',
-    parameters: schemas.deleteConfigInterfaceSchema,
+    parameters: mcpInput(schemas.deleteConfigInterfaceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).instances.deleteConfigInterface(params.linodeId, params.configId, params.interfaceId);
       return JSON.stringify({ success: true }, null, 2);
@@ -625,7 +637,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'reorder_config_interfaces',
     description: 'Reorder interfaces for a configuration profile',
-    parameters: schemas.reorderConfigInterfacesSchema,
+    parameters: mcpInput(schemas.reorderConfigInterfacesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, configId, ids } = params;
       await createClient(context).instances.reorderConfigInterfaces(linodeId, configId, { ids });
@@ -637,7 +649,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_instance_nodebalancers',
     description: 'List NodeBalancers attached to a Linode instance',
-    parameters: schemas.getLinodeNodeBalancersSchema,
+    parameters: mcpInput(schemas.getLinodeNodeBalancersSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {
@@ -653,7 +665,7 @@ export function registerInstanceTools(server: FastMCP) {
   server.addTool({
     name: 'list_instance_volumes',
     description: 'List volumes attached to a Linode instance',
-    parameters: schemas.getLinodeVolumesSchema,
+    parameters: mcpInput(schemas.getLinodeVolumesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { linodeId, page, page_size } = params;
       const paginationParams = {

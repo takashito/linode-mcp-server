@@ -18,7 +18,8 @@ import {
   createSupportClient,
   createLongviewClient,
   createProfileClient,
-  createAccountClient
+  createAccountClient,
+  createMonitorClient
 } from './client/index';
 import { LinodeSession } from './server';
 
@@ -58,6 +59,7 @@ export function createClient(context: { session?: LinodeSession }): LinodeClient
   const longview = createLongviewClient(axiosInstance);
   const profile = createProfileClient(axiosInstance);
   const account = createAccountClient(axiosInstance);
+  const monitor = createMonitorClient(axiosInstance);
 
   // Return the combined client
   return {
@@ -78,7 +80,8 @@ export function createClient(context: { session?: LinodeSession }): LinodeClient
     support,
     longview,
     profile,
-    account
+    account,
+    monitor
   };
 }
 
@@ -158,12 +161,10 @@ export type {
 } from './client/vpcs';
 
 export type {
-  ObjectStorageCluster,
   ObjectStorageBucket,
   ObjectStorageKey,
   ObjectStorageObject,
   BucketAccess,
-  DefaultBucketAccess,
   BucketCertificate,
   CreateBucketRequest,
   CreateObjectStorageKeyRequest,
@@ -267,9 +268,6 @@ export type {
   ServiceAvailability,
   RegionServiceAvailability,
   CancelAccountRequest,
-  ChildAccount,
-  ProxyTokenRequest,
-  ProxyToken,
   AccountEvent,
   Invoice,
   InvoiceItem,
@@ -289,4 +287,6 @@ export type {
   UserGrants,
   UpdateUserGrantsRequest
 } from './client/account';
+
+
 

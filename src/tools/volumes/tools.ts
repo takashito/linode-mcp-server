@@ -1,5 +1,6 @@
 import { FastMCP } from 'fastmcp';
 import { createClient, CreateVolumeRequest } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -8,7 +9,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'list_volumes',
     description: 'Get a list of all volumes',
-    parameters: schemas.listVolumesSchema,
+    parameters: mcpInput(schemas.listVolumesSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).volumes.getVolumes(params);
       return JSON.stringify(result, null, 2);
@@ -17,7 +18,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'get_volume',
     description: 'Get details for a specific volume',
-    parameters: schemas.getVolumeSchema,
+    parameters: mcpInput(schemas.getVolumeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).volumes.getVolumeById(params.id);
       return JSON.stringify(result, null, 2);
@@ -26,7 +27,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'create_volume',
     description: 'Create a new volume',
-    parameters: schemas.createVolumeSchema,
+    parameters: mcpInput(schemas.createVolumeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const createData: CreateVolumeRequest = {
         region: String(params.region),
@@ -44,7 +45,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'delete_volume',
     description: 'Delete a volume',
-    parameters: schemas.deleteVolumeSchema,
+    parameters: mcpInput(schemas.deleteVolumeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).volumes.deleteVolume(params.id);
       return JSON.stringify(result, null, 2);
@@ -53,7 +54,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'attach_volume',
     description: 'Attach a volume to a Linode instance',
-    parameters: schemas.attachVolumeSchema,
+    parameters: mcpInput(schemas.attachVolumeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).volumes.attachVolume(params.id, {
         linode_id: params.linode_id,
@@ -65,7 +66,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'detach_volume',
     description: 'Detach a volume from a Linode instance',
-    parameters: schemas.detachVolumeSchema,
+    parameters: mcpInput(schemas.detachVolumeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).volumes.detachVolume(params.id);
       return JSON.stringify(result, null, 2);
@@ -74,7 +75,7 @@ export function registerVolumeTools(server: FastMCP) {
   server.addTool({
     name: 'resize_volume',
     description: 'Resize a volume',
-    parameters: schemas.resizeVolumeSchema,
+    parameters: mcpInput(schemas.resizeVolumeSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).volumes.resizeVolume(params.id, { size: params.size });
       return JSON.stringify(result, null, 2);

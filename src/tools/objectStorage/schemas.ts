@@ -1,10 +1,5 @@
-import { z } from 'zod';
-import { paginationSchema, tagsSchema, pagingParamsSchema } from '../common/schemas';
-
-// Clusters
-export const listClustersSchema = z.object({
-  ...pagingParamsSchema.shape
-});
+import { z } from "zod";
+import { paginationSchema, tagsSchema, pagingParamsSchema, coerceBoolean } from '../common/schemas';
 
 // Endpoints
 export const listEndpointsSchema = z.object({
@@ -26,7 +21,7 @@ export const createBucketSchema = z.object({
     .describe('The type of S3 endpoint available to the user in this region. E0 typically provides public access, while E2/E3 may support additional features like HTTPS or custom domains. Check available endpoint types for your region with List Object Storage Endpoints.'),
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write']).optional()
     .describe('The Access Control Level for the bucket. Defaults to private.'),
-  cors_enabled: z.boolean().optional().describe('Whether CORS is enabled for the bucket. Defaults to false.'),
+  cors_enabled: coerceBoolean().optional().describe('Whether CORS is enabled for the bucket. Defaults to false.'),
 });
 
 export const deleteBucketSchema = z.object({
@@ -44,7 +39,7 @@ export const updateBucketAccessSchema = z.object({
   bucket: z.string().describe('The name of the bucket'),
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write']).optional()
     .describe('The Access Control Level for the bucket'),
-  cors_enabled: z.boolean().optional().describe('Whether CORS is enabled for the bucket'),
+  cors_enabled: coerceBoolean().optional().describe('Whether CORS is enabled for the bucket'),
 });
 
 // Objects
@@ -78,7 +73,7 @@ export const listKeysSchema = z.object({
 });
 
 export const getKeySchema = z.object({
-  id: z.number().describe('The ID of the Object Storage key'),
+  id: z.coerce.number().describe('The ID of the Object Storage key'),
 });
 
 export const createKeySchema = z.object({
@@ -87,12 +82,12 @@ export const createKeySchema = z.object({
     region: z.string().describe('The region of the bucket. Must be a valid region ID from List region.'),
     bucket_name: z.string().describe('The name of the bucket. Must be an existing bucket in the specified cluster.'),
     permissions: z.enum(['read_only', 'read_write']).describe('The permissions for this bucket. read_only allows GET operations only, read_write allows all operations.'),
-  })).describe('Bucket access configuration for this key. When specified, the key will only have access to the listed buckets with the specified permissions. If not specified, the key will have full access to all buckets.'),
+  })).optional().describe('Bucket access configuration for this key. When specified, the key will only have access to the listed buckets with the specified permissions. If omitted, the key will have full access to all buckets.'),
   regions: z.array(z.string()).optional().describe('The regions where the key will be allowed to create new buckets.'),
 });
 
 export const updateKeySchema = z.object({
-  id: z.number().describe('The ID of the Object Storage key'),
+  id: z.coerce.number().describe('The ID of the Object Storage key'),
   label: z.string().optional().describe('The new label for the Object Storage key'),
   bucket_access: z.array(z.object({
     region: z.string().describe('The region of the bucket. Must be a valid region ID from List region.'),
@@ -102,18 +97,7 @@ export const updateKeySchema = z.object({
 });
 
 export const deleteKeySchema = z.object({
-  id: z.number().describe('The ID of the Object Storage key'),
-});
-
-// Default access
-export const getDefaultBucketAccessSchema = z.object({
-  id: z.number().describe('The ID of the Object Storage service')
-});
-
-export const updateDefaultBucketAccessSchema = z.object({
-  acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write']).optional()
-    .describe('The Access Control Level for the bucket'),
-  cors_enabled: z.boolean().optional().describe('Whether CORS is enabled for the bucket'),
+  id: z.coerce.number().describe('The ID of the Object Storage key'),
 });
 
 // Object ACL Management
@@ -132,7 +116,7 @@ export const getObjectURLSchema = z.object({
   name: z.string().describe('The name of the object to generate a URL for'),
   method: z.enum(['GET', 'PUT', 'POST', 'DELETE']).optional()
     .describe('The HTTP method for the URL. Defaults to GET.'),
-  expires_in: z.number().optional()
+  expires_in: z.coerce.number().optional()
     .describe('The number of seconds the URL will be valid. Defaults to 3600 (1 hour).'),
   content_type: z.string().optional()
     .describe('The Content-Type header for the object when using PUT. Only applies to PUT requests.'),
@@ -149,7 +133,7 @@ export const uploadObjectSchema = z.object({
   content_type: z.string().optional().describe('The content type of the object (e.g., "text/plain", "image/jpeg")'),
   acl: z.enum(['private', 'public-read', 'authenticated-read', 'public-read-write', 'custom']).optional()
     .describe('The Access Control Level for the object. If not provided, bucket default is used.'),
-  expires_in: z.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+  expires_in: z.coerce.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
 });
 
 // Download Object
@@ -158,7 +142,7 @@ export const downloadObjectSchema = z.object({
   bucket: z.string().describe('The name of the bucket'),
   object_path: z.string().describe('The path of the object to download (e.g., "folder/file.txt" or just "file.txt")'),
   destination: z.string().optional().describe('Local file path where the object should be saved. If not provided, saves to current working directory.'),
-  expires_in: z.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+  expires_in: z.coerce.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
 });
 
 // Delete Object
@@ -166,7 +150,42 @@ export const deleteObjectSchema = z.object({
   region: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
   bucket: z.string().describe('The name of the bucket'),
   object_path: z.string().describe('The path of the object to delete (e.g., "folder/file.txt" or just "file.txt")'),
-  expires_in: z.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+  expires_in: z.coerce.number().optional().describe('How long the signed URL should be valid in seconds. Default: 3600 (1 hour)')
+});
+
+// Per-region bucket listing
+export const listBucketsInRegionSchema = z.object({
+  regionId: z.string().describe('The region ID to list buckets for (e.g., us-east, us-west)'),
+  ...pagingParamsSchema.shape
+});
+
+// Object ACL Get
+export const getObjectACLSchema = z.object({
+  regionId: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  name: z.string().describe('The name of the object to get ACL configuration for'),
+});
+
+// Bucket Access Update (PUT)
+export const putBucketAccessSchema = z.object({
+  regionId: z.string().describe('The region where the bucket is located (e.g., us-east, us-west)'),
+  bucket: z.string().describe('The name of the bucket'),
+  acl: z.string().optional()
+    .describe('The Access Control Level for the bucket (e.g., private, public-read, authenticated-read, public-read-write)'),
+  cors_enabled: coerceBoolean().optional().describe('Whether CORS is enabled for the bucket'),
+});
+
+// Object Storage Quotas
+export const listObjectStorageQuotasSchema = z.object({
+  ...pagingParamsSchema.shape
+});
+
+export const getObjectStorageQuotaSchema = z.object({
+  objQuotaId: z.string().describe('The ID of the Object Storage quota'),
+});
+
+export const getObjectStorageQuotaUsageSchema = z.object({
+  objQuotaId: z.string().describe('The ID of the Object Storage quota'),
 });
 
 // Transfer Statistics
@@ -177,5 +196,5 @@ export const listObjectStorageTypesSchema = z.object({});
 
 // Service
 export const cancelObjectStorageSchema = z.object({
-  id: z.number().describe('The ID of the Object Storage service to cancel')
+  id: z.coerce.number().describe('The ID of the Object Storage service to cancel')
 });

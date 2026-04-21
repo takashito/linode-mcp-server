@@ -1,5 +1,6 @@
 import { FastMCP } from 'fastmcp';
 import { createClient } from '../../client';
+import { mcpInput } from "../common/schemas";
 import * as schemas from './schemas';
 import { withErrorHandling } from '../common/errorHandler';
 
@@ -8,7 +9,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_account',
     description: 'Get your account information',
-    parameters: schemas.getAccountSchema,
+    parameters: mcpInput(schemas.getAccountSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getAccount();
       return JSON.stringify(result, null, 2);
@@ -17,7 +18,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'update_account',
     description: 'Update your account information',
-    parameters: schemas.updateAccountSchema,
+    parameters: mcpInput(schemas.updateAccountSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.updateAccount(params);
       return JSON.stringify(result, null, 2);
@@ -28,7 +29,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_agreements',
     description: 'List legal agreements',
-    parameters: schemas.listAgreementsSchema,
+    parameters: mcpInput(schemas.listAgreementsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getAgreements();
       return JSON.stringify(result, null, 2);
@@ -37,7 +38,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'acknowledge_agreements',
     description: 'Acknowledge legal agreements',
-    parameters: schemas.acknowledgeAgreementsSchema,
+    parameters: mcpInput(schemas.acknowledgeAgreementsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).account.acknowledgeAgreements(params);
       return JSON.stringify({ success: true }, null, 2);
@@ -48,7 +49,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_available_services',
     description: 'List available services by region',
-    parameters: schemas.listServiceAvailabilitySchema,
+    parameters: mcpInput(schemas.listServiceAvailabilitySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getServiceAvailability();
       return JSON.stringify(result, null, 2);
@@ -57,7 +58,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_region_service_availability',
     description: 'Get service availability for a specific region',
-    parameters: schemas.getRegionServiceAvailabilitySchema,
+    parameters: mcpInput(schemas.getRegionServiceAvailabilitySchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getRegionServiceAvailability(params.regionId);
       return JSON.stringify(result, null, 2);
@@ -68,44 +69,10 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'cancel_account',
     description: 'Cancel your account',
-    parameters: schemas.cancelAccountSchema,
+    parameters: mcpInput(schemas.cancelAccountSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).account.cancelAccount(params);
       return JSON.stringify({ success: true }, null, 2);
-    })
-  });
-
-  // Child account operations
-  server.addTool({
-    name: 'list_child_accounts',
-    description: 'List child accounts',
-    parameters: schemas.listChildAccountsSchema,
-    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
-      const paginationParams = {
-        page: params.page,
-        page_size: params.page_size
-      };
-      const result = await createClient(context).account.getChildAccounts(paginationParams);
-      return JSON.stringify(result, null, 2);
-    })
-  });
-  server.addTool({
-    name: 'get_child_account',
-    description: 'Get a child account',
-    parameters: schemas.getChildAccountSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      const result = await createClient(context).account.getChildAccount(params.euuid);
-      return JSON.stringify(result, null, 2);
-    })
-  });
-  server.addTool({
-    name: 'create_proxy_token',
-    description: 'Create a proxy user token for a child account',
-    parameters: schemas.createProxyTokenSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      const { euuid, ...data } = params;
-      const result = await createClient(context).account.createProxyToken(euuid, data);
-      return JSON.stringify(result, null, 2);
     })
   });
 
@@ -113,7 +80,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_events',
     description: 'List account events',
-    parameters: schemas.listEventsSchema,
+    parameters: mcpInput(schemas.listEventsSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -126,25 +93,16 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_event',
     description: 'Get a specific event',
-    parameters: schemas.getEventSchema,
+    parameters: mcpInput(schemas.getEventSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getEvent(params.eventId);
       return JSON.stringify(result, null, 2);
     })
   });
   server.addTool({
-    name: 'mark_event_as_read',
-    description: 'Mark an event as read',
-    parameters: schemas.markEventAsReadSchema,
-    execute: withErrorHandling(async (params: any, context?: any) => {
-      await createClient(context).account.markEventAsRead(params.eventId);
-      return JSON.stringify({ success: true }, null, 2);
-    })
-  });
-  server.addTool({
     name: 'mark_event_as_seen',
     description: 'Mark an event as seen',
-    parameters: schemas.markEventAsSeenSchema,
+    parameters: mcpInput(schemas.markEventAsSeenSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).account.markEventAsSeen(params.eventId);
       return JSON.stringify({ success: true }, null, 2);
@@ -155,7 +113,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_invoices',
     description: 'List invoices',
-    parameters: schemas.listInvoicesSchema,
+    parameters: mcpInput(schemas.listInvoicesSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -168,7 +126,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_invoice',
     description: 'Get a specific invoice',
-    parameters: schemas.getInvoiceSchema,
+    parameters: mcpInput(schemas.getInvoiceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getInvoice(params.invoiceId);
       return JSON.stringify(result, null, 2);
@@ -177,7 +135,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_invoice_items',
     description: 'List items for a specific invoice',
-    parameters: schemas.listInvoiceItemsSchema,
+    parameters: mcpInput(schemas.listInvoiceItemsSchema),
     execute: withErrorHandling(async (params: { invoiceId: number; page?: number; page_size?: number }, context?: any) => {
       const { invoiceId, ...paginationParams } = params;
       const result = await createClient(context).account.getInvoiceItems(invoiceId, paginationParams);
@@ -189,7 +147,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_account_logins',
     description: 'List account logins',
-    parameters: schemas.listAccountLoginsSchema,
+    parameters: mcpInput(schemas.listAccountLoginsSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -202,7 +160,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_account_login',
     description: 'Get a specific account login',
-    parameters: schemas.getAccountLoginSchema,
+    parameters: mcpInput(schemas.getAccountLoginSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getLogin(params.loginId);
       return JSON.stringify(result, null, 2);
@@ -213,7 +171,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_maintenances',
     description: 'List maintenance events',
-    parameters: schemas.listMaintenancesSchema,
+    parameters: mcpInput(schemas.listMaintenancesSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -228,7 +186,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_notifications',
     description: 'List notifications',
-    parameters: schemas.listNotificationsSchema,
+    parameters: mcpInput(schemas.listNotificationsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getNotifications();
       return JSON.stringify(result, null, 2);
@@ -239,7 +197,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_oauth_clients',
     description: 'List OAuth clients',
-    parameters: schemas.listOAuthClientsSchema,
+    parameters: mcpInput(schemas.listOAuthClientsSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -252,7 +210,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'create_oauth_client',
     description: 'Create an OAuth client',
-    parameters: schemas.createOAuthClientSchema,
+    parameters: mcpInput(schemas.createOAuthClientSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.createOAuthClient(params);
       return JSON.stringify(result, null, 2);
@@ -261,7 +219,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_oauth_client',
     description: 'Get an OAuth client',
-    parameters: schemas.getOAuthClientSchema,
+    parameters: mcpInput(schemas.getOAuthClientSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getOAuthClient(params.clientId);
       return JSON.stringify(result, null, 2);
@@ -270,7 +228,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'update_oauth_client',
     description: 'Update an OAuth client',
-    parameters: schemas.updateOAuthClientSchema,
+    parameters: mcpInput(schemas.updateOAuthClientSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { clientId, ...data } = params;
       const result = await createClient(context).account.updateOAuthClient(clientId, data);
@@ -280,7 +238,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'delete_oauth_client',
     description: 'Delete an OAuth client',
-    parameters: schemas.deleteOAuthClientSchema,
+    parameters: mcpInput(schemas.deleteOAuthClientSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).account.deleteOAuthClient(params.clientId);
       return JSON.stringify({ success: true }, null, 2);
@@ -289,7 +247,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'reset_oauth_client_secret',
     description: 'Reset an OAuth client secret',
-    parameters: schemas.resetOAuthClientSecretSchema,
+    parameters: mcpInput(schemas.resetOAuthClientSecretSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.resetOAuthClientSecret(params.clientId);
       return JSON.stringify(result, null, 2);
@@ -300,7 +258,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_account_settings',
     description: 'Get account settings',
-    parameters: schemas.getAccountSettingsSchema,
+    parameters: mcpInput(schemas.getAccountSettingsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getAccountSettings();
       return JSON.stringify(result, null, 2);
@@ -309,7 +267,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'update_account_settings',
     description: 'Update account settings',
-    parameters: schemas.updateAccountSettingsSchema,
+    parameters: mcpInput(schemas.updateAccountSettingsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.updateAccountSettings(params);
       return JSON.stringify(result, null, 2);
@@ -318,7 +276,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'enable_managed_service',
     description: 'Enable Linode Managed service',
-    parameters: schemas.enableManagedServiceSchema,
+    parameters: mcpInput(schemas.enableManagedServiceSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).account.enableManagedService();
       return JSON.stringify({ success: true }, null, 2);
@@ -329,7 +287,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_account_network_transfer',
     description: 'Get network transfer information for the entire account',
-    parameters: schemas.getAccountNetworkTransferSchema,
+    parameters: mcpInput(schemas.getAccountNetworkTransferSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getNetworkTransfer();
       return JSON.stringify(result, null, 2);
@@ -340,7 +298,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'list_users',
     description: 'List users',
-    parameters: schemas.listUsersSchema,
+    parameters: mcpInput(schemas.listUsersSchema),
     execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
       const paginationParams = {
         page: params.page,
@@ -353,7 +311,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'create_user',
     description: 'Create a user',
-    parameters: schemas.createUserSchema,
+    parameters: mcpInput(schemas.createUserSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.createUser(params);
       return JSON.stringify(result, null, 2);
@@ -362,7 +320,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'get_user',
     description: 'Get a user',
-    parameters: schemas.getUserSchema,
+    parameters: mcpInput(schemas.getUserSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getUser(params.username);
       return JSON.stringify(result, null, 2);
@@ -371,7 +329,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'update_user',
     description: 'Update a user',
-    parameters: schemas.updateUserSchema,
+    parameters: mcpInput(schemas.updateUserSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { username, ...data } = params;
       const result = await createClient(context).account.updateUser(username, data);
@@ -381,7 +339,7 @@ export function registerAccountTools(server: FastMCP) {
   server.addTool({
     name: 'delete_user',
     description: 'Delete a user',
-    parameters: schemas.deleteUserSchema,
+    parameters: mcpInput(schemas.deleteUserSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       await createClient(context).account.deleteUser(params.username);
       return JSON.stringify({ success: true }, null, 2);
@@ -390,8 +348,8 @@ export function registerAccountTools(server: FastMCP) {
 
   server.addTool({
     name: 'get_user_grants',
-    description: 'Get a user\'s grants',
-    parameters: schemas.getUserGrantsSchema,
+    description: '[DEPRECATED] Get a user\'s grants. Use IAM role-permissions instead.',
+    parameters: mcpInput(schemas.getUserGrantsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const result = await createClient(context).account.getUserGrants(params.username);
       return JSON.stringify(result, null, 2);
@@ -400,13 +358,213 @@ export function registerAccountTools(server: FastMCP) {
 
   server.addTool({
     name: 'update_user_grants',
-    description: 'Update a user\'s grants',
-    parameters: schemas.updateUserGrantsSchema,
+    description: '[DEPRECATED] Update a user\'s grants. Use IAM role-permissions instead.',
+    parameters: mcpInput(schemas.updateUserGrantsSchema),
     execute: withErrorHandling(async (params: any, context?: any) => {
       const { username, ...data } = params;
       const updateData = data as any; // Type assertion to resolve the type mismatch
       const result = await createClient(context).account.updateUserGrants(username, updateData);
       return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // Entity operations
+  server.addTool({
+    name: 'list_entities',
+    description: 'List entities associated with your account',
+    parameters: mcpInput(schemas.listEntitiesSchema),
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
+      const paginationParams = {
+        page: params.page,
+        page_size: params.page_size
+      };
+      const result = await createClient(context).account.getEntities(paginationParams);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // IAM Role Permission operations
+  server.addTool({
+    name: 'list_iam_roles',
+    description: 'List available IAM roles and their permissions',
+    parameters: mcpInput(schemas.listIamRolesSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getIamRoles();
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_user_role_permissions',
+    description: 'Get a user\'s IAM role permissions and access level',
+    parameters: mcpInput(schemas.getUserRolePermissionsSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getUserRolePermissions(params.username);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'update_user_role_permissions',
+    description: 'Update a user\'s IAM role permissions and access level',
+    parameters: mcpInput(schemas.updateUserRolePermissionsSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { username, ...data } = params;
+      const result = await createClient(context).account.updateUserRolePermissions(username, data);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // Delegation Child Account operations
+  server.addTool({
+    name: 'list_delegation_child_accounts',
+    description: 'List child accounts for delegation',
+    parameters: mcpInput(schemas.listDelegationChildAccountsSchema),
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
+      const paginationParams = {
+        page: params.page,
+        page_size: params.page_size
+      };
+      const result = await createClient(context).account.getDelegationChildAccounts(paginationParams);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_delegation_child_account_users',
+    description: 'Get the account delegation for a child account',
+    parameters: mcpInput(schemas.getDelegationChildAccountUsersSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getDelegationChildAccountUsers(params.euuid);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'update_delegation_child_account_users',
+    description: 'Update the account delegation for a child account',
+    parameters: mcpInput(schemas.updateDelegationChildAccountUsersSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const { euuid, ...data } = params;
+      const result = await createClient(context).account.updateDelegationChildAccountUsers(euuid, data);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // Delegation Default Roles operations
+  server.addTool({
+    name: 'get_delegation_default_roles',
+    description: 'Get the default role assignment for delegate users',
+    parameters: mcpInput(schemas.getDelegationDefaultRolesSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getDelegationDefaultRoles();
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'update_delegation_default_roles',
+    description: 'Update the default role assignment for delegate users',
+    parameters: mcpInput(schemas.updateDelegationDefaultRolesSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.updateDelegationDefaultRoles(params);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // Delegation Profile operations
+  server.addTool({
+    name: 'list_delegation_profile_accounts',
+    description: 'Get your account delegations',
+    parameters: mcpInput(schemas.listDelegationProfileAccountsSchema),
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
+      const paginationParams = {
+        page: params.page,
+        page_size: params.page_size
+      };
+      const result = await createClient(context).account.getDelegationProfileAccounts(paginationParams);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_delegation_profile_account',
+    description: 'Get a child account from your delegations',
+    parameters: mcpInput(schemas.getDelegationProfileAccountSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getDelegationProfileAccount(params.euuid);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'create_delegation_token',
+    description: 'Create a delegate user token for a child account',
+    parameters: mcpInput(schemas.createDelegationTokenSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.createDelegationToken(params.euuid);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // User Delegations operations
+  server.addTool({
+    name: 'get_user_delegations',
+    description: 'Get a user\'s account delegations',
+    parameters: mcpInput(schemas.getUserDelegationsSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getUserDelegations(params.username);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // Maintenance Policy operations
+  server.addTool({
+    name: 'list_maintenance_policies',
+    description: 'List maintenance policies',
+    parameters: mcpInput(schemas.listMaintenancePoliciesSchema),
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
+      const paginationParams = {
+        page: params.page,
+        page_size: params.page_size
+      };
+      const result = await createClient(context).account.getMaintenancePolicies(paginationParams);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+
+  // Resource Lock operations
+  server.addTool({
+    name: 'list_resource_locks',
+    description: 'List resource locks on the account',
+    parameters: mcpInput(schemas.listResourceLocksSchema),
+    execute: withErrorHandling(async (params: { page?: number; page_size?: number }, context?: any) => {
+      const paginationParams = {
+        page: params.page,
+        page_size: params.page_size
+      };
+      const result = await createClient(context).account.getResourceLocks(paginationParams);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'get_resource_lock',
+    description: 'Get a specific resource lock',
+    parameters: mcpInput(schemas.getResourceLockSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.getResourceLock(params.resourceLockId);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'create_resource_lock',
+    description: 'Create a resource lock',
+    parameters: mcpInput(schemas.createResourceLockSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      const result = await createClient(context).account.createResourceLock(params);
+      return JSON.stringify(result, null, 2);
+    })
+  });
+  server.addTool({
+    name: 'delete_resource_lock',
+    description: 'Delete a resource lock',
+    parameters: mcpInput(schemas.deleteResourceLockSchema),
+    execute: withErrorHandling(async (params: any, context?: any) => {
+      await createClient(context).account.deleteResourceLock(params.resourceLockId);
+      return JSON.stringify({ success: true }, null, 2);
     })
   });
 }

@@ -122,6 +122,34 @@ export interface RecycleNodePoolRequest {
   nodes: string[];
 }
 
+// Control Plane ACL interfaces
+export interface ControlPlaneACL {
+  acl: {
+    enabled: boolean;
+    'revision-id': string;
+    addresses: {
+      ipv4: string[];
+      ipv6: string[];
+    };
+  };
+}
+
+export interface UpdateControlPlaneACLRequest {
+  acl: {
+    enabled?: boolean;
+    'revision-id'?: string;
+    addresses?: {
+      ipv4?: string[];
+      ipv6?: string[];
+    };
+  };
+}
+
+// Tier version interfaces
+export interface KubernetesTierVersion {
+  id: string;
+}
+
 // Client interface
 export interface KubernetesClient {
   // Cluster operations
@@ -131,8 +159,6 @@ export interface KubernetesClient {
   updateCluster: (id: number, data: UpdateKubernetesClusterRequest) => Promise<KubernetesCluster>;
   deleteCluster: (id: number) => Promise<void>;
   recycleCluster: (id: number) => Promise<void>;
-  upgradeCluster: (id: number) => Promise<void>;
-  
   // Node pool operations
   getNodePools: (clusterId: number) => Promise<KubernetesNodePool[]>;
   getNodePool: (clusterId: number, poolId: number) => Promise<KubernetesNodePool>;
@@ -151,6 +177,24 @@ export interface KubernetesClient {
   getDashboardURL: (id: number) => Promise<KubernetesDashboard>;
   deleteServiceToken: (id: number) => Promise<void>;
   
+  // Control Plane ACL operations
+  getControlPlaneACL: (clusterId: number) => Promise<ControlPlaneACL>;
+  updateControlPlaneACL: (clusterId: number, data: UpdateControlPlaneACLRequest) => Promise<ControlPlaneACL>;
+  deleteControlPlaneACL: (clusterId: number) => Promise<void>;
+
+  // Kubeconfig operations
+  deleteKubeconfig: (clusterId: number) => Promise<void>;
+
+  // Cluster regeneration
+  regenerateCluster: (clusterId: number) => Promise<void>;
+
+  // Node operations (get)
+  getNode: (clusterId: number, nodeId: string) => Promise<KubernetesNode>;
+
+  // Tier version operations
+  getTierVersions: (tier: string) => Promise<KubernetesTierVersion[]>;
+  getTierVersion: (tier: string, version: string) => Promise<KubernetesTierVersion>;
+
   // Version and type information
   getVersions: () => Promise<KubernetesVersion[]>;
   getVersion: (version: string) => Promise<KubernetesVersion>;
@@ -185,10 +229,6 @@ export function createKubernetesClient(axios: AxiosInstance): KubernetesClient {
     recycleCluster: async (id: number) => {
       await axios.post(`/lke/clusters/${id}/recycle`);
     },
-    upgradeCluster: async (id: number) => {
-      await axios.post(`/lke/clusters/${id}/upgrade`);
-    },
-    
     // Node pool operations
     getNodePools: async (clusterId: number) => {
       const response = await axios.get(`/lke/clusters/${clusterId}/pools`);
@@ -240,6 +280,45 @@ export function createKubernetesClient(axios: AxiosInstance): KubernetesClient {
       await axios.delete(`/lke/clusters/${id}/servicetoken`);
     },
     
+    // Control Plane ACL operations
+    getControlPlaneACL: async (clusterId: number) => {
+      const response = await axios.get(`/lke/clusters/${clusterId}/control_plane_acl`);
+      return response.data;
+    },
+    updateControlPlaneACL: async (clusterId: number, data: UpdateControlPlaneACLRequest) => {
+      const response = await axios.put(`/lke/clusters/${clusterId}/control_plane_acl`, data);
+      return response.data;
+    },
+    deleteControlPlaneACL: async (clusterId: number) => {
+      await axios.delete(`/lke/clusters/${clusterId}/control_plane_acl`);
+    },
+
+    // Kubeconfig operations
+    deleteKubeconfig: async (clusterId: number) => {
+      await axios.delete(`/lke/clusters/${clusterId}/kubeconfig`);
+    },
+
+    // Cluster regeneration
+    regenerateCluster: async (clusterId: number) => {
+      await axios.post(`/lke/clusters/${clusterId}/regenerate`);
+    },
+
+    // Node operations (get)
+    getNode: async (clusterId: number, nodeId: string) => {
+      const response = await axios.get(`/lke/clusters/${clusterId}/nodes/${nodeId}`);
+      return response.data;
+    },
+
+    // Tier version operations
+    getTierVersions: async (tier: string) => {
+      const response = await axios.get(`https://api.linode.com/v4beta/lke/tiers/${tier}/versions`);
+      return response.data.data;
+    },
+    getTierVersion: async (tier: string, version: string) => {
+      const response = await axios.get(`https://api.linode.com/v4beta/lke/tiers/${tier}/versions/${version}`);
+      return response.data;
+    },
+
     // Version and type information
     getVersions: async () => {
       const response = await axios.get('/lke/versions');

@@ -21,13 +21,13 @@ export const getTagSchema = z.object({
 export const createTagSchema = z.object({
   label: z.string()
     .describe('The label of the Tag. length between 3 and 50 characters, can only contain alphanumeric characters, dashes (-), and underscores (_).'),
-  linodes: z.array(z.number()).optional()
+  linodes: z.array(z.coerce.number()).optional()
     .describe('Array of Linode IDs to apply this Tag to'),
-  domains: z.array(z.number()).optional()
+  domains: z.array(z.coerce.number()).optional()
     .describe('Array of Domain IDs to apply this Tag to'),
-  nodebalancers: z.array(z.number()).optional()
+  nodebalancers: z.array(z.coerce.number()).optional()
     .describe('Array of NodeBalancer IDs to apply this Tag to'),
-  volumes: z.array(z.number()).optional()
+  volumes: z.array(z.coerce.number()).optional()
     .describe('Array of Volume IDs to apply this Tag to')
 });
 

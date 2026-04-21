@@ -36,7 +36,8 @@ This server provides tools for the following Linode service categories:
 - 🎫 **support** - Support tickets and requests
 - 📊 **longview** - System metrics and monitoring
 - 👤 **profile** - User profile and security settings
-- 🏢 **account** - Account management, users, and billing
+- 🏢 **account** - Account management, users, billing, IAM, and resource locks
+- 📡 **monitor** - Alerts, logs, metrics, and dashboards
 
 ## Getting Started
 
@@ -51,28 +52,27 @@ npx @takashito/linode-mcp-server --token YOUR_LINODE_API_TOKEN
 
 ### Setting Your API Token
 
-You can provide your token in several ways:
+You can provide your token in several ways. **Precedence (highest first):**
 
-1. **Command line option:**
+1. **`Authorization: Bearer <token>` request header** (HTTP transport only) — a token sent by the MCP client on each request. See [Pass Linode API Key via Authorization Header](#pass-linode-api-key-via-authorization-header-) below. This wins over every fallback so multiple users can share one server.
+2. **`--token` command-line option:**
    ```bash
    npx @takashito/linode-mcp-server --token YOUR_LINODE_API_TOKEN
    ```
-
-2. **Environment variable:**
+3. **`LINODE_API_TOKEN` environment variable:**
    ```bash
    export LINODE_API_TOKEN=your_token_here
    npx @takashito/linode-mcp-server
    ```
-
-3. **Environment file:**
-   Create a `.env` file in your project directory with:
+4. **`.env` file in the current working directory** — the server calls `dotenv.config()` at startup, so a `.env` file in the directory you launch it from is auto-loaded:
    ```
    LINODE_API_TOKEN=your_token_here
    ```
-   Then run:
    ```bash
    npx @takashito/linode-mcp-server
    ```
+
+> **⚠️ Gotcha for HTTP transport:** a `.env` file or `LINODE_API_TOKEN` env var in the server's launch environment acts as a **fallback** when the client omits the `Authorization` header. If you want to require every client to authenticate with its own header (e.g. multi-user setup), make sure the server process has no `LINODE_API_TOKEN` in env **and** no `.env` in its working directory.
 
 ### Connecting to AI Clients
 
@@ -101,11 +101,44 @@ Add to your settings.json:
   }
 }
 ```
-⚠️ **Note**: For GPT-4o based clients, use `--categories` to limit tools and avoid context window errors.
-
 ## Tools Category Selection
 
-You can selectively enabled tools with --categories parameter:
+> **💡 Context-budget tips**
+>
+> Enabling every tool exposes **~416 tool definitions** to the model on every turn. The tool listing (name + description + JSON-Schema for each) is sent as part of the system prompt and is charged as input tokens on **every** request.
+>
+> **Rough estimate with all categories enabled:** the full tool manifest is ~80–120 k input tokens, depending on the client's JSON-Schema serialization. For small-context clients this alone can exceed the window before the user's prompt is even added.
+>
+> **Per-category tool count (order-of-magnitude tokens, assuming ~200 tokens per tool):**
+> | Category | Tools | ~Tokens |
+> |---|---|---|
+> | `instances` | 58 | ~11–14 k |
+> | `account` | 52 | ~10–12 k |
+> | `networking` | 44 | ~8–10 k |
+> | `databases` | 34 | ~7–8 k |
+> | `monitor` | 32 | ~6–7 k |
+> | `images` | 29 | ~5–6 k |
+> | `kubernetes` | 29 | ~5–6 k |
+> | `objectStorage` | 29 | ~5–6 k |
+> | `profile` | 29 | ~5–6 k |
+> | `vpcs` | 14 | ~2–3 k |
+> | `domains` | 13 | ~2–3 k |
+> | `longview` | 11 | ~2 k |
+> | `nodebalancers` | 10 | ~2 k |
+> | `support` / `placement` / `volumes` | 7 each | ~1–2 k |
+> | `stackScripts` | 5 | ~1 k |
+> | `tags` | 4 | ~0.5–1 k |
+> | `regions` | 2 | ~0.5 k |
+>
+> **Recommendations:**
+> - **Always scope to what you need.** Pass `--categories instances,volumes,regions` rather than enabling all — this is by far the biggest cost lever.
+> - **Small-context clients** (GPT-4o/GPT-4o-mini 128 k, Claude Haiku 200 k, most local models ≤32 k): enable 2–4 categories max. All-enabled will either truncate or outright fail.
+> - **Large-context clients** (Claude Sonnet/Opus 200 k–1 M, GPT-5, Gemini): all-enabled works, but every unused tool still costs input tokens per turn — be mindful of API cost even if it fits.
+> - **Caching matters.** Anthropic/OpenAI prompt caching only rewards identical tool manifests across calls; changing `--categories` between sessions breaks the cache.
+> - **Prefer `--list-categories`** to see everything available, then enable only what your current task needs. You can start a second server with a different category set if you need different tooling mid-flight.
+> - Token counts above are estimates; your client may serialize JSON Schema differently (zod → JSON Schema can expand). Measure with your own client's token counter if you need exact numbers.
+
+You can selectively enable tools with the `--categories` parameter:
 
 ```bash
 # Enable only instances and volumes tools
@@ -131,7 +164,7 @@ Or in Claude Desktop config:
   }
 }
 ```
-Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview, profile, account
+Available categories: instances, volumes, networking, nodebalancers, regions, placement, vpcs, objectStorage, domains, databases, kubernetes, images, stackScripts, tags, support, longview, profile, account, monitor
 
 To see all available categories:
 
@@ -158,16 +191,21 @@ You can customize port and host for HTTP streaming transport:
 - `--endpoint` : Server Path (default: /mcp)
 - `--host` : Server host (default: 127.0.0.1)
 
-## Pass Linode API Key via Authorization Header
+## Pass Linode API Key via Authorization Header ✅
 
-For http transport, you can run mcp server without --token parameter. 
+For HTTP transport, you can run the MCP server **without** the `--token` parameter and have the client supply the token on each request via an `Authorization: Bearer <token>` header. The server forwards that token to the Linode API as-is — no token ever needs to live in the server's argv or environment.
 
-   ```bash
-   # Start with HTTP streaming transport on port 8080 /mcp at localhost
-   npx @takashito/linode-mcp-server --transport http
-   ```
+**Why use this mode:**
+- **Multi-user / shared server.** Run one server and let multiple clients/users authenticate with their own tokens.
+- **Secrets hygiene.** Token stays on the client side; the server process doesn't need it in its command line (visible in `ps`) or environment.
+- **Token rotation.** Clients can switch tokens without restarting the server.
 
-Configure your mcp client to add Authorization Header. linode-mcp-server forward this API token to access Linode API at backend.
+```bash
+# Start with HTTP streaming transport on port 8080 /mcp at localhost
+npx @takashito/linode-mcp-server --transport http
+```
+
+Configure your MCP client to add the `Authorization` header. `linode-mcp-server` forwards this API token to the Linode API at the backend:
 
 ```json
 {
@@ -183,10 +221,12 @@ Configure your mcp client to add Authorization Header. linode-mcp-server forward
       "env": {
         "LINODE_API_TOKEN": "..."
       }
-    },
+    }
   }
 }
 ```
+
+> **Note:** If both `--token` (server-side) and an `Authorization` header (client-side) are provided, the request-level header takes precedence. The `--token` flag is useful as a fallback default in single-user setups.
 
 ## Docker
 
@@ -247,6 +287,24 @@ docker run -e LINODE_API_TOKEN=your_token -e ENDPOINT=/api -p 8080:8080 takashit
 ## Available Tools
 
 This MCP server provides the following tools for interacting with Linode API services:
+
+> **✅ MCP parameter serialization**
+> All tool input schemas are wrapped with a universal preprocessor (`mcpInput()`) that auto-coerces string-serialized values back to their expected types (arrays, objects, numbers, booleans). This means MCP clients that stringify nested JSON params (common with Claude Code and other implementations) work correctly without the caller having to pre-parse values.
+
+> **Legend**
+> 🧪 *beta* — tool targets a Linode v4beta API endpoint or a feature that may be gated on your account (log streams, delegation, image sharegroups). Behavior/schema may change without notice, and some return 404 if the feature isn't provisioned.
+
+> **⚠️ Beta API endpoints**
+> The following tools call the Linode `v4beta` API (not the stable `v4`). They may change without notice, and some are only available on accounts with the corresponding feature provisioned. If you see a 404, your account likely lacks access.
+>
+> - **LKE tier versions** — `list_kubernetes_tier_versions`, `get_kubernetes_tier_version` (`/v4beta/lke/tiers/{tier}/versions`)
+> - **Resource locks** — `list_resource_locks`, `get_resource_lock`, `create_resource_lock`, `delete_resource_lock` (`/v4beta/locks`)
+> - **Monitor alerts** — `list_alert_definitions`, `get_alert_definition`, `create_alert_definition`, `update_alert_definition`, `delete_alert_definition`, `list_service_alert_definitions`, `list_notification_channels`, `get_notification_channel`, `create_notification_channel`, `update_notification_channel`, `delete_notification_channel`, `list_channel_alerts` (`/v4beta/monitor/alert-*`)
+>
+> **Account-gated endpoints** (may 404 even for admins — feature not provisioned for the account):
+> - Delegation: `get_delegation_default_roles`, `list_delegation_child_accounts`, `list_delegation_profile_accounts`, `update_delegation_default_roles`, `get_delegation_child_account_users`, `update_delegation_child_account_users`, `get_delegation_profile_account`, `create_delegation_token`
+> - Log streams / log destinations: `list_log_streams`, `list_log_destinations`, and related CRUD tools (API path currently undiscoverable)
+
 
 ### 🖥️ Instances
 Manage Linode compute instances, including creation, deletion, and power operations.
@@ -311,6 +369,7 @@ Manage Linode compute instances, including creation, deletion, and power operati
 #### Firewall Management
 - `list_linode_firewalls` - List firewalls for a Linode instance
 - `apply_linode_firewalls` - Apply firewalls to a Linode instance
+- `update_linode_firewalls` - Update a Linode's assigned firewalls
 
 #### Instance Stats and Transfer
 - `get_instance_stats` - Get current statistics for a Linode instance
@@ -353,6 +412,15 @@ Manage IP addresses, firewalls, and network infrastructure.
 - `get_ipv6_ranges` - Get all IPv6 ranges
 - `get_ipv6_range` - Get a specific IPv6 range
 - `get_ipv6_pools` - Get all IPv6 pools
+- `create_ipv6_range` - Create an IPv6 range
+- `delete_ipv6_range` - Delete an IPv6 range
+
+#### IPv4 Operations
+- `assign_ipv4_addresses` - Assign IPv4 addresses to Linodes
+- `share_ipv4_addresses` - Configure IPv4 sharing
+
+#### IP Assignment
+- `assign_ips` - Assign IP addresses to Linodes
 
 #### Firewall Management
 - `get_firewalls` - Get all firewalls
@@ -367,12 +435,37 @@ Manage IP addresses, firewalls, and network infrastructure.
 
 #### Firewall Devices
 - `get_firewall_devices` - Get all devices for a specific firewall
+- `get_firewall_device` - Get a specific firewall device
 - `create_firewall_device` - Create a new device for a specific firewall
 - `delete_firewall_device` - Delete a device from a specific firewall
+
+#### Firewall History & Templates
+- `list_firewall_history` - List firewall rule versions
+- `get_firewall_rule_version` - Get a specific firewall rule version
+- `get_firewall_settings` - Get default firewall settings
+- `update_firewall_settings` - Update default firewall settings
+- `list_firewall_templates` - List firewall templates
+- `get_firewall_template` - Get a firewall template
 
 #### VLAN Management
 - `get_vlans` - Get all VLANs
 - `get_vlan` - Get a specific VLAN
+- `delete_vlan` - Delete a VLAN
+
+#### Linode Interfaces
+- `list_linode_interfaces` - List Linode interfaces
+- `get_linode_interface` - Get a Linode interface
+- `create_linode_interface` - Add a Linode interface
+- `update_linode_interface` - Update a Linode interface
+- `delete_linode_interface` - Delete a Linode interface
+- `list_linode_interface_history` - List interface history
+- `get_linode_interface_settings` - Get interface settings
+- `update_linode_interface_settings` - Update interface settings
+- `list_linode_interface_firewalls` - List interface firewalls
+- `upgrade_linode_interfaces` - Upgrade to Linode interfaces
+
+#### Network Transfer Prices
+- `list_network_transfer_prices` - List network transfer prices
 
 ### 🔤 Domains
 Manage DNS domains and records hosted by Linode's DNS services.
@@ -427,6 +520,17 @@ Manage Linode Managed Database services for MySQL and PostgreSQL.
 - `suspend_postgresql_instance` - Suspend a PostgreSQL database instance (billing continues)
 - `resume_postgresql_instance` - Resume a suspended PostgreSQL database instance
 
+#### PostgreSQL Connection Pools
+- `list_postgresql_connection_pools` - List connection pools for a PostgreSQL instance
+- `get_postgresql_connection_pool` - Get a specific connection pool
+- `create_postgresql_connection_pool` - Create a connection pool
+- `update_postgresql_connection_pool` - Update a connection pool
+- `delete_postgresql_connection_pool` - Delete a connection pool
+
+#### Database Configuration
+- `get_mysql_config` - Get MySQL advanced configuration parameters
+- `get_postgresql_config` - Get PostgreSQL advanced configuration parameters
+
 ### ⚖️ NodeBalancers
 Manage Linode's load balancing service to distribute traffic across multiple Linode instances.
 
@@ -441,12 +545,16 @@ Manage Linode's load balancing service to distribute traffic across multiple Lin
 - `create_nodebalancer_node` - Create a new node for a NodeBalancer config
 - `delete_nodebalancer_node` - Delete a node from a NodeBalancer config
 
+#### NodeBalancer Firewalls
+- `list_nodebalancer_firewalls` - List firewalls for a NodeBalancer
+- `update_nodebalancer_firewalls` - Update a NodeBalancer's firewalls
+
 ### 📦 Object Storage
 Manage S3-compatible object storage for storing and retrieving files.
 
 #### Bucket Management
-- `list_object_storage_clusters` - Get a list of all Object Storage clusters
 - `list_object_storage_buckets` - Get a list of all Object Storage buckets
+- `list_object_storage_buckets_in_region` - List buckets in a specific region
 - `get_object_storage_bucket` - Get details for a specific Object Storage bucket
 - `create_object_storage_bucket` - Create a new Object Storage bucket
 - `delete_object_storage_bucket` - Delete an Object Storage bucket
@@ -458,6 +566,7 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `upload_object` - Upload a new object to a bucket from various sources (string, file, or URL)
 - `download_object` - Download an object from a bucket to your local file system
 - `delete_object` - Delete an object from a bucket
+- `get_object_acl` - Get object ACL configuration
 - `update_object_acl` - Update access control level (ACL) for an object in a bucket
 - `generate_object_url` - Generate a pre-signed URL for an object in a bucket
 
@@ -472,8 +581,10 @@ Manage S3-compatible object storage for storing and retrieving files.
 - `create_object_storage_key` - Create a new Object Storage key
 - `update_object_storage_key` - Update an Object Storage key
 - `delete_object_storage_key` - Delete an Object Storage key
-- `get_object_storage_default_bucket_access` - Get default bucket access configuration
-- `update_object_storage_default_bucket_access` - Update default bucket access configuration
+#### Object Storage Quotas
+- `list_object_storage_quotas` - List Object Storage quotas
+- `get_object_storage_quota` - Get a specific quota
+- `get_object_storage_quota_usage` - Get quota usage data
 
 #### Usage and Service Information
 - `get_object_storage_transfer` - Get Object Storage transfer statistics
@@ -494,6 +605,9 @@ Manage Virtual Private Cloud networks to isolate and connect Linode resources.
 - `update_vpc_subnet` - Update an existing subnet in a VPC
 - `delete_vpc_subnet` - Delete a subnet in a VPC
 - `list_vpc_ips` - List all IP addresses in a VPC
+- `list_all_vpc_ips` - List all VPC IP addresses across all VPCs
+- `list_nodebalancer_vpcs` - List NodeBalancer VPC configurations
+- `get_nodebalancer_vpc` - Get a NodeBalancer VPC configuration
 
 ### 📊 Placement Groups
 Manage instance placement policies to control how instances are distributed across physical hardware.
@@ -526,7 +640,7 @@ Manage Linode Kubernetes Engine clusters and node pools.
 - `get_kubernetes_dashboard_url` - Get the dashboard URL for a Kubernetes cluster
 - `delete_kubernetes_service_token` - Delete the service token for a Kubernetes cluster
 - `recycle_kubernetes_cluster` - Recycle all nodes in a Kubernetes cluster
-- `upgrade_kubernetes_cluster` - Upgrade a Kubernetes cluster to the latest patch version
+- `regenerate_kubernetes_cluster` - Regenerate a Kubernetes cluster
 - `list_kubernetes_versions` - List all available Kubernetes versions
 - `get_kubernetes_version` - Get details for a specific Kubernetes version
 - `list_kubernetes_types` - List all available Kubernetes types
@@ -540,8 +654,19 @@ Manage Linode Kubernetes Engine clusters and node pools.
 - `recycle_kubernetes_nodes` - Recycle specific nodes in a Kubernetes node pool
 
 #### Node Operations
+- `get_kubernetes_node` - Get details for a specific node
 - `delete_kubernetes_node` - Delete a node from a Kubernetes cluster
 - `recycle_kubernetes_node` - Recycle a node in a Kubernetes cluster
+
+#### Control Plane ACL
+- `get_kubernetes_control_plane_acl` - Get control plane ACL configuration
+- `update_kubernetes_control_plane_acl` - Update control plane ACL
+- `delete_kubernetes_control_plane_acl` - Delete control plane ACL
+
+#### Kubeconfig & Tier Versions
+- `delete_kubernetes_kubeconfig` - Delete (revoke) a kubeconfig
+- `list_kubernetes_tier_versions` 🧪 *beta* - List Kubernetes versions for a tier
+- `get_kubernetes_tier_version` 🧪 *beta* - Get a Kubernetes version for a tier
 
 ### 💿 Images
 Manage disk images that can be used to create Linode instances.
@@ -553,6 +678,30 @@ Manage disk images that can be used to create Linode instances.
 - `update_image` - Update an existing image
 - `delete_image` - Delete an image
 - `replicate_image` - Replicate an image to other regions
+
+#### Image Sharing (Sharegroups)
+- `list_image_sharegroups` 🧪 *beta* - List share groups
+- `get_image_sharegroup` 🧪 *beta* - Get a share group
+- `create_image_sharegroup` 🧪 *beta* - Create a share group
+- `update_image_sharegroup` 🧪 *beta* - Update a share group
+- `delete_image_sharegroup` 🧪 *beta* - Delete a share group
+- `list_sharegroup_images` 🧪 *beta* - List images in a share group
+- `add_sharegroup_images` 🧪 *beta* - Add images to a share group
+- `update_sharegroup_image` 🧪 *beta* - Update a shared image
+- `remove_sharegroup_image` 🧪 *beta* - Remove an image from a share group
+- `list_sharegroup_members` 🧪 *beta* - List members of a share group
+- `get_sharegroup_member` 🧪 *beta* - Get a membership token
+- `add_sharegroup_members` 🧪 *beta* - Add members to a share group
+- `update_sharegroup_member` 🧪 *beta* - Update a membership token
+- `remove_sharegroup_member` 🧪 *beta* - Remove a member from a share group
+- `list_sharegroup_tokens` 🧪 *beta* - List share group tokens
+- `get_sharegroup_token` 🧪 *beta* - Get a token
+- `create_sharegroup_token` 🧪 *beta* - Create a token
+- `update_sharegroup_token` 🧪 *beta* - Update a token
+- `delete_sharegroup_token` 🧪 *beta* - Delete a token
+- `get_token_sharegroup` 🧪 *beta* - Get a token's share group
+- `list_token_sharegroup_images` 🧪 *beta* - List images by token
+- `list_image_sharegroups_by_image` 🧪 *beta* - List share groups for an image
 
 ### 📜 StackScripts
 Manage reusable scripts that automate the deployment of custom environments on Linode instances.
@@ -593,6 +742,9 @@ Manage Longview monitoring clients for collecting system metrics.
 - `list_longview_subscriptions` - Get a list of all Longview subscription plans
 - `get_longview_subscription` - Get details for a specific Longview subscription plan
 - `get_longview_data` - Get monitoring data from a Longview client
+- `get_longview_plan` - Get Longview plan
+- `update_longview_plan` - Update Longview plan
+- `list_longview_types` - List Longview types
 
 ### 👤 Profile
 Manage user profile information, SSH keys, API tokens, and security settings.
@@ -666,14 +818,10 @@ Manage Linode account information, users, billing, and settings.
 
 #### Account Management
 - `cancel_account` - Cancel your account
-- `list_child_accounts` - List child accounts
-- `get_child_account` - Get a child account
-- `create_proxy_token` - Create a proxy user token for a child account
 
 #### Events
 - `list_events` - List account events
 - `get_event` - Get a specific event
-- `mark_event_as_read` - Mark an event as read
 - `mark_event_as_seen` - Mark an event as seen
 
 #### Billing
@@ -707,8 +855,79 @@ Manage Linode account information, users, billing, and settings.
 - `get_user` - Get a user
 - `update_user` - Update a user
 - `delete_user` - Delete a user
-- `get_user_grants` - Get a user's grants
-- `update_user_grants` - Update a user's grants
+- `get_user_grants` - [DEPRECATED] Get a user's grants
+- `update_user_grants` - [DEPRECATED] Update a user's grants
+
+#### IAM / Identity Management
+- `list_entities` - List entities
+- `list_iam_roles` - List available IAM roles
+- `get_user_role_permissions` - Get a user's IAM role permissions
+- `update_user_role_permissions` - Update a user's IAM role permissions
+
+#### Delegation
+- `list_delegation_child_accounts` 🧪 *beta* - List child accounts for delegation
+- `get_delegation_child_account_users` 🧪 *beta* - Get delegation for a child account
+- `update_delegation_child_account_users` 🧪 *beta* - Update delegation for a child account
+- `get_delegation_default_roles` 🧪 *beta* - Get default role assignment for delegates
+- `update_delegation_default_roles` 🧪 *beta* - Update default role assignment
+- `list_delegation_profile_accounts` 🧪 *beta* - Get your account delegations
+- `get_delegation_profile_account` 🧪 *beta* - Get a child account from delegations
+- `create_delegation_token` 🧪 *beta* - Create a delegate user token
+- `get_user_delegations` - Get a user's account delegations
+
+#### Resource Locks
+- `list_resource_locks` 🧪 *beta* - List resource locks
+- `get_resource_lock` 🧪 *beta* - Get a resource lock
+- `create_resource_lock` 🧪 *beta* - Create a resource lock
+- `delete_resource_lock` 🧪 *beta* - Delete a resource lock
+
+#### Maintenance Policies
+- `list_maintenance_policies` - List maintenance policies
+
+### 📡 Monitor
+Manage monitoring alerts, log streams, metrics dashboards, and service monitoring.
+
+#### Notification Channels
+- `list_notification_channels` 🧪 *beta* - List notification channels
+- `get_notification_channel` 🧪 *beta* - Get a notification channel
+- `create_notification_channel` 🧪 *beta* - Create a notification channel
+- `update_notification_channel` 🧪 *beta* - Update a notification channel
+- `delete_notification_channel` 🧪 *beta* - Delete a notification channel
+- `list_channel_alerts` 🧪 *beta* - List alerts for a channel
+
+#### Alert Definitions
+- `list_alert_definitions` 🧪 *beta* - List all alert definitions
+- `list_service_alert_definitions` 🧪 *beta* - List alert definitions for a service type
+- `get_alert_definition` 🧪 *beta* - Get an alert definition
+- `create_alert_definition` 🧪 *beta* - Create an alert definition
+- `update_alert_definition` 🧪 *beta* - Update an alert definition
+- `delete_alert_definition` 🧪 *beta* - Delete an alert definition
+
+#### Log Streams
+- `list_log_streams` 🧪 *beta* - List log streams
+- `get_log_stream` 🧪 *beta* - Get a log stream
+- `create_log_stream` 🧪 *beta* - Create a log stream
+- `update_log_stream` 🧪 *beta* - Update a log stream
+- `delete_log_stream` 🧪 *beta* - Delete a log stream
+- `get_log_stream_history` 🧪 *beta* - Get log stream history
+
+#### Log Destinations
+- `list_log_destinations` 🧪 *beta* - List log destinations
+- `get_log_destination` 🧪 *beta* - Get a log destination
+- `create_log_destination` 🧪 *beta* - Create a log destination
+- `update_log_destination` 🧪 *beta* - Update a log destination
+- `delete_log_destination` 🧪 *beta* - Delete a log destination
+- `get_log_destination_history` 🧪 *beta* - Get log destination history
+
+#### Dashboards & Metrics
+- `list_monitor_dashboards` - List monitor dashboards
+- `get_monitor_dashboard` - Get a dashboard
+- `list_monitor_services` - List supported service types
+- `get_monitor_service` - Get a service type
+- `list_service_dashboards` - List dashboards for a service type
+- `list_service_metric_definitions` - List metrics for a service type
+- `get_service_metrics` - Get metrics for entities
+- `create_service_token` - Create a token for a service type
 
 ## License
 

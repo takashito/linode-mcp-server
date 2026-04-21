@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 // Placement tools
 export const listPlacementGroupsSchema = z.object({
-  page: z.number().int().optional().describe('Page number to fetch (minimum: 1)'),
-  page_size: z.number().int().optional().describe('Number of items per page (minimum: 1, maximum: 500)')
+  page: z.coerce.number().int().optional().describe('Page number to fetch (minimum: 1)'),
+  page_size: z.coerce.number().int().optional().describe('Number of items per page (minimum: 1, maximum: 500)')
 });
 
 export const getPlacementGroupSchema = z.object({
-  id: z.number().describe('The ID of the placement group'),
+  id: z.coerce.number().describe('The ID of the placement group'),
 });
 
 export const createPlacementGroupSchema = z.object({
@@ -19,21 +19,21 @@ export const createPlacementGroupSchema = z.object({
 });
 
 export const updatePlacementGroupSchema = z.object({
-  id: z.number().describe('The ID of the placement group to update'),
+  id: z.coerce.number().describe('The ID of the placement group to update'),
   label: z.string().describe('A label for the placement group (required even for updates)'),
   tags: z.array(z.string()).optional().describe('Tags to apply to the placement group'),
 });
 
 export const deletePlacementGroupSchema = z.object({
-  id: z.number().describe('The ID of the placement group to delete'),
+  id: z.coerce.number().describe('The ID of the placement group to delete'),
 });
 
 export const assignInstancesSchema = z.object({
-  id: z.number().describe('The ID of the placement group'),
-  linodes: z.array(z.number()).describe('Array of Linode IDs to assign to the placement group'),
+  id: z.coerce.number().describe('The ID of the placement group'),
+  linodes: z.array(z.coerce.number()).describe('Array of Linode IDs to assign to the placement group'),
 });
 
 export const unassignInstancesSchema = z.object({
-  id: z.number().describe('The ID of the placement group'),
-  linodes: z.array(z.number()).describe('Array of Linode IDs to unassign from the placement group'),
+  id: z.coerce.number().describe('The ID of the placement group'),
+  linodes: z.array(z.coerce.number()).describe('Array of Linode IDs to unassign from the placement group'),
 });
